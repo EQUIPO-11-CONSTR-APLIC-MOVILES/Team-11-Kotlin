@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "778582916768",
+    "project_id": "restau-5dba7",
+    "storage_bucket": "restau-5dba7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778582916768:android:fa0844a73a4cb7540313c5",
+        "android_client_info": {
+          "package_name": "com.example.restau"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpt0_zY7rZQicZx91DuJUgatjgHUF16-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
