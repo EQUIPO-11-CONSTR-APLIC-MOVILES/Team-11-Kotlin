@@ -7,7 +7,6 @@ sealed class Route(
     @DrawableRes val icon: Int?,
     val route: String
 ) {
-    data object SplashScreen: Route(route = "splash", icon = null)
     data object HomeScreen: Route(route = "home", icon = R.drawable.restaurant)
     data object RandomScreen: Route(route = "random", icon = R.drawable.random)
     data object SearchScreen: Route(route = "search", icon = R.drawable.search)

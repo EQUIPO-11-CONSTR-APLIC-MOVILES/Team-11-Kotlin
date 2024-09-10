@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.restau.presentation.navigation.NavigatorScreen
+import com.example.restau.presentation.navigator.NavigatorScreen
 import com.example.restau.ui.theme.RestaUTheme
 import dagger.hilt.android.AndroidEntryPoint
 

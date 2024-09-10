@@ -125,7 +125,7 @@ dependencies {
     implementation("androidx.compose.material3:material3-window-size-class")
     implementation(libs.androidx.constraintlayout.compose)
 
-
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
 }
 

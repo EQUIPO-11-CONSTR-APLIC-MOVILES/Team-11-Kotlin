@@ -1,4 +1,4 @@
-package com.example.restau.presentation.navigation.components
+package com.example.restau.presentation.navigator.components
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
@@ -19,12 +19,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.restau.R
 import com.example.restau.presentation.navigation.items
-import com.example.restau.ui.theme.Cream
+import com.example.restau.ui.theme.RestaUTheme
 
 @Composable
 fun NavBar(
-    onNav: (String) -> Unit,
     selected: Int,
+    onNav: (String) -> Unit,
+    onSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column {
@@ -37,7 +38,10 @@ fun NavBar(
             items.forEachIndexed { index, item ->
                 NavigationBarItem(
                     selected = selected == index,
-                    onClick = { onNav(item.route) },
+                    onClick = {
+                        onSelected(index)
+                        onNav(item.route)
+                    },
                     icon = {
                         Icon(
                             painter = painterResource(id = item.icon ?: R.drawable.error),
@@ -46,7 +50,7 @@ fun NavBar(
                         )
                     },
                     colors = NavigationBarItemDefaults.colors().copy(
-                        selectedIndicatorColor = Cream
+                        selectedIndicatorColor = MaterialTheme.colorScheme.primary
                     )
                 )
             }
@@ -58,11 +62,11 @@ fun NavBar(
 @Preview(showBackground = true)
 @Composable
 fun NavBarPreview() {
-    MaterialTheme {
+    RestaUTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
-                NavBar(selected = 0, onNav = {})
+                NavBar(selected = 0, onNav = {}, onSelected = {})
             }
         ) {
 
