@@ -12,5 +12,5 @@ data class Restaurant(
     val longitude: Double = 0.0,
     val averageRating: Double = 0.0,
     val categories: List<String> = emptyList(),
-    val schedule: Map<String, List<Double>> = emptyMap()
+    val schedule: Map<String, Map<String, Double>> = emptyMap()
 )
