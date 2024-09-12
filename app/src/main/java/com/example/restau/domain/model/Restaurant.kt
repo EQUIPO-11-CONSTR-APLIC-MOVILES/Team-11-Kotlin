@@ -11,6 +11,7 @@ data class Restaurant(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val averageRating: Double = 0.0,
+    val imageUrl: String = "",
     val categories: List<String> = emptyList(),
     val schedule: Map<String, Map<String, Double>> = emptyMap()
 )
