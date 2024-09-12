@@ -1,5 +1,7 @@
 package com.example.restau.presentation.navigator
 
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -7,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -42,7 +45,15 @@ fun NavigatorScreen(
                 )
             }
         ) {
-            NavigatorContent(modifier = Modifier.padding(it), navHostController = navController)
+            NavigatorContent(
+                modifier = Modifier.padding(
+                    start = it.calculateStartPadding(
+                        LayoutDirection.Ltr
+                    ),
+                    end = it.calculateEndPadding(LayoutDirection.Rtl),
+                    bottom = it.calculateBottomPadding()
+                ), navHostController = navController
+            )
         }
     } else {
         systemUiController.setSystemBarsColor(
@@ -55,7 +66,7 @@ fun NavigatorScreen(
 @Composable
 fun NavigatorContent(
     navHostController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxSize()
