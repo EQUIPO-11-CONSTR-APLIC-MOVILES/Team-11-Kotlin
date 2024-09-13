@@ -172,7 +172,10 @@ fun RestaurantLabel(
                     color = Color.Black,
                     fontSize = 16.sp,
                     fontFamily = Poppins,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f)
                 )
                 AverageRatingTag(averageRating)
             }

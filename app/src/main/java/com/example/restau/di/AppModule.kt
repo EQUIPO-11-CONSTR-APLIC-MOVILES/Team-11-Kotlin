@@ -8,6 +8,7 @@ import com.example.restau.domain.repository.RestaurantsRepository
 import com.example.restau.domain.usecases.DateTimeUseCases
 import com.example.restau.domain.usecases.GetCurrentDay
 import com.example.restau.domain.usecases.GetCurrentTime
+import com.example.restau.domain.usecases.GetIsNewRestaurantArray
 import com.example.restau.domain.usecases.GetOpenRestaurants
 import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
@@ -62,7 +63,8 @@ object AppModule {
     ): RestaurantUseCases {
         return RestaurantUseCases(
             getRestaurants = GetRestaurants(restaurantsRepository),
-            getOpenRestaurants = GetOpenRestaurants(restaurantsRepository)
+            getOpenRestaurants = GetOpenRestaurants(restaurantsRepository),
+            getIsNewRestaurantArray = GetIsNewRestaurantArray()
         )
     }
 

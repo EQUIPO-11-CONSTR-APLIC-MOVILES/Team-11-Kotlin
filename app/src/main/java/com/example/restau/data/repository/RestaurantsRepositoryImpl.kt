@@ -16,7 +16,11 @@ class RestaurantsRepositoryImpl(
     override suspend fun getAllRestaurants(): List<Restaurant> {
         val restaurants = mutableListOf<Restaurant>()
         try {
-            val snapshot = db.collection("restaurants").get().await()
+            val snapshot = db
+                .collection("restaurants")
+                .orderBy("averageRating")
+                .get()
+                .await()
             for (document in snapshot.documents) {
                 document.toObject<Restaurant>()?.let {
                     restaurants.add(
@@ -37,6 +41,7 @@ class RestaurantsRepositoryImpl(
                 .collection("restaurants")
                 .whereLessThanOrEqualTo("schedule.${day}.start", time)
                 .whereGreaterThanOrEqualTo("schedule.${day}.end", time)
+                .orderBy("averageRating")
                 .get()
                 .await()
             for (document in snapshot.documents) {

@@ -1,5 +1,6 @@
 package com.example.restau.presentation.home
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,7 +30,11 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvent) {
         when(event) {
             is HomeEvent.FilterEvent -> {
-                state = state.copy(selectedFilter = event.selectedFilter)
+                state = state.copy(
+                    selectedFilter = event.selectedFilter,
+                    restaurants = emptyList()
+                )
+                getRestaurants()
             }
         }
     }
@@ -42,14 +47,20 @@ class HomeViewModel @Inject constructor(
                     val time = dateTimeUseCases.getCurrentTime()
                     state = state.copy(restaurants = restaurantUseCases.getOpenRestaurants(day, time))
                 }
-                1 -> {
 
-                }//TODO
+                1 -> {
+                    //TODO
+                    state = state.copy(restaurants = restaurantUseCases.getRestaurants())
+
+                }
                 2 -> {
                     state = state.copy(restaurants = restaurantUseCases.getRestaurants())
                 }
             }
-
+            state = state.copy(
+                isNew = restaurantUseCases.getIsNewRestaurantArray(state.restaurants)
+            )
+            Log.d("DONITEST", state.isNew.toString())
         }
     }
 

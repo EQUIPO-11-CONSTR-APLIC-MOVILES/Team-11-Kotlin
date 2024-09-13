@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -62,7 +61,7 @@ fun DynamicTopBar(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(130.dp)
+                .height(110.dp)
                 .padding(horizontal = 15.dp, vertical = 12.dp)
         )
         HorizontalDivider(thickness = 1.dp, color = Color.Black)
