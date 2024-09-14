@@ -1,17 +1,24 @@
 package com.example.restau.presentation.navigator
 
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.restau.presentation.navigation.NavGraph
+import com.example.restau.presentation.navigation.Route
+import com.example.restau.presentation.navigation.itemsMap
 import com.example.restau.presentation.navigator.components.NavBar
 import com.example.restau.presentation.splashscreen.SplashScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -24,6 +31,14 @@ fun NavigatorScreen(
     val navController = rememberNavController()
     val systemUiController = rememberSystemUiController()
 
+    val currentEntry by navController.currentBackStackEntryAsState()
+
+    LaunchedEffect(currentEntry) {
+        navigatorViewModel.onEvent(
+            NavigatorEvent.SelectedChange(itemsMap[(currentEntry?.destination?.route)?: Route.HomeScreen.route]?: 0)
+        )
+    }
+
     if (!navigatorViewModel.showSplash) {
         systemUiController.setSystemBarsColor(
             color = Color.Gray
@@ -33,7 +48,9 @@ fun NavigatorScreen(
             bottomBar = {
                 NavBar(
                     selected = navigatorViewModel.selected,
-                    onNav = { onNavTab(navController, it) },
+                    onNav = {
+                        navController.navigate(it)
+                    },
                     onSelected = {
                         navigatorViewModel.onEvent(
                             NavigatorEvent.SelectedChange(it)
@@ -42,7 +59,15 @@ fun NavigatorScreen(
                 )
             }
         ) {
-            NavigatorContent(modifier = Modifier.padding(it), navHostController = navController)
+            NavigatorContent(
+                modifier = Modifier.padding(
+                    start = it.calculateStartPadding(
+                        LayoutDirection.Ltr
+                    ),
+                    end = it.calculateEndPadding(LayoutDirection.Rtl),
+                    bottom = it.calculateBottomPadding()
+                ), navHostController = navController
+            )
         }
     } else {
         systemUiController.setSystemBarsColor(
@@ -55,7 +80,7 @@ fun NavigatorScreen(
 @Composable
 fun NavigatorContent(
     navHostController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxSize()
@@ -64,14 +89,4 @@ fun NavigatorContent(
     }
 }
 
-private fun onNavTab(navController: NavController, route: String) {
-    navController.navigate(route) {
-        navController.graph.startDestinationRoute?.let { screenRoute ->
-            popUpTo(screenRoute) {
-                saveState = true
-            }
-        }
-        launchSingleTop = true
-        restoreState = true
-    }
-}
+

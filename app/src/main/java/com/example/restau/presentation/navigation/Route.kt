@@ -21,3 +21,11 @@ val items = listOf(
     Route.LikeScreen,
     Route.MapScreen,
 )
+
+val itemsMap = mapOf(
+    Route.HomeScreen.route to 0,
+    Route.RandomScreen.route to 1,
+    Route.SearchScreen.route to 2,
+    Route.LikeScreen.route to 3,
+    Route.MapScreen.route to 4,
+)
