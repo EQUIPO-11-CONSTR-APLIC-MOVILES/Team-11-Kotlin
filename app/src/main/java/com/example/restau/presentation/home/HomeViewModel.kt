@@ -1,12 +1,11 @@
 package com.example.restau.presentation.home
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.restau.domain.usecases.DateTimeUseCases
+import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.usecases.RestaurantUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,8 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val restaurantUseCases: RestaurantUseCases,
-    private val dateTimeUseCases: DateTimeUseCases
+    private val restaurantUseCases: RestaurantUseCases
 ): ViewModel() {
 
     var state by mutableStateOf(HomeState())
@@ -30,38 +28,40 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvent) {
         when(event) {
             is HomeEvent.FilterEvent -> {
-                state = state.copy(
-                    selectedFilter = event.selectedFilter,
-                    restaurants = emptyList()
-                )
-                getRestaurants()
+                filterChange(event.selectedFilter)
             }
         }
+    }
+
+    private fun filterChange(selectedFilter: Int) {
+        state = state.copy(
+            selectedFilter = selectedFilter,
+            restaurants = emptyList(),
+            nothingOpen = false
+        )
+        getRestaurants()
     }
 
     private fun getRestaurants() {
         viewModelScope.launch(Dispatchers.IO) {
+            var restaurants = emptyList<Restaurant>()
             when (state.selectedFilter) {
                 0 -> {
-                    val day = dateTimeUseCases.getCurrentDay()
-                    val time = dateTimeUseCases.getCurrentTime()
-                    state = state.copy(restaurants = restaurantUseCases.getOpenRestaurants(day, time))
+                    restaurants = restaurantUseCases.getOpenRestaurants()
+                    if (restaurants.isEmpty()) state = state.copy(nothingOpen = true)
                 }
-
                 1 -> {
                     //TODO
-                    state = state.copy(restaurants = restaurantUseCases.getRestaurants())
-
+                    restaurants = restaurantUseCases.getRestaurants()
                 }
                 2 -> {
-                    state = state.copy(restaurants = restaurantUseCases.getRestaurants())
+                    restaurants = restaurantUseCases.getRestaurants()
                 }
             }
             state = state.copy(
-                isNew = restaurantUseCases.getIsNewRestaurantArray(state.restaurants)
+                restaurants = restaurants,
+                isNew = restaurantUseCases.getIsNewRestaurantArray(restaurants),
             )
-            Log.d("DONITEST", state.isNew.toString())
         }
     }
-
 }

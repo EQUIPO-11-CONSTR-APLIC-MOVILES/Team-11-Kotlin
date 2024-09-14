@@ -5,9 +5,6 @@ import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
-import com.example.restau.domain.usecases.DateTimeUseCases
-import com.example.restau.domain.usecases.GetCurrentDay
-import com.example.restau.domain.usecases.GetCurrentTime
 import com.example.restau.domain.usecases.GetIsNewRestaurantArray
 import com.example.restau.domain.usecases.GetOpenRestaurants
 import com.example.restau.domain.usecases.GetRecents
@@ -65,15 +62,6 @@ object AppModule {
             getRestaurants = GetRestaurants(restaurantsRepository),
             getOpenRestaurants = GetOpenRestaurants(restaurantsRepository),
             getIsNewRestaurantArray = GetIsNewRestaurantArray()
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideDateTimeUseCases(): DateTimeUseCases {
-        return DateTimeUseCases(
-            getCurrentTime = GetCurrentTime(),
-            getCurrentDay = GetCurrentDay()
         )
     }
 
