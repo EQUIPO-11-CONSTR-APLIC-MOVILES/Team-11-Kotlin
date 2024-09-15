@@ -7,6 +7,8 @@ import com.example.restau.data.repository.RestaurantsRepositoryImpl
 import com.example.restau.domain.repository.AuthRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
+import com.example.restau.domain.usecases.GetIsNewRestaurantArray
+import com.example.restau.domain.usecases.GetOpenRestaurants
 import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
 import com.example.restau.domain.usecases.LoginUseCases
@@ -73,7 +75,9 @@ object AppModule {
         restaurantsRepository: RestaurantsRepository
     ): RestaurantUseCases {
         return RestaurantUseCases(
-            getRestaurants = GetRestaurants(restaurantsRepository)
+            getRestaurants = GetRestaurants(restaurantsRepository),
+            getOpenRestaurants = GetOpenRestaurants(restaurantsRepository),
+            getIsNewRestaurantArray = GetIsNewRestaurantArray()
         )
     }
 

@@ -6,4 +6,6 @@ interface RestaurantsRepository {
 
     suspend fun getAllRestaurants(): List<Restaurant>
 
+    suspend fun getOpenRestaurants(day: String, time: Int): List<Restaurant>
+
 }
