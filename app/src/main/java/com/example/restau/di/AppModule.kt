@@ -1,15 +1,19 @@
 package com.example.restau.di
 
 import android.app.Application
+import com.example.restau.data.repository.AuthRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
+import com.example.restau.domain.repository.AuthRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
 import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
+import com.example.restau.domain.usecases.LoginUseCases
 import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -42,6 +46,18 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(firebaseAuth: FirebaseAuth): AuthRepository {
+        return AuthRepositoryImpl(firebaseAuth)
+    }
+
+    @Provides
+    @Singleton
     fun provideRecentsUseCases(
         recentsRepository: RecentsRepository
     ): RecentsUseCases {
@@ -61,4 +77,13 @@ object AppModule {
         )
     }
 
+    @Provides
+    @Singleton
+    fun provideLoginUseCases(
+        authRepository: AuthRepository
+    ): LoginUseCases {
+        return LoginUseCases(
+            authRepository = authRepository
+        )
+    }
 }
