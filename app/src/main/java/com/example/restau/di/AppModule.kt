@@ -1,23 +1,29 @@
 package com.example.restau.di
 
 import android.app.Application
+import android.content.Context
+import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
+import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
 import com.example.restau.domain.usecases.GetIsNewRestaurantArray
+import com.example.restau.domain.usecases.GetLocation
 import com.example.restau.domain.usecases.GetOpenRestaurants
 import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
 import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -64,5 +70,22 @@ object AppModule {
             getIsNewRestaurantArray = GetIsNewRestaurantArray()
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideLocationRepository(
+        @ApplicationContext context: Context
+    ): LocationRepository {
+        return LocationRepositoryImpl(
+            context,
+            LocationServices.getFusedLocationProviderClient(context)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationUseCase(
+        locationRepository: LocationRepository
+    ): GetLocation = GetLocation(locationRepository)
 
 }

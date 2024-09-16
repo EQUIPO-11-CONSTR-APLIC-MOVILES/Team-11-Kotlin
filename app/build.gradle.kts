@@ -115,6 +115,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     //Mapas
+    implementation(libs.play.services.location)
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
 //    //Buscar lugares places
@@ -125,6 +126,7 @@ dependencies {
     implementation("androidx.compose.material3:material3-window-size-class")
     implementation(libs.androidx.constraintlayout.compose)
 
+    implementation(libs.accompanist.permissions)
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
 }
