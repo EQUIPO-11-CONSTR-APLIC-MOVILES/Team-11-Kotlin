@@ -14,10 +14,36 @@ class RestaurantsRepositoryImpl(
     private val TAG = "FIRESTORE_RESTAURANTS"
 
     override suspend fun getAllRestaurants(): List<Restaurant> {
-        Log.d("DONITEST","REPO")
         val restaurants = mutableListOf<Restaurant>()
         try {
-            val snapshot = db.collection("restaurants").get().await()
+            val snapshot = db
+                .collection("restaurants")
+                .orderBy("averageRating")
+                .get()
+                .await()
+            for (document in snapshot.documents) {
+                document.toObject<Restaurant>()?.let {
+                    restaurants.add(
+                        it.copy(documentId = document.id)
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, e.toString())
+        }
+        return restaurants
+    }
+
+    override suspend fun getOpenRestaurants(day: String, time: Int): List<Restaurant> {
+        val restaurants = mutableListOf<Restaurant>()
+        try {
+            val snapshot = db
+                .collection("restaurants")
+                .whereLessThanOrEqualTo("schedule.${day}.start", time)
+                .whereGreaterThanOrEqualTo("schedule.${day}.end", time)
+                .orderBy("averageRating")
+                .get()
+                .await()
             for (document in snapshot.documents) {
                 document.toObject<Restaurant>()?.let {
                     restaurants.add(
