@@ -11,7 +11,9 @@ import com.example.restau.domain.usecases.GetIsNewRestaurantArray
 import com.example.restau.domain.usecases.GetOpenRestaurants
 import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
-import com.example.restau.domain.usecases.LoginUseCases
+import com.example.restau.domain.usecases.AuthUseCases
+import com.example.restau.domain.usecases.ExecuteSignIn
+import com.example.restau.domain.usecases.GetCurrentUser
 import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
@@ -83,11 +85,12 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideLoginUseCases(
+    fun provideSignUpUseCases(
         authRepository: AuthRepository
-    ): LoginUseCases {
-        return LoginUseCases(
-            authRepository = authRepository
+    ): AuthUseCases {
+        return AuthUseCases(
+            executeSignIn = ExecuteSignIn(authRepository),
+            getCurrentUser = GetCurrentUser(authRepository)
         )
     }
 }

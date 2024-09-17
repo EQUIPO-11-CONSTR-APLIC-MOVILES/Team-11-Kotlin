@@ -7,8 +7,10 @@ import androidx.navigation.compose.composable
 import com.example.restau.presentation.home.HomeScreen
 import com.example.restau.presentation.liked.LikedScreen
 import com.example.restau.presentation.map.MapScreen
+import com.example.restau.presentation.navigator.NavigatorScreen
 import com.example.restau.presentation.random.RandomScreen
 import com.example.restau.presentation.search.SearchScreen
+import com.example.restau.presentation.signin.SignInScreen
 
 @Composable
 fun NavGraph(navHostController: NavHostController) {
@@ -28,6 +30,12 @@ fun NavGraph(navHostController: NavHostController) {
         }
         composable(route = Route.MapScreen.route) {
             MapScreen()
+        }
+        composable(route = Route.SignInScreen.route) {
+            SignInScreen(navController = navHostController)
+        }
+        composable(route = Route.NavigatorScreen.route) {
+            NavigatorScreen()
         }
     }
 }

@@ -16,12 +16,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Error
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -31,9 +33,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,23 +47,25 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.restau.R
+import com.example.restau.domain.usecases.AuthUseCases
 import com.example.restau.ui.theme.Poppins
-import com.example.restau.ui.theme.RestaUTheme
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(
+    navController: NavController
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +80,7 @@ fun SignInScreen() {
                 .size(100.dp)
         )
 
-        SignInForm()
+        SignInForm(navController = navController)
 
         SignUpText()
     }
@@ -155,7 +159,13 @@ fun SignUpText() {
 }
 
 @Composable
-fun SignInForm(viewModel: EmailViewModel = viewModel()) {
+fun SignInForm(
+    signInVM: SignInViewModel = hiltViewModel(),
+    navController: NavController
+) {
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .padding(40.dp),
@@ -174,18 +184,18 @@ fun SignInForm(viewModel: EmailViewModel = viewModel()) {
                 .padding(0.dp, 170.dp, 0.dp, 20.dp)
         )
 
-        UserTextField()
+        EmailTextField(email) { email = it }
 
-        ValidatingInputTextField(
-            email = viewModel.email,
-            updateState = { input -> viewModel.updateEmail(input) },
-            validatorHasErrors = viewModel.emailHasErrors
-        )
+        PasswordTextField(password) { password = it }
 
-        PasswordTextField()
+        if(AuthUseCases.errSignIn){
+            ErrorText()
+        }
 
         Button(
-            onClick = { /*TODO*/ },
+            onClick = {
+                signInVM.onEvent(SignInEvent.SignIn(email, password, navController))
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 40.dp),
@@ -198,11 +208,12 @@ fun SignInForm(viewModel: EmailViewModel = viewModel()) {
                 text = "Sign in",
                 fontFamily = Poppins,
                 fontWeight = FontWeight.SemiBold,
+
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(5.dp), // Make the text fill the button's width
-                textAlign = TextAlign.Center, // Center-align the text
-                fontSize = 18.sp // Set font size for the text
+                    .padding(5.dp),
+                textAlign = TextAlign.Center,
+                fontSize = 14.sp
             )
         }
 
@@ -212,7 +223,11 @@ fun SignInForm(viewModel: EmailViewModel = viewModel()) {
                 .padding(5.dp, 50.dp, 5.dp, 30.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = Color(0xFF2F2F2F))
+            HorizontalDivider(
+                modifier = Modifier.weight(1f),
+                thickness = 1.dp,
+                color = Color(0xFF2F2F2F)
+            )
             Text(
                 text = "OR",
                 modifier = Modifier.padding(horizontal = 10.dp),
@@ -221,62 +236,46 @@ fun SignInForm(viewModel: EmailViewModel = viewModel()) {
                 fontSize = 20.sp,
                 color = Color(0xFF2F2F2F)
             )
-            HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = Color(0xFF2F2F2F))
+            HorizontalDivider(
+                modifier = Modifier.weight(1f),
+                thickness = 1.dp,
+                color = Color(0xFF2F2F2F)
+            )
         }
 
         GoogleButton()
     }
 }
 
-
-class EmailViewModel : ViewModel() {
-    var email by mutableStateOf("")
-        private set
-
-    val emailHasErrors by derivedStateOf {
-        if (email.isNotEmpty()) {
-            // Email is considered erroneous until it completely matches EMAIL_ADDRESS.
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches()
-        } else {
-            false
-        }
-    }
-
-    fun updateEmail(input: String) {
-        email = input
-    }
-}
-
 @Composable
-fun ValidatingInputTextField(
-    email: String,
-    updateState: (String) -> Unit,
-    validatorHasErrors: Boolean
-) {
-    OutlinedTextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 0.dp),
-        leadingIcon = {
-            Icon(
-                Icons.Outlined.Email,
-                tint = Color(0xFF2F2F2F),
-                contentDescription = "email"
-            )
-        },
-        value = email,
-        onValueChange = updateState,
-        label = { Text("Email") },
-        isError = validatorHasErrors,
-        supportingText = {
-            if (validatorHasErrors) {
-                Text("Incorrect email format.")
-            }
-        }
-    )
+fun ErrorText() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth().padding(0.dp, 10.dp, 0.dp, 0.dp)
+    ) {
+        Icon(
+            Icons.Outlined.ErrorOutline,
+            contentDescription = "Error Icon",
+            tint = Color(0xFFB00020),
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = "Invalid email or password",
+            color = Color(0xFFB00020),
+            fontFamily = Poppins,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Left,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
 }
 
 
+/*
 @Composable
 fun UserTextField() {
     var user by rememberSaveable { mutableStateOf("") }
@@ -292,19 +291,61 @@ fun UserTextField() {
             )
         },
         label = { Text("Username") },
-        modifier = Modifier.fillMaxWidth().padding(bottom = 15.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 15.dp)
+    )
+}
+*/
+@Composable
+fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
+
+    OutlinedTextField(
+        value = email,
+        textStyle = TextStyle(
+            fontSize = 16.sp,
+            fontFamily = Poppins
+        ),
+        isError = email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches(),
+        singleLine = true,
+        onValueChange = onEmailChange,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFF2F2F2F),
+            unfocusedBorderColor = Color(0xFF2F2F2F),
+            cursorColor = Color(0xFF2F2F2F),
+            focusedLabelColor = Color(0xFF2F2F2F),
+            unfocusedLabelColor = Color(0xFF2F2F2F)
+        ),
+        leadingIcon = {
+            Icon(
+                Icons.Outlined.Email,
+                contentDescription = "email",
+                tint = Color(0xFF2F2F2F)
+            )
+        },
+        label = { Text(text = "Email", fontSize = 16.sp) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 15.dp)
+            .wrapContentHeight()
     )
 }
 
 @Composable
-fun PasswordTextField() {
-    var password by rememberSaveable { mutableStateOf("") }
+fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
     var showPassword by remember { mutableStateOf(false) }
     val passwordVisualTransformation = remember { PasswordVisualTransformation() }
 
     OutlinedTextField(
         value = password,
-        onValueChange = { password = it },
+        onValueChange = onPasswordChange,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFF2F2F2F),
+            unfocusedBorderColor = Color(0xFF2F2F2F),
+            cursorColor = Color(0xFF2F2F2F),
+            focusedLabelColor = Color(0xFF2F2F2F),
+            unfocusedLabelColor = Color(0xFF2F2F2F)
+        ),
         leadingIcon = {
             Icon(
                 Icons.Outlined.Lock,
@@ -318,6 +359,7 @@ fun PasswordTextField() {
         } else {
             passwordVisualTransformation
         },
+        singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         modifier = Modifier.fillMaxWidth(),
         trailingIcon = {
@@ -334,7 +376,7 @@ fun PasswordTextField() {
     )
 }
 
-
+/*
 @Preview
 @Composable
 fun TestPreview() {
@@ -343,3 +385,4 @@ fun TestPreview() {
 
     }
 }
+*/
