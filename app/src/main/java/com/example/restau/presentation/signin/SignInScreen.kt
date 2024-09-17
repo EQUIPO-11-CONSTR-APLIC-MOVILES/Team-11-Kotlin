@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Visibility
@@ -274,29 +273,6 @@ fun ErrorText() {
     }
 }
 
-
-/*
-@Composable
-fun UserTextField() {
-    var user by rememberSaveable { mutableStateOf("") }
-
-    OutlinedTextField(
-        value = user,
-        onValueChange = { user = it },
-        leadingIcon = {
-            Icon(
-                Icons.Outlined.AccountCircle,
-                contentDescription = "email",
-                tint = Color(0xFF2F2F2F)
-            )
-        },
-        label = { Text("Username") },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 15.dp)
-    )
-}
-*/
 @Composable
 fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
 
@@ -376,13 +352,3 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
     )
 }
 
-/*
-@Preview
-@Composable
-fun TestPreview() {
-    RestaUTheme {
-        SignInScreen()
-
-    }
-}
-*/

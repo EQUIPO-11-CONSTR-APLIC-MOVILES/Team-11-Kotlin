@@ -1,6 +1,5 @@
 package com.example.restau.presentation.common
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import com.example.restau.ui.theme.SoftRed
 

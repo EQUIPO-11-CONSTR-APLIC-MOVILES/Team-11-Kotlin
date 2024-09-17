@@ -1,6 +1,5 @@
 package com.example.restau.presentation.navigator
 
-import android.util.Log
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +17,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.restau.domain.usecases.AuthUseCases
-import com.example.restau.presentation.home.HomeScreen
 import com.example.restau.presentation.navigation.NavGraph
 import com.example.restau.presentation.navigation.Route
 import com.example.restau.presentation.navigation.itemsMap
