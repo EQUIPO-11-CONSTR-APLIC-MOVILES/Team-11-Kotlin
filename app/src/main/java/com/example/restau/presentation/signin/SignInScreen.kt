@@ -56,15 +56,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.restau.R
-import com.example.restau.domain.usecases.AuthUseCases
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
 
 
 @Composable
 fun SignInScreen(
-    navController: NavController
+    navController: NavHostController
 ) {
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -160,7 +163,7 @@ fun SignUpText() {
 @Composable
 fun SignInForm(
     signInVM: SignInViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavHostController
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -187,13 +190,13 @@ fun SignInForm(
 
         PasswordTextField(password) { password = it }
 
-        if(AuthUseCases.errSignIn){
+        if(signInVM.state.errSignIn){
             ErrorText()
         }
 
         Button(
             onClick = {
-                signInVM.onEvent(SignInEvent.SignIn(email, password, navController))
+                signInVM.onEvent(SignInEvent.SignIn(email, password) { signedSuccess(navController) })
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -350,5 +353,13 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
                 modifier = Modifier.clickable { showPassword = !showPassword })
         }
     )
+}
+
+fun signedSuccess(navController: NavController) {
+    navController.navigate(Route.HomeScreen.route) {
+        popUpTo(navController.graph.startDestinationId){
+            inclusive = true
+        }
+    }
 }
 

@@ -15,7 +15,7 @@ class AuthRepositoryImpl(
 
     override suspend fun signIn(email: String, password: String): Boolean {
         return try {
-            suspendCancellableCoroutine<Boolean> { continuation ->
+            suspendCancellableCoroutine { continuation ->
                 firebaseAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
@@ -29,7 +29,7 @@ class AuthRepositoryImpl(
                     }
                 }
         } catch (e: Exception) {
-            Log.w("AuthRepository", "signInWithEmail:failure32", e)
+            Log.w("AuthRepository", "signInWithEmail:failure", e)
             false
         }
     }
@@ -42,7 +42,7 @@ class AuthRepositoryImpl(
         return try {
             val currentUser = firebaseAuth.currentUser
             if (currentUser != null) {
-                suspendCancellableCoroutine<String?> { continuation ->
+                suspendCancellableCoroutine { continuation ->
                     currentUser.getIdToken(true)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
@@ -56,6 +56,7 @@ class AuthRepositoryImpl(
                         }
                 }
             } else {
+                Log.d("AuthRepository", "getCurrentUserTokenID: No user")
                 null
             }
         } catch (e: Exception) {

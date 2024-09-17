@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.usecases.AuthUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -26,13 +25,8 @@ class NavigatorViewModel @Inject constructor(
     var showSplash by mutableStateOf(true)
         private set
 
-
-    init {
-        viewModelScope.launch {
-            delay(700L)
-            showSplash = false
-        }
-    }
+    var isSignedIn: Boolean by mutableStateOf(false)
+        private set
 
 
     fun onEvent(event: NavigatorEvent) {
@@ -43,7 +37,8 @@ class NavigatorViewModel @Inject constructor(
 
             is NavigatorEvent.AuthCheck -> {
                 viewModelScope.launch {
-                    AuthUseCases.isSignedIn = (getCurrentUserTokenID() != null)
+                    isSignedIn = (getCurrentUserTokenID() != null)
+                    showSplash = false
                 }
             }
         }

@@ -1,6 +1,9 @@
 package com.example.restau.presentation.signin
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.usecases.AuthUseCases
@@ -15,6 +18,9 @@ class SignInViewModel @Inject constructor(
     private val authUseCases: AuthUseCases
 ): ViewModel() {
 
+    var state by mutableStateOf(SignInState())
+        private set
+
     fun onEvent(event: SignInEvent) {
         when (event) {
             is SignInEvent.SignIn -> {
@@ -23,7 +29,7 @@ class SignInViewModel @Inject constructor(
                         val isAuthenticated = signIn(event.email, event.password)
 
                         if (isAuthenticated) {
-                            signInSuccess()
+                            event.onSuccess()
                             Log.d("SignInViewModel", "User Authenticated $event.email")
                         } else {
                             signInFailure()
@@ -44,18 +50,7 @@ class SignInViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getCurrentUserTokenID(): String? {
-        return withContext(Dispatchers.IO) {
-            authUseCases.getCurrentUser()
-        }
-    }
-
-    private suspend fun signInSuccess() {
-        AuthUseCases.isSignedIn = (getCurrentUserTokenID() != null)
-    }
-
     private fun signInFailure() {
-        AuthUseCases.isSignedIn = false
-        AuthUseCases.errSignIn = true
+        state = state.copy(errSignIn = true)
     }
 }
