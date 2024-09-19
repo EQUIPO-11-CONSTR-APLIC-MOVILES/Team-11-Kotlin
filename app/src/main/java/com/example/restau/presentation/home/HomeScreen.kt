@@ -144,7 +144,8 @@ fun RestaurantsLazyList(
                 imageUrl = restaurants[index].imageUrl,
                 placeName = restaurants[index].placeName,
                 averageRating = restaurants[index].averageRating.toFloat(),
-                onFavorite = {}
+                onFavorite = {},
+                onClick = {}
             )
             Spacer(modifier = Modifier.height(29.dp))
         }
