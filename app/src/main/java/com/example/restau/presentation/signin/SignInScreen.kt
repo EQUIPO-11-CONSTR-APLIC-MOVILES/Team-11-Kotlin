@@ -209,7 +209,7 @@ fun SignInForm(
                     .fillMaxWidth()
                     .padding(5.dp),
                 textAlign = TextAlign.Center,
-                fontSize = 14.sp
+                fontSize = 16.sp
             )
         }
 

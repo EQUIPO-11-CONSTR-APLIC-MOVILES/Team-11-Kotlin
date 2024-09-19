@@ -1,6 +1,5 @@
 package com.example.restau.presentation.navigator
 
-import android.util.Log
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,7 +28,6 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 fun NavigatorScreen(
     navigatorViewModel: NavigatorViewModel = hiltViewModel(),
 ) {
-    Log.d("NavigatorScreen", "NavigatorScreen")
     val navController = rememberNavController()
     val systemUiController = rememberSystemUiController()
 
@@ -46,9 +45,6 @@ fun NavigatorScreen(
         )
     }
 
-    Log.d("NavigatorScreen", "AuthCheck ${navigatorViewModel.isSignedIn}")
-
-
     if (!navigatorViewModel.showSplash) {
         systemUiController.setSystemBarsColor(
             color = Color.Gray
@@ -57,7 +53,9 @@ fun NavigatorScreen(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
 
-                if (navigatorViewModel.isSignedIn) {
+                val currentUser by navigatorViewModel.currentUser.collectAsState()
+
+                if (navigatorViewModel.isSignedIn or (currentUser != null)) {
                     NavBar(
                         selected = navigatorViewModel.selected,
                         onNav = {
