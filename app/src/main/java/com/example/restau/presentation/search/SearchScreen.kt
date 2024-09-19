@@ -72,11 +72,13 @@ fun SearchScreen(
                     cursorColor = SoftRed
                 ),
                 trailingIcon = {
-                    IconButton(onClick = {  viewModel.onRestaurantNameChange("") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.cleartext),
-                            contentDescription = "Clear text"
-                        )
+                    if (restaurantName.isNotEmpty()){
+                        IconButton(onClick = {  viewModel.onRestaurantNameChange("") }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.cleartext),
+                                contentDescription = "Clear text"
+                            )
+                        }
                     }
                 }
             )
