@@ -35,11 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -165,8 +161,6 @@ fun SignInForm(
     signInVM: SignInViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -186,9 +180,9 @@ fun SignInForm(
                 .padding(0.dp, 170.dp, 0.dp, 20.dp)
         )
 
-        EmailTextField(email) { email = it }
+        EmailTextField(signInVM.state.email) { signInVM.state = signInVM.state.copy(email = it) }
 
-        PasswordTextField(password) { password = it }
+        PasswordTextField(signInVM.state.password, { signInVM.state = signInVM.state.copy(password = it) }, signInVM)
 
         if(signInVM.state.errSignIn){
             ErrorText()
@@ -196,7 +190,7 @@ fun SignInForm(
 
         Button(
             onClick = {
-                signInVM.onEvent(SignInEvent.SignIn(email, password) { signedSuccess(navController) })
+                signInVM.onEvent(SignInEvent.SignIn(signInVM.state.email, signInVM.state.password) { signedSuccess(navController) })
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -311,8 +305,7 @@ fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
 }
 
 @Composable
-fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
-    var showPassword by remember { mutableStateOf(false) }
+fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, signInVM: SignInViewModel) {
     val passwordVisualTransformation = remember { PasswordVisualTransformation() }
 
     OutlinedTextField(
@@ -333,7 +326,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
             )
         },
         label = { Text("Password") },
-        visualTransformation = if (showPassword) {
+        visualTransformation = if (signInVM.state.showPassword) {
             VisualTransformation.None
         } else {
             passwordVisualTransformation
@@ -343,14 +336,14 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         trailingIcon = {
             Icon(
-                if (showPassword) {
+                if (signInVM.state.showPassword) {
                     Icons.Outlined.Visibility
                 } else {
                     Icons.Outlined.VisibilityOff
                 },
                 tint = MaterialTheme.colorScheme.secondary,
                 contentDescription = "Toggle password visibility",
-                modifier = Modifier.clickable { showPassword = !showPassword })
+                modifier = Modifier.clickable { signInVM.state =  signInVM.state.copy(showPassword = !signInVM.state.showPassword) })
         }
     )
 }

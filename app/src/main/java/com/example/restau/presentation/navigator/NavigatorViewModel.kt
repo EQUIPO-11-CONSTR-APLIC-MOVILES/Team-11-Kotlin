@@ -36,10 +36,7 @@ class NavigatorViewModel @Inject constructor(
             }
 
             is NavigatorEvent.AuthCheck -> {
-                viewModelScope.launch {
-                    isSignedIn = (getCurrentUserTokenID() != null)
-                    showSplash = false
-                }
+                authCheck()
             }
         }
     }
@@ -47,6 +44,13 @@ class NavigatorViewModel @Inject constructor(
     private suspend fun getCurrentUserTokenID(): String? {
         return withContext(Dispatchers.IO) {
             authUseCases.getCurrentUser()
+        }
+    }
+
+    private fun authCheck (){
+        viewModelScope.launch {
+            isSignedIn = (getCurrentUserTokenID() != null)
+            showSplash = false
         }
     }
 }

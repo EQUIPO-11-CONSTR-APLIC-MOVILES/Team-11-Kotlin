@@ -19,31 +19,32 @@ class SignInViewModel @Inject constructor(
 ): ViewModel() {
 
     var state by mutableStateOf(SignInState())
-        private set
 
     fun onEvent(event: SignInEvent) {
         when (event) {
             is SignInEvent.SignIn -> {
-                viewModelScope.launch {
-                    try {
-                        val isAuthenticated = signIn(event.email, event.password)
-
-                        if (isAuthenticated) {
-                            event.onSuccess()
-                            Log.d("SignInViewModel", "User Authenticated $event.email")
-                        } else {
-                            signInFailure()
-                            Log.d("SignInViewModel", "User not Authenticated $event.email")
-                        }
-                    } catch (e: Exception) {
-                        Log.e("SignInViewModel", "Error during sign-in", e)
-                    }
-                }
+                signIn(event)
             }
         }
     }
 
-    private suspend fun signIn(email: String, password: String): Boolean {
+    private fun signIn(event: SignInEvent.SignIn){
+        viewModelScope.launch {
+            try {
+                val isAuthenticated = executeSignIn(event.email, event.password)
+
+                if (isAuthenticated) {
+                    event.onSuccess()
+                } else {
+                    signInFailure()
+                }
+            } catch (e: Exception) {
+                Log.e("SignInViewModel", "Error during sign-in", e)
+            }
+        }
+    }
+
+    private suspend fun executeSignIn(email: String, password: String): Boolean {
         return withContext(Dispatchers.IO) {
             val authenticated = authUseCases.executeSignIn(email, password)
             authenticated

@@ -5,8 +5,8 @@ import com.example.restau.domain.model.User
 import com.example.restau.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 
 class AuthRepositoryImpl(
@@ -20,16 +20,15 @@ class AuthRepositoryImpl(
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             continuation.resume(true)
-                            Log.d("AuthRepository", "signInWithEmail:success")
                         } else {
                             val exception = task.exception
-                            Log.d("AuthRepository", "signInWithEmail:failure", exception)
                             continuation.resume(false)
+                            Log.e("AuthRepository", "signInWithEmail:failure", exception)
                         }
                     }
-                }
+            }
         } catch (e: Exception) {
-            Log.w("AuthRepository", "signInWithEmail:failure", e)
+            Log.e("AuthRepository", "signInWithEmail:failure", e)
             false
         }
     }
@@ -41,24 +40,7 @@ class AuthRepositoryImpl(
     override suspend fun getCurrentUserTokenID(): String? {
         return try {
             val currentUser = firebaseAuth.currentUser
-            if (currentUser != null) {
-                suspendCancellableCoroutine { continuation ->
-                    currentUser.getIdToken(true)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                continuation.resume(task.result?.token)
-                            } else {
-                                continuation.resume(null)
-                            }
-                        }
-                        .addOnFailureListener { exception ->
-                            continuation.resumeWithException(exception)
-                        }
-                }
-            } else {
-                Log.d("AuthRepository", "getCurrentUserTokenID: No user")
-                null
-            }
+            currentUser?.getIdToken(true)?.await()?.token
         } catch (e: Exception) {
             Log.e("AuthRepository", "getCurrentUserTokenID: failure", e)
             null
