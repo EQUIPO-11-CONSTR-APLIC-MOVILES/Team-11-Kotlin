@@ -1,9 +1,11 @@
 package com.example.restau.presentation.search
 
 import com.example.restau.domain.model.Restaurant
+import com.example.restau.domain.usecases.GetFilterRestaurantsByNameAndCategories
 
 data class SearchState(
     val restaurants: List<Restaurant> = emptyList(),
+    val filteredRestaurantsByNameAndCategories: List<Restaurant> = emptyList(),
     val recentRestaurants: List<Restaurant> = emptyList(),
     val isLiked: List<Boolean> = emptyList(),
     val isNew: List<Boolean> = emptyList(),

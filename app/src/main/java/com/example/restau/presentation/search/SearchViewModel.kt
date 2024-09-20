@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.util.Log
+import com.example.restau.domain.model.Restaurant
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -25,6 +26,7 @@ class SearchViewModel @Inject constructor(
         private set
 
     var restaurantName by mutableStateOf("")
+        private set
 
 
     init {
@@ -69,6 +71,13 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             recentsUseCases.saveRecents(emptySet())
 
+        }
+    }
+
+    fun getFilterRestaurantsByNameAndCategories(restaurantName: String, restaurants: List<Restaurant>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val filteredRestaurants = restaurantUseCases.getFilterRestaurantsByNameAndCategories(restaurants, restaurantName)
+            state = state.copy(filteredRestaurantsByNameAndCategories = filteredRestaurants)
         }
     }
 }

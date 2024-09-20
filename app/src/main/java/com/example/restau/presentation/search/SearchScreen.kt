@@ -62,7 +62,9 @@ fun SearchScreen(
             // Campo de búsqueda
             OutlinedTextField(
                 value = restaurantName,
-                onValueChange = { viewModel.onRestaurantNameChange(it) },
+                onValueChange = { viewModel.onRestaurantNameChange(it)
+                                  viewModel.getFilterRestaurantsByNameAndCategories(it, state.restaurants)
+                                },
                 label = { Text("Restaurant Name or Categories") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -107,7 +109,6 @@ fun SearchScreen(
                     Text(text = "Recently Visited")
                 }
                 RestaurantsLazyList(
-                    restaurantName = restaurantName,
                     restaurants = state.recentRestaurants,
                     onRestaurantClick = { restaurantId ->
                         viewModel.saveRecentRestaurant(restaurantId)
@@ -121,8 +122,7 @@ fun SearchScreen(
                 LoadingCircle()
             }else  {
                 RestaurantsLazyList(
-                    restaurants = state.restaurants,
-                    restaurantName = restaurantName,
+                    restaurants = state.filteredRestaurantsByNameAndCategories,
                     onRestaurantClick = { restaurantId ->
                         viewModel.saveRecentRestaurant(restaurantId)
                     }
@@ -136,19 +136,13 @@ fun SearchScreen(
 @Composable
 fun RestaurantsLazyList(
     restaurants: List<Restaurant>,
-    restaurantName: String,
     modifier: Modifier = Modifier,
     onRestaurantClick: (String) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
-        items(restaurants.filter {
-            it.name.contains(restaurantName, ignoreCase = true) ||
-                    it.categories.any { category ->
-                        category.contains(restaurantName, ignoreCase = true)
-                    }
-        }) { restaurant ->
+        items(restaurants) { restaurant ->
             RestaurantCard(
                 isNew = true,
                 isFavorite = true,
@@ -159,7 +153,7 @@ fun RestaurantsLazyList(
                 onFavorite = {},
                 onClick = { onRestaurantClick(restaurant.documentId) }
             )
-            Spacer(modifier = Modifier.height(29.dp))
+            Spacer(modifier = modifier.height(29.dp))
         }
     }
 }

@@ -5,6 +5,7 @@ import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
+import com.example.restau.domain.usecases.GetFilterRestaurantsByNameAndCategories
 import com.example.restau.domain.usecases.GetIsNewRestaurantArray
 import com.example.restau.domain.usecases.GetOpenRestaurants
 import com.example.restau.domain.usecases.GetRecents
@@ -61,7 +62,8 @@ object AppModule {
         return RestaurantUseCases(
             getRestaurants = GetRestaurants(restaurantsRepository),
             getOpenRestaurants = GetOpenRestaurants(restaurantsRepository),
-            getIsNewRestaurantArray = GetIsNewRestaurantArray()
+            getIsNewRestaurantArray = GetIsNewRestaurantArray(),
+            getFilterRestaurantsByNameAndCategories = GetFilterRestaurantsByNameAndCategories()
         )
     }
 
