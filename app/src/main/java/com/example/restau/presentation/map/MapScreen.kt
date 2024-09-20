@@ -1,50 +1,31 @@
 package com.example.restau.presentation.map
 
 import android.Manifest
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.example.restau.domain.model.Restaurant
-import com.example.restau.ui.theme.Poppins
+import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.map.components.CardMarker
+import com.example.restau.presentation.map.components.NoPermissionsSign
+import com.example.restau.presentation.map.components.SliderCard
 import com.example.restau.ui.theme.radiusBlue
-import com.example.restau.utils.hasLocationPermission
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -54,9 +35,11 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -65,67 +48,79 @@ fun MapScreen(
     mapViewModel: MapViewModel = hiltViewModel()
 ) {
 
-    val context = LocalContext.current
     val permissions = rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
+    val context = LocalContext.current
 
 
     LaunchedEffect(Unit) {
-        Log.d("DONITEST", "PERMISSIONS LAUNCHED")
-        Log.d("DONITEST", "PERMISSION: ${context.hasLocationPermission()}")
-        Log.d("DONITEST", "PERMISSION STATE: ${mapViewModel.state.permissionsGranted}")
         permissions.launchPermissionRequest()
     }
 
-    when {
-        permissions.status == PermissionStatus.Granted -> {
-            Log.d("DONITEST", "PERMISSIONS GRANTED PART")
-            mapViewModel.onEvent(MapEvent.PermissionGranted)
+    LaunchedEffect(permissions.status) {
+        when (permissions.status) {
+            is PermissionStatus.Granted -> {
+                Log.d("DONITEST", "BOOM")
+                mapViewModel.onEvent(MapEvent.PermissionGranted)
+            }
 
-        }
-
-        else -> {
-            Log.d("DONITEST", "PERMISSIONS REVOKED PART")
-            mapViewModel.onEvent(MapEvent.PermissionRevoked)
+            is PermissionStatus.Denied -> {
+                mapViewModel.onEvent(MapEvent.PermissionDenied)
+            }
         }
     }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
-    ) {
-        if (mapViewModel.state.permissionsGranted) {
+    ) { paddingValues ->
+        if (mapViewModel.state.permission) {
             MapContent(
-                startLocation = mapViewModel.state.startLocation,
-                restaurants = mapViewModel.state.restaurants,
-                circleCenter = mapViewModel.state.circleLocation,
+                state = mapViewModel.state,
+                currentLocation = mapViewModel.currentLocation,
+                filteredRestaurants = mapViewModel.filteredRestaurants,
+                circleRadius = mapViewModel.circleRadius,
+                onRadiusChange = {
+                    mapViewModel.onEvent(MapEvent.RadiusChanged(it))
+                },
                 modifier = Modifier.padding(
-                    top = it.calculateTopPadding(),
-                    start = it.calculateStartPadding(LayoutDirection.Ltr),
-                    end = it.calculateEndPadding(LayoutDirection.Rtl)
+                    top = paddingValues.calculateTopPadding(),
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Rtl)
                 )
             )
+        } else {
+            NoPermissionsSign(tryAgain = {
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", context.packageName, null)
+                )
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(context, intent, null)
+            })
         }
     }
 
     DisposableEffect(Unit) {
         onDispose {
-            mapViewModel.cancelCircleFollowing()
+            mapViewModel.onEvent(MapEvent.Closing)
         }
     }
 }
 
 @Composable
 private fun MapContent(
-    startLocation: LatLng,
-    circleCenter: LatLng,
-    restaurants: List<Restaurant>,
+    state: MapState,
+    filteredRestaurants: List<Boolean>,
+    circleRadius: Double,
+    currentLocation: LatLng,
+    onRadiusChange: (Double) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-
     val cameraState = rememberCameraPositionState()
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(startLocation) {
-        cameraState.centerOnLocation(startLocation)
+    LaunchedEffect(state.startLocation) {
+        Log.d("DONITEST", "LAUNCHED EFFECT")
+        cameraState.centerOnLocation(state.startLocation, 17f)
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -134,103 +129,64 @@ private fun MapContent(
             cameraPositionState = cameraState,
             properties = MapProperties(
                 isMyLocationEnabled = true
-            )
+            ),
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = false,
+                mapToolbarEnabled = false
+            ),
         ) {
-            restaurants.forEach { restaurant ->
-                MarkerInfoWindow(
-                    state = rememberMarkerState(
-                        position = LatLng(
-                            restaurant.latitude,
-                            restaurant.longitude
+            if (!state.isLoading) {
+                state.restaurants.forEachIndexed { index, restaurant ->
+                    MarkerInfoWindow(
+                        state = rememberMarkerState(position = LatLng(restaurant.latitude, restaurant.longitude)),
+                        zIndex = Float.MAX_VALUE,
+                        visible = filteredRestaurants[index],
+                        onClick = {
+                            scope.launch {
+                                cameraState.centerOnLocation(
+                                    location = LatLng(restaurant.latitude, restaurant.longitude),
+                                    zoom = 18f
+                                )
+                            }
+                            false
+                        }
+                    ) {
+                        CardMarker(
+                            restaurant = restaurant,
+                            bitmap = state.images[index]
                         )
-                    )
-                ) {
-                    CardMarker(restaurant = restaurant)
+                    }
                 }
+                Circle(
+                    center = currentLocation,
+                    fillColor = radiusBlue,
+                    strokeWidth = 0f,
+                    radius = circleRadius,
+                    zIndex = 0.3f
+                )
             }
-            Circle(
-                center = circleCenter,
-                fillColor = radiusBlue,
-                strokeWidth = 2f,
-                radius = 100.0
-            )
         }
-    }
-}
-
-@Composable
-fun SliderCard() {
-    Card {
-    }
-}
-
-@Composable
-fun CardMarker(
-    restaurant: Restaurant,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        shape = RoundedCornerShape(19.dp),
-        colors = CardDefaults.cardColors().copy(
-            containerColor = Color.White,
-            contentColor = Color.Black
-        ),
-        modifier = modifier
-            .width(200.dp)
-            .height(300.dp)
-            .padding(10.dp)
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp)
-        ) {
-            Text(
-                text = restaurant.name,
-                fontSize = 20.sp,
-                fontFamily = Poppins,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Start,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
+        if (state.isLoading) {
+            LoadingCircle(modifier = Modifier.align(Alignment.Center))
+        } else {
+            SliderCard(
+                radius = circleRadius,
+                onChange = onRadiusChange,
+                modifier = Modifier.align(
+                    Alignment.BottomCenter
+                )
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            val request = ImageRequest.Builder(LocalContext.current).data(restaurant.imageUrl).allowHardware(false).build()
-            AsyncImage(
-                model = request,
-                contentDescription = restaurant.name,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.small)
-                    .fillMaxWidth()
-                    .height(100.dp)
-            )
-
         }
     }
 }
 
 private suspend fun CameraPositionState.centerOnLocation(
-    location: LatLng
+    location: LatLng,
+    zoom: Float
 ) = animate(
     update = CameraUpdateFactory.newLatLngZoom(
         location,
-        17f
+        zoom
     ),
     durationMs = 1500
 )
-
-private fun getBitmapFromVectorDrawable(context: Context, drawableId: Int): Bitmap {
-    val drawable = ContextCompat.getDrawable(context, drawableId)
-    val bitmap = Bitmap.createBitmap(
-        drawable!!.intrinsicWidth,
-        drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-    )
-    val canvas = Canvas(bitmap)
-    drawable.setBounds(0, 0, canvas.width, canvas.height)
-    drawable.draw(canvas)
-    return bitmap
-}

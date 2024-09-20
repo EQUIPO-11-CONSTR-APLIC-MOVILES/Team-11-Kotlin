@@ -29,8 +29,8 @@ class LocationRepositoryImpl(
             return@callbackFlow
         }
 
-        val request = LocationRequest.Builder(5000L)
-            .setIntervalMillis(5000L)
+        val request = LocationRequest.Builder(650L)
+            .setIntervalMillis(650L)
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .build()
 

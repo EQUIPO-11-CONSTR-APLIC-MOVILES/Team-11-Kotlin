@@ -120,14 +120,15 @@ dependencies {
     implementation(libs.play.services.maps)
 //    //Buscar lugares places
 //    implementation("com.google.android.libraries.places:places:3.3.0")
+    implementation(libs.accompanist.permissions)
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
     //Responsive
     implementation(libs.androidx.material3.adaptive.navigation.suite)
     implementation("androidx.compose.material3:material3-window-size-class")
     implementation(libs.androidx.constraintlayout.compose)
 
-    implementation(libs.accompanist.permissions)
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+
 
 }
 

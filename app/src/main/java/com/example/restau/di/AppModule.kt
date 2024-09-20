@@ -2,17 +2,23 @@ package com.example.restau.di
 
 import android.app.Application
 import android.content.Context
+import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
+import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
+import com.example.restau.domain.usecases.DownloadImages
+import com.example.restau.domain.usecases.DownloadSingleImage
 import com.example.restau.domain.usecases.GetIsNewRestaurantArray
 import com.example.restau.domain.usecases.GetLocation
 import com.example.restau.domain.usecases.GetOpenRestaurants
 import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
+import com.example.restau.domain.usecases.GetRestaurantsInRadius
+import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
@@ -88,4 +94,21 @@ object AppModule {
         locationRepository: LocationRepository
     ): GetLocation = GetLocation(locationRepository)
 
+    @Provides
+    @Singleton
+    fun provideRestaurantRadiusUseCase(): GetRestaurantsInRadius = GetRestaurantsInRadius()
+
+    @Provides
+    @Singleton
+    fun provideImageRepository(@ApplicationContext context: Context): ImageRepository =
+        ImageRepositoryImpl(context)
+
+    @Provides
+    @Singleton
+    fun provideImageDownloadUseCases(
+        imageRepository: ImageRepository
+    ): ImageDownloadUseCases = ImageDownloadUseCases(
+        downloadImages = DownloadImages(imageRepository),
+        downloadSingleImage = DownloadSingleImage(imageRepository)
+    )
 }
