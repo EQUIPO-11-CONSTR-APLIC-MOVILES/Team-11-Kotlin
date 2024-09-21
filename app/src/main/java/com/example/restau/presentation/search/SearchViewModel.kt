@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.util.Log
 import com.example.restau.domain.model.Restaurant
+import com.example.restau.presentation.home.HomeEvent
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -33,7 +34,28 @@ class SearchViewModel @Inject constructor(
         getRestaurants()
         getRecentRestaurants()
     }
-    fun onRestaurantNameChange(newName: String) {
+
+    fun onEvent(event: SearchEvent) {
+        when(event) {
+            is SearchEvent.SearchFilterEvent -> {
+                getFilterRestaurantsByNameAndCategories(event.restaurantName, event.restaurants)
+            }
+            is SearchEvent.FilterEvent -> TODO()
+            is SearchEvent.ChangeNameEvent -> {
+                onRestaurantNameChange(event.restaurantName)
+            }
+
+            is SearchEvent.ClearRecentRestaurantsEvent -> {
+                clearRecentRestaurants()
+            }
+
+            is SearchEvent.SaveRecentRestaurantEvent -> {
+                saveRecentRestaurant(event.restaurantId)
+            }
+        }
+    }
+
+    private fun onRestaurantNameChange(newName: String) {
         restaurantName = newName
     }
 
@@ -74,7 +96,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun getFilterRestaurantsByNameAndCategories(restaurantName: String, restaurants: List<Restaurant>) {
+    private fun getFilterRestaurantsByNameAndCategories(restaurantName: String, restaurants: List<Restaurant>) {
         viewModelScope.launch(Dispatchers.IO) {
             val filteredRestaurants = restaurantUseCases.getFilterRestaurantsByNameAndCategories(restaurants, restaurantName)
             state = state.copy(filteredRestaurantsByNameAndCategories = filteredRestaurants)

@@ -62,8 +62,8 @@ fun SearchScreen(
             // Campo de búsqueda
             OutlinedTextField(
                 value = restaurantName,
-                onValueChange = { viewModel.onRestaurantNameChange(it)
-                                  viewModel.getFilterRestaurantsByNameAndCategories(it, state.restaurants)
+                onValueChange = { viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
+                                  viewModel.onEvent(SearchEvent.SearchFilterEvent(it, state.restaurants))
                                 },
                 label = { Text("Restaurant Name or Categories") },
                 modifier = Modifier.fillMaxWidth(),
@@ -75,7 +75,7 @@ fun SearchScreen(
                 ),
                 trailingIcon = {
                     if (restaurantName.isNotEmpty()){
-                        IconButton(onClick = {  viewModel.onRestaurantNameChange("") }) {
+                        IconButton(onClick = {  viewModel.onEvent(SearchEvent.ChangeNameEvent("")) }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.cleartext),
                                 contentDescription = "Clear text"
@@ -92,7 +92,7 @@ fun SearchScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ){
-                    Button(onClick = { viewModel.clearRecentRestaurants() },
+                    Button(onClick = { viewModel.onEvent(SearchEvent.ClearRecentRestaurantsEvent) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = SoftRed
                       )
@@ -110,8 +110,7 @@ fun SearchScreen(
                 }
                 RestaurantsLazyList(
                     restaurants = state.recentRestaurants,
-                    onRestaurantClick = { restaurantId ->
-                        viewModel.saveRecentRestaurant(restaurantId)
+                    onRestaurantClick = { //TODO: Restaurant Detail
                     }
                 )
             }
@@ -124,7 +123,7 @@ fun SearchScreen(
                 RestaurantsLazyList(
                     restaurants = state.filteredRestaurantsByNameAndCategories,
                     onRestaurantClick = { restaurantId ->
-                        viewModel.saveRecentRestaurant(restaurantId)
+                        viewModel.onEvent(SearchEvent.SaveRecentRestaurantEvent(restaurantId))
                     }
 
                 )
