@@ -8,8 +8,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
-import com.example.restau.domain.usecases.GetLocation
 import com.example.restau.domain.usecases.ImageDownloadUseCases
+import com.example.restau.domain.usecases.LocationUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val getLocation: GetLocation,
+    private val locationUseCases: LocationUseCases,
     private val restaurantsUseCases: RestaurantUseCases,
     private val imageDownloadUseCases: ImageDownloadUseCases
 ) : ViewModel() {
@@ -83,7 +83,7 @@ class MapViewModel @Inject constructor(
                 permission = true,
             )
             initializeData(restaurants.await(), startingLocation.await())
-            getLocation.invoke().collect {
+            locationUseCases.getLocation.invoke().collect {
                 if (isActive) {
                     currentLocation = it?: currentLocation
                     filteredRestaurants = restaurantsUseCases.getRestaurantsInRadius(state.restaurants, currentLocation, circleRadius)
@@ -112,7 +112,7 @@ class MapViewModel @Inject constructor(
 
     private fun getFirstLocation(): Deferred<LatLng> {
         return viewModelScope.async(Dispatchers.IO) {
-            getLocation.invoke().first() ?: state.startLocation
+            locationUseCases.getLocation.invoke().first() ?: state.startLocation
         }
     }
 

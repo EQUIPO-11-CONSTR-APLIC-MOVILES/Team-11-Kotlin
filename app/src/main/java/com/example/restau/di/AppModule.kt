@@ -19,6 +19,7 @@ import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
 import com.example.restau.domain.usecases.GetRestaurantsInRadius
 import com.example.restau.domain.usecases.ImageDownloadUseCases
+import com.example.restau.domain.usecases.LocationUseCases
 import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
@@ -91,13 +92,9 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideLocationUseCase(
+    fun provideLocationUseCases(
         locationRepository: LocationRepository
-    ): GetLocation = GetLocation(locationRepository)
-
-    @Provides
-    @Singleton
-    fun provideRestaurantRadiusUseCase(): GetRestaurantsInRadius = GetRestaurantsInRadius()
+    ): LocationUseCases = LocationUseCases(GetLocation(locationRepository))
 
     @Provides
     @Singleton
