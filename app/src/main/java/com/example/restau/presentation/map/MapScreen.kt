@@ -1,9 +1,192 @@
 package com.example.restau.presentation.map
 
-import androidx.compose.material3.Text
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.content.ContextCompat.startActivity
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.map.components.CardMarker
+import com.example.restau.presentation.map.components.NoPermissionsSign
+import com.example.restau.presentation.map.components.SliderCard
+import com.example.restau.ui.theme.radiusBlue
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.Circle
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.MarkerInfoWindow
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
+import kotlinx.coroutines.launch
+
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun MapScreen(
+    mapViewModel: MapViewModel = hiltViewModel()
+) {
+
+    val permissions = rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
+    val context = LocalContext.current
+
+
+    LaunchedEffect(Unit) {
+        permissions.launchPermissionRequest()
+    }
+
+    LaunchedEffect(permissions.status) {
+        when (permissions.status) {
+            is PermissionStatus.Granted -> {
+                Log.d("DONITEST", "BOOM")
+                mapViewModel.onEvent(MapEvent.PermissionGranted)
+            }
+
+            is PermissionStatus.Denied -> {
+                mapViewModel.onEvent(MapEvent.PermissionDenied)
+            }
+        }
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
+        if (mapViewModel.state.permission) {
+            MapContent(
+                state = mapViewModel.state,
+                currentLocation = mapViewModel.currentLocation,
+                filteredRestaurants = mapViewModel.filteredRestaurants,
+                circleRadius = mapViewModel.circleRadius,
+                onRadiusChange = {
+                    mapViewModel.onEvent(MapEvent.RadiusChanged(it))
+                },
+                modifier = Modifier.padding(
+                    top = paddingValues.calculateTopPadding(),
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Rtl)
+                )
+            )
+        } else {
+            NoPermissionsSign(tryAgain = {
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", context.packageName, null)
+                )
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(context, intent, null)
+            })
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            mapViewModel.onEvent(MapEvent.Closing)
+        }
+    }
+}
 
 @Composable
-fun MapScreen() {
-    Text(text = "MapScreen")
+private fun MapContent(
+    state: MapState,
+    filteredRestaurants: List<Boolean>,
+    circleRadius: Double,
+    currentLocation: LatLng,
+    onRadiusChange: (Double) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val cameraState = rememberCameraPositionState()
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(state.startLocation) {
+        Log.d("DONITEST", "LAUNCHED EFFECT")
+        cameraState.centerOnLocation(state.startLocation, 17f)
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraState,
+            properties = MapProperties(
+                isMyLocationEnabled = true
+            ),
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = false,
+                mapToolbarEnabled = false
+            ),
+        ) {
+            if (!state.isLoading) {
+                state.restaurants.forEachIndexed { index, restaurant ->
+                    MarkerInfoWindow(
+                        state = rememberMarkerState(position = LatLng(restaurant.latitude, restaurant.longitude)),
+                        zIndex = Float.MAX_VALUE,
+                        visible = filteredRestaurants[index],
+                        onClick = {
+                            scope.launch {
+                                cameraState.centerOnLocation(
+                                    location = LatLng(restaurant.latitude, restaurant.longitude),
+                                    zoom = 18f
+                                )
+                            }
+                            false
+                        }
+                    ) {
+                        CardMarker(
+                            restaurant = restaurant,
+                            bitmap = state.images[index]
+                        )
+                    }
+                }
+                Circle(
+                    center = currentLocation,
+                    fillColor = radiusBlue,
+                    strokeWidth = 0f,
+                    radius = circleRadius,
+                    zIndex = 0.3f
+                )
+            }
+        }
+        if (state.isLoading) {
+            LoadingCircle(modifier = Modifier.align(Alignment.Center))
+        } else {
+            SliderCard(
+                radius = circleRadius,
+                onChange = onRadiusChange,
+                modifier = Modifier.align(
+                    Alignment.BottomCenter
+                )
+            )
+        }
+    }
 }
+
+private suspend fun CameraPositionState.centerOnLocation(
+    location: LatLng,
+    zoom: Float
+) = animate(
+    update = CameraUpdateFactory.newLatLngZoom(
+        location,
+        zoom
+    ),
+    durationMs = 1500
+)
