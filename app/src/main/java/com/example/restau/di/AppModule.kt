@@ -73,7 +73,8 @@ object AppModule {
         return RestaurantUseCases(
             getRestaurants = GetRestaurants(restaurantsRepository),
             getOpenRestaurants = GetOpenRestaurants(restaurantsRepository),
-            getIsNewRestaurantArray = GetIsNewRestaurantArray()
+            getIsNewRestaurantArray = GetIsNewRestaurantArray(),
+            getRestaurantsInRadius = GetRestaurantsInRadius()
         )
     }
 

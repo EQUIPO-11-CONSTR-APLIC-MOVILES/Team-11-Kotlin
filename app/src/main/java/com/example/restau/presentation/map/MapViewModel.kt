@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.usecases.GetLocation
-import com.example.restau.domain.usecases.GetRestaurantsInRadius
 import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.google.android.gms.maps.model.LatLng
@@ -27,7 +26,6 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val getLocation: GetLocation,
     private val restaurantsUseCases: RestaurantUseCases,
-    private val restaurantsInRadius: GetRestaurantsInRadius,
     private val imageDownloadUseCases: ImageDownloadUseCases
 ) : ViewModel() {
 
@@ -66,7 +64,7 @@ class MapViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             val filteredRestaurantsCalc =
-                restaurantsInRadius(state.restaurants, currentLocation, radius)
+                restaurantsUseCases.getRestaurantsInRadius(state.restaurants, currentLocation, radius)
             circleRadius = radius
             filteredRestaurants = filteredRestaurantsCalc
         }
@@ -88,14 +86,14 @@ class MapViewModel @Inject constructor(
             getLocation.invoke().collect {
                 if (isActive) {
                     currentLocation = it?: currentLocation
-                    filteredRestaurants = restaurantsInRadius(state.restaurants, currentLocation, circleRadius)
+                    filteredRestaurants = restaurantsUseCases.getRestaurantsInRadius(state.restaurants, currentLocation, circleRadius)
                 }
             }
         }
     }
 
     private suspend fun initializeData(restaurants: List<Restaurant>, startingLocation: LatLng) {
-        filteredRestaurants = restaurantsInRadius(restaurants, startingLocation, circleRadius)
+        filteredRestaurants = restaurantsUseCases.getRestaurantsInRadius(restaurants, startingLocation, circleRadius)
         state = state.copy(
             restaurants = restaurants,
             images = downloadImages(restaurants).await(),
