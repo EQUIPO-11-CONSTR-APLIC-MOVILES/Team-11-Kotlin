@@ -10,9 +10,12 @@ import com.example.restau.domain.usecases.AuthUseCases
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -22,7 +25,6 @@ class NavigatorViewModel @Inject constructor(
     private val authUseCases: AuthUseCases
 ) : ViewModel() {
 
-
     var selected by mutableIntStateOf(0)
         private set
 
@@ -30,9 +32,6 @@ class NavigatorViewModel @Inject constructor(
         private set
 
     var currentUser: StateFlow<FirebaseUser?> = MutableStateFlow(null).asStateFlow()
-        private set
-
-    var isSignedIn by mutableStateOf(false)
         private set
 
     fun onEvent(event: NavigatorEvent) {
@@ -47,7 +46,7 @@ class NavigatorViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getCurrentUser(): StateFlow<FirebaseUser?> {
+    private suspend fun getCurrentUser(): Flow<FirebaseUser?> {
         return withContext(Dispatchers.IO) {
             authUseCases.getCurrentUser()
         }
@@ -55,8 +54,7 @@ class NavigatorViewModel @Inject constructor(
 
     private fun authCheck() {
         viewModelScope.launch {
-            isSignedIn = getCurrentUser().value != null
-            currentUser = getCurrentUser()
+            currentUser = getCurrentUser().stateIn(viewModelScope, SharingStarted.Eagerly, null)
             showSplash = false
         }
     }

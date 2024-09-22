@@ -33,6 +33,9 @@ fun NavigatorScreen(
 
     val currentEntry by navController.currentBackStackEntryAsState()
 
+    val currentUser by navigatorViewModel.currentUser.collectAsState()
+
+
     LaunchedEffect(currentEntry) {
         navigatorViewModel.onEvent(
             NavigatorEvent.SelectedChange(itemsMap[(currentEntry?.destination?.route)?: Route.HomeScreen.route]?: 0)
@@ -45,6 +48,8 @@ fun NavigatorScreen(
         )
     }
 
+    var route = Route.HomeScreen.route
+
     if (!navigatorViewModel.showSplash) {
         systemUiController.setSystemBarsColor(
             color = Color.Gray
@@ -53,9 +58,7 @@ fun NavigatorScreen(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
 
-                val currentUser by navigatorViewModel.currentUser.collectAsState()
-
-                if (navigatorViewModel.isSignedIn or (currentUser != null)) {
+                if (currentUser != null) {
                     NavBar(
                         selected = navigatorViewModel.selected,
                         onNav = {
@@ -68,6 +71,9 @@ fun NavigatorScreen(
                         }
                     )
                 }
+                else{
+                    route = Route.SignInScreen.route
+                }
             }
         ) {
             NavigatorContent(
@@ -78,7 +84,7 @@ fun NavigatorScreen(
                     end = it.calculateEndPadding(LayoutDirection.Rtl),
                     bottom = it.calculateBottomPadding()
                 ), navHostController = navController,
-                isSignedIn = navigatorViewModel.isSignedIn,
+                startRoute = route,
             )
         }
     } else {
@@ -92,13 +98,13 @@ fun NavigatorScreen(
 @Composable
 private fun NavigatorContent(
     navHostController: NavHostController,
-    isSignedIn: Boolean,
+    startRoute: String,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxSize()
     ) {
-        NavGraph(navHostController = navHostController, isSignedIn)
+        NavGraph(navHostController = navHostController, startRoute)
     }
 }
 

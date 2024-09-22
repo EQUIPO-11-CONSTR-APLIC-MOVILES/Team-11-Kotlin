@@ -5,8 +5,8 @@ import com.example.restau.domain.model.User
 import com.example.restau.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 
@@ -30,10 +30,10 @@ class AuthRepositoryImpl(
         TODO("Not yet implemented")
     }
 
-    override suspend fun getCurrentUser(): StateFlow<FirebaseUser?> {
+    override suspend fun getCurrentUser(): Flow<FirebaseUser?> {
         return try {
             val currentUserMSF = MutableStateFlow(firebaseAuth.currentUser)
-            val currentUser: StateFlow<FirebaseUser?> = currentUserMSF.asStateFlow()
+            val currentUser: Flow<FirebaseUser?> = currentUserMSF
 
             firebaseAuth.addAuthStateListener { auth ->
                 currentUserMSF.value = auth.currentUser
