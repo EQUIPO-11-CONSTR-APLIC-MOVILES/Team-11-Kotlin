@@ -80,7 +80,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun saveRecentRestaurant(restaurantId: String) {
+    private fun saveRecentRestaurant(restaurantId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val currentRecents = recentsUseCases.getRecents().first() ?: emptySet()
             val updatedRecents = currentRecents + restaurantId
@@ -89,7 +89,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun clearRecentRestaurants() {
+    private fun clearRecentRestaurants() {
         viewModelScope.launch(Dispatchers.IO) {
             recentsUseCases.saveRecents(emptySet())
 
