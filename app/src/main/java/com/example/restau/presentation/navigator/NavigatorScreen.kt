@@ -35,7 +35,6 @@ fun NavigatorScreen(
 
     val currentUser by navigatorViewModel.currentUser.collectAsState()
 
-
     LaunchedEffect(currentEntry) {
         navigatorViewModel.onEvent(
             NavigatorEvent.SelectedChange(itemsMap[(currentEntry?.destination?.route)?: Route.HomeScreen.route]?: 0)
@@ -48,8 +47,6 @@ fun NavigatorScreen(
         )
     }
 
-    var route = Route.HomeScreen.route
-
     if (!navigatorViewModel.showSplash) {
         systemUiController.setSystemBarsColor(
             color = Color.Gray
@@ -57,6 +54,7 @@ fun NavigatorScreen(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
+
 
                 if (currentUser != null) {
                     NavBar(
@@ -71,9 +69,6 @@ fun NavigatorScreen(
                         }
                     )
                 }
-                else{
-                    route = Route.SignInScreen.route
-                }
             }
         ) {
             NavigatorContent(
@@ -84,7 +79,7 @@ fun NavigatorScreen(
                     end = it.calculateEndPadding(LayoutDirection.Rtl),
                     bottom = it.calculateBottomPadding()
                 ), navHostController = navController,
-                startRoute = route,
+                isSignedIn = currentUser != null,
             )
         }
     } else {
@@ -98,13 +93,13 @@ fun NavigatorScreen(
 @Composable
 private fun NavigatorContent(
     navHostController: NavHostController,
-    startRoute: String,
+    isSignedIn: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxSize()
     ) {
-        NavGraph(navHostController = navHostController, startRoute)
+        NavGraph(navHostController = navHostController, isSignedIn)
     }
 }
 
