@@ -1,6 +1,7 @@
 package com.example.restau.presentation.common
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,7 @@ fun RestaurantCard(
     placeName: String,
     averageRating: Float,
     onFavorite: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -54,6 +56,7 @@ fun RestaurantCard(
             .height(320.dp)
             .clip(MaterialTheme.shapes.small)
             .background(Color.Gray)
+            .clickable { onClick() }
     ) {
         AsyncImage(
             model = imageUrl,
@@ -242,7 +245,8 @@ fun RestaurantCardPreview() {
             imageUrl = "https://www.allrecipes.com/thmb/lLeKelVvgs-yPAgqDfGrSzOOJIs=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/4431200-6c6df37091d341f3938dd5a4ee4b5f62.jpg",
             placeName = "Universidad de los Andes",
             averageRating = 4.8f,
-            onFavorite = {}
+            onFavorite = {},
+            onClick = {}
         )
     }
 }

@@ -10,6 +10,7 @@ import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
+import com.example.restau.domain.usecases.GetFilterRestaurantsByNameAndCategories
 import com.example.restau.domain.usecases.DownloadImages
 import com.example.restau.domain.usecases.DownloadSingleImage
 import com.example.restau.domain.usecases.GetIsNewRestaurantArray
@@ -75,6 +76,7 @@ object AppModule {
             getRestaurants = GetRestaurants(restaurantsRepository),
             getOpenRestaurants = GetOpenRestaurants(restaurantsRepository),
             getIsNewRestaurantArray = GetIsNewRestaurantArray(),
+            getFilterRestaurantsByNameAndCategories = GetFilterRestaurantsByNameAndCategories(),
             getRestaurantsInRadius = GetRestaurantsInRadius()
         )
     }
