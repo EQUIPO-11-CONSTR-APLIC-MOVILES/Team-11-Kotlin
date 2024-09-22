@@ -117,17 +117,24 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     //Mapas
+    implementation(libs.play.services.location)
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
 //    //Buscar lugares places
 //    implementation("com.google.android.libraries.places:places:3.3.0")
+    implementation(libs.accompanist.permissions)
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
     //Responsive
     implementation(libs.androidx.material3.adaptive.navigation.suite)
     implementation("androidx.compose.material3:material3-window-size-class")
     implementation(libs.androidx.constraintlayout.compose)
 
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+
+
+    implementation("androidx.compose.material3:material3:1.1.0")
+    implementation("androidx.compose.ui:ui:1.3.3")
+    implementation("androidx.compose.material3:material3:1.1.1")
 
     //Iconos
     implementation("androidx.compose.material:material-icons-extended")
