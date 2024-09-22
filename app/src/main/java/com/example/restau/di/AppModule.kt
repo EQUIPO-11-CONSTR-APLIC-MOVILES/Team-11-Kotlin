@@ -1,6 +1,10 @@
 package com.example.restau.di
 
 import android.app.Application
+import com.example.restau.data.repository.AuthRepositoryImpl
+import com.example.restau.data.repository.RecentsRepositoryImpl
+import com.example.restau.data.repository.RestaurantsRepositoryImpl
+import com.example.restau.domain.repository.AuthRepository
 import android.content.Context
 import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
@@ -18,6 +22,13 @@ import com.example.restau.domain.usecases.GetLocation
 import com.example.restau.domain.usecases.GetOpenRestaurants
 import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
+import com.example.restau.domain.usecases.AuthUseCases
+import com.example.restau.domain.usecases.ExecuteSignIn
+import com.example.restau.domain.usecases.GetCurrentUser
+import com.example.restau.domain.usecases.RecentsUseCases
+import com.example.restau.domain.usecases.RestaurantUseCases
+import com.example.restau.domain.usecases.SaveRecents
+import com.google.firebase.auth.FirebaseAuth
 import com.example.restau.domain.usecases.GetRestaurantsInRadius
 import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.LocationUseCases
@@ -58,6 +69,18 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(firebaseAuth: FirebaseAuth): AuthRepository {
+        return AuthRepositoryImpl(firebaseAuth)
+    }
+
+    @Provides
+    @Singleton
     fun provideRecentsUseCases(
         recentsRepository: RecentsRepository
     ): RecentsUseCases {
@@ -78,6 +101,17 @@ object AppModule {
             getIsNewRestaurantArray = GetIsNewRestaurantArray(),
             getFilterRestaurantsByNameAndCategories = GetFilterRestaurantsByNameAndCategories(),
             getRestaurantsInRadius = GetRestaurantsInRadius()
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideSignUpUseCases(
+        authRepository: AuthRepository
+    ): AuthUseCases {
+        return AuthUseCases(
+            executeSignIn = ExecuteSignIn(authRepository),
+            getCurrentUser = GetCurrentUser(authRepository)
         )
     }
 

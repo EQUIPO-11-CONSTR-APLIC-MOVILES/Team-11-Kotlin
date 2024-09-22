@@ -9,10 +9,11 @@ import com.example.restau.presentation.liked.LikedScreen
 import com.example.restau.presentation.map.MapScreen
 import com.example.restau.presentation.random.RandomScreen
 import com.example.restau.presentation.search.SearchScreen
+import com.example.restau.presentation.signin.SignInScreen
 
 @Composable
-fun NavGraph(navHostController: NavHostController) {
-    NavHost(navController = navHostController, startDestination = Route.HomeScreen.route) {
+fun NavGraph(navHostController: NavHostController, isSignedIn: Boolean) {
+     NavHost(navController = navHostController, startDestination = if (isSignedIn) Route.HomeScreen.route else Route.SignInScreen.route ) {
 
         composable(route = Route.HomeScreen.route) {
             HomeScreen()
@@ -28,6 +29,9 @@ fun NavGraph(navHostController: NavHostController) {
         }
         composable(route = Route.MapScreen.route) {
             MapScreen()
+        }
+        composable(route = Route.SignInScreen.route) {
+            SignInScreen(navHostController)
         }
     }
 }
