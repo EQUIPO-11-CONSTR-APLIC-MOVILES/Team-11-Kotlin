@@ -1,5 +1,6 @@
 package com.example.restau.presentation.navigator
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -9,15 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.usecases.AuthUseCases
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,8 +25,7 @@ class NavigatorViewModel @Inject constructor(
     var showSplash by mutableStateOf(true)
         private set
 
-    var currentUser: StateFlow<FirebaseUser?> = MutableStateFlow(null).asStateFlow()
-        private set
+    var currentUser = MutableStateFlow<FirebaseUser?>(null)
 
     fun onEvent(event: NavigatorEvent) {
         when (event) {
@@ -41,22 +34,21 @@ class NavigatorViewModel @Inject constructor(
             }
 
             is NavigatorEvent.AuthCheck -> {
-                authCheck()
+                viewModelScope.launch {
+                    authCheck()
+                }
             }
         }
     }
 
-    private suspend fun getCurrentUser(): Flow<FirebaseUser?> {
-        return withContext(Dispatchers.IO) {
-            authUseCases.getCurrentUser()
-        }
+    private suspend fun getCurrentUser(): FirebaseUser? {
+        return authUseCases.getCurrentUser()
     }
 
-    private fun authCheck() {
-        viewModelScope.launch {
-            currentUser = getCurrentUser().stateIn(viewModelScope, SharingStarted.Eagerly, null)
-            showSplash = false
-        }
+    suspend fun authCheck() {
+        currentUser.value = getCurrentUser()
+        Log.d("NavigatorViewModel", "authCheck: ${currentUser.value}")
+        showSplash = false
     }
 }
 

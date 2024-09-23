@@ -60,7 +60,8 @@ import com.example.restau.ui.theme.Poppins
 
 @Composable
 fun SignInScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    authCheck: suspend () -> Unit
 ) {
 
 
@@ -78,7 +79,7 @@ fun SignInScreen(
                 .size(100.dp)
         )
 
-        SignInForm(navController = navController)
+        SignInForm(navController = navController, authCheck = authCheck)
 
         SignUpText()
     }
@@ -159,7 +160,8 @@ fun SignUpText() {
 @Composable
 fun SignInForm(
     signInVM: SignInViewModel = hiltViewModel(),
-    navController: NavHostController
+    navController: NavHostController,
+    authCheck: suspend () -> Unit
 ) {
 
     Column(
@@ -190,7 +192,7 @@ fun SignInForm(
 
         Button(
             onClick = {
-                signInVM.onEvent(SignInEvent.SignIn(signInVM.state.email, signInVM.state.password) { signedSuccess(navController) })
+                signInVM.onEvent(SignInEvent.SignIn(signInVM.state.email, signInVM.state.password, { signedSuccess(navController) }, {  authCheck() }) )
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -248,7 +250,9 @@ fun ErrorText() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth().padding(0.dp, 10.dp, 0.dp, 0.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(0.dp, 10.dp, 0.dp, 0.dp)
     ) {
         Icon(
             Icons.Outlined.ErrorOutline,
@@ -272,7 +276,6 @@ fun ErrorText() {
 
 @Composable
 fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
-
     OutlinedTextField(
         value = email,
         textStyle = TextStyle(
@@ -281,7 +284,9 @@ fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
         ),
         isError = email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches(),
         singleLine = true,
-        onValueChange = onEmailChange,
+        onValueChange = {
+            if (it.length <= 100) onEmailChange(it)
+        },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF2F2F2F),
             unfocusedBorderColor = Color(0xFF2F2F2F),
@@ -310,7 +315,9 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, sign
 
     OutlinedTextField(
         value = password,
-        onValueChange = onPasswordChange,
+        onValueChange = {
+            if (it.length <= 100) onPasswordChange(it)
+        },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF2F2F2F),
             unfocusedBorderColor = Color(0xFF2F2F2F),

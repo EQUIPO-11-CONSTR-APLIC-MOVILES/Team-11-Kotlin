@@ -35,6 +35,8 @@ fun NavigatorScreen(
 
     val currentUser by navigatorViewModel.currentUser.collectAsState()
 
+
+
     LaunchedEffect(currentEntry) {
         navigatorViewModel.onEvent(
             NavigatorEvent.SelectedChange(itemsMap[(currentEntry?.destination?.route)?: Route.HomeScreen.route]?: 0)
@@ -54,8 +56,6 @@ fun NavigatorScreen(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
-
-
                 if (currentUser != null) {
                     NavBar(
                         selected = navigatorViewModel.selected,
@@ -80,6 +80,7 @@ fun NavigatorScreen(
                     bottom = it.calculateBottomPadding()
                 ), navHostController = navController,
                 isSignedIn = currentUser != null,
+                navigatorViewModel = navigatorViewModel
             )
         }
     } else {
@@ -95,11 +96,12 @@ private fun NavigatorContent(
     navHostController: NavHostController,
     isSignedIn: Boolean,
     modifier: Modifier = Modifier,
+    navigatorViewModel: NavigatorViewModel
 ) {
     Surface(
         modifier = modifier.fillMaxSize()
     ) {
-        NavGraph(navHostController = navHostController, isSignedIn)
+        NavGraph(navHostController = navHostController, isSignedIn, suspend { navigatorViewModel.authCheck() } )
     }
 }
 

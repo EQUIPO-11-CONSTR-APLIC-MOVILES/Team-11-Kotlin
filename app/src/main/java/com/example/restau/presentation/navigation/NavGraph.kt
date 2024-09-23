@@ -12,7 +12,11 @@ import com.example.restau.presentation.search.SearchScreen
 import com.example.restau.presentation.signin.SignInScreen
 
 @Composable
-fun NavGraph(navHostController: NavHostController, isSignedIn: Boolean) {
+fun NavGraph(
+    navHostController: NavHostController,
+    isSignedIn: Boolean,
+    authCheck: suspend () -> Unit
+) {
      NavHost(navController = navHostController, startDestination = if (isSignedIn) Route.HomeScreen.route else Route.SignInScreen.route ) {
 
         composable(route = Route.HomeScreen.route) {
@@ -31,7 +35,7 @@ fun NavGraph(navHostController: NavHostController, isSignedIn: Boolean) {
             MapScreen()
         }
         composable(route = Route.SignInScreen.route) {
-            SignInScreen(navHostController)
+            SignInScreen(navHostController, authCheck)
         }
     }
 }
