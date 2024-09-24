@@ -7,4 +7,5 @@ interface AuthRepository {
     suspend fun signIn(email: String, password: String): Boolean
     suspend fun register(email: String, password: String): User?
     suspend fun getCurrentUser(): FirebaseUser?
+
 }

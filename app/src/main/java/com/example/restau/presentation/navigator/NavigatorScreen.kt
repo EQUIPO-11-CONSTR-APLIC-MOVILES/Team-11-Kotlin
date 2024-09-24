@@ -35,8 +35,6 @@ fun NavigatorScreen(
 
     val currentUser by navigatorViewModel.currentUser.collectAsState()
 
-
-
     LaunchedEffect(currentEntry) {
         navigatorViewModel.onEvent(
             NavigatorEvent.SelectedChange(itemsMap[(currentEntry?.destination?.route)?: Route.HomeScreen.route]?: 0)
