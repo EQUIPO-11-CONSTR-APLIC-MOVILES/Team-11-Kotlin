@@ -1,5 +1,6 @@
 package com.example.restau.presentation.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,24 +34,24 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.restau.R
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.presentation.common.DynamicTopBar
+import com.example.restau.presentation.common.LoadingCircle
 import com.example.restau.presentation.common.RestaurantCard
 import com.example.restau.presentation.common.TopBarAction
-import com.example.restau.presentation.common.LoadingCircle
 import com.example.restau.ui.theme.Poppins
 
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
-
+    val user = homeViewModel.currentUser
+    Log.d("DONITEST", user.email + " SCREEN")
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             DynamicTopBar(
                 label = {},
                 hasBackButton = false,
-                //TODO: Change image to profile when login is created
-                action = TopBarAction.PhotoAction("https://media.licdn.com/dms/image/D5603AQEBrjq29ydePA/profile-displayphoto-shrink_200_200/0/1718318242718?e=2147483647&v=beta&t=zjoTlF9eMNeo-jDFcL0iqR58RwZCcWq9t6zdJeljYbw") {}
+                action = TopBarAction.PhotoAction(user.profilePic) {}
             )
         }
     ) {
@@ -58,6 +59,9 @@ fun HomeScreen(
             state = homeViewModel.state,
             onFilterClick = { filterIndex ->
                 homeViewModel.onEvent(HomeEvent.FilterEvent(filterIndex))
+            },
+            onLike = {documentId, delete ->
+                homeViewModel.onEvent(HomeEvent.SendLike(documentId, delete))
             },
             modifier = Modifier.padding(
                 top = it.calculateTopPadding(),
@@ -72,6 +76,7 @@ fun HomeScreen(
 fun HomeContent(
     state: HomeState,
     onFilterClick: (Int) -> Unit,
+    onLike: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
@@ -89,7 +94,9 @@ fun HomeContent(
         } else {
             RestaurantsLazyList(
                 restaurants = state.restaurants,
-                isLiked = state.isNew,
+                isNew = state.isNew,
+                isLiked = state.isLiked,
+                onLike = onLike
             )
         }
     }
@@ -125,7 +132,9 @@ fun NoRestaurantOpen(
 @Composable
 fun RestaurantsLazyList(
     restaurants: List<Restaurant>,
+    isNew: List<Boolean>,
     isLiked: List<Boolean>,
+    onLike: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -136,14 +145,13 @@ fun RestaurantsLazyList(
     ) {
         items(restaurants.size) { index ->
             RestaurantCard(
-                //TODO check if it is liked
-                isNew = isLiked[index],
-                isFavorite = true,
+                isNew = isNew[index],
+                isFavorite = isLiked[index],
                 name = restaurants[index].name,
                 imageUrl = restaurants[index].imageUrl,
                 placeName = restaurants[index].placeName,
                 averageRating = restaurants[index].averageRating.toFloat(),
-                onFavorite = {},
+                onFavorite = { onLike(restaurants[index].documentId, isLiked[index]) },
                 onClick = {}
             )
             Spacer(modifier = Modifier.height(29.dp))

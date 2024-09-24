@@ -8,10 +8,12 @@ import com.example.restau.domain.repository.AuthRepository
 import android.content.Context
 import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
+import com.example.restau.data.repository.UsersRepositoryImpl
 import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
+import com.example.restau.domain.repository.UsersRepository
 import com.example.restau.domain.usecases.GetFilterRestaurantsByNameAndCategories
 import com.example.restau.domain.usecases.DownloadImages
 import com.example.restau.domain.usecases.DownloadSingleImage
@@ -28,8 +30,12 @@ import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
 import com.google.firebase.auth.FirebaseAuth
 import com.example.restau.domain.usecases.GetRestaurantsInRadius
+import com.example.restau.domain.usecases.GetRestaurantsLiked
+import com.example.restau.domain.usecases.GetUserObject
 import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.LocationUseCases
+import com.example.restau.domain.usecases.SendLike
+import com.example.restau.domain.usecases.UserUseCases
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -95,7 +101,8 @@ object AppModule {
             getOpenRestaurants = GetOpenRestaurants(restaurantsRepository),
             getIsNewRestaurantArray = GetIsNewRestaurantArray(),
             getFilterRestaurantsByNameAndCategories = GetFilterRestaurantsByNameAndCategories(),
-            getRestaurantsInRadius = GetRestaurantsInRadius()
+            getRestaurantsInRadius = GetRestaurantsInRadius(),
+            getRestaurantsLiked = GetRestaurantsLiked()
         )
     }
 
@@ -140,4 +147,25 @@ object AppModule {
         downloadImages = DownloadImages(imageRepository),
         downloadSingleImage = DownloadSingleImage(imageRepository)
     )
+
+    @Provides
+    @Singleton
+    fun provideUsersRepository(db: FirebaseFirestore): UsersRepository =
+        UsersRepositoryImpl(db)
+
+    @Provides
+    @Singleton
+    fun provideUserUseCases(
+        usersRepository: UsersRepository,
+        authRepository: AuthRepository
+    ): UserUseCases =
+        UserUseCases(
+            getUserObject = GetUserObject(
+                usersRepository,
+                authRepository
+            ),
+            sendLike = SendLike(usersRepository)
+        )
+
+
 }
