@@ -1,6 +1,7 @@
 package com.example.restau.domain.model
 
-class User (
+data class User (
+    val documentId: String = "",
     val email: String = "",
     val likes: List<String> = emptyList(),
     val name: String = "",

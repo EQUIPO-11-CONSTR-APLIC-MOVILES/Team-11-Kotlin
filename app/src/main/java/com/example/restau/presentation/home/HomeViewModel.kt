@@ -6,7 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
+import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.RestaurantUseCases
+import com.example.restau.domain.usecases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,14 +16,29 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val restaurantUseCases: RestaurantUseCases
+    private val restaurantUseCases: RestaurantUseCases,
+    private val userUseCases: UserUseCases
 ): ViewModel() {
 
     var state by mutableStateOf(HomeState())
         private set
 
+    var currentUser by mutableStateOf(User())
+        private set
+
+
+
     init {
-        getRestaurants()
+        updateUserAndData()
+    }
+
+    private fun updateUserAndData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = userUseCases.getUserObject()
+            currentUser = user
+            getRestaurants()
+            currentUser.documentId != ""
+        }
     }
 
 
@@ -30,6 +47,25 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.FilterEvent -> {
                 filterChange(event.selectedFilter)
             }
+            is HomeEvent.SendLike -> {
+                modifyLike(event.documentId, event.delete)
+            }
+        }
+    }
+
+    private fun modifyLike(documentId: String, delete: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val likes = currentUser.likes.toMutableList()
+            if (delete) {
+                likes.remove(documentId)
+            } else {
+                likes.add(documentId)
+            }
+            currentUser = currentUser.copy(
+                likes = likes
+            )
+            updateRestaurantsState(state.restaurants)
+            userUseCases.sendLike(documentId, currentUser)
         }
     }
 
@@ -58,10 +94,15 @@ class HomeViewModel @Inject constructor(
                     restaurants = restaurantUseCases.getRestaurants()
                 }
             }
-            state = state.copy(
-                restaurants = restaurants,
-                isNew = restaurantUseCases.getIsNewRestaurantArray(restaurants),
-            )
+            updateRestaurantsState(restaurants)
         }
+    }
+
+    private fun updateRestaurantsState(restaurants: List<Restaurant>) {
+        state = state.copy(
+            restaurants = restaurants,
+            isNew = restaurantUseCases.getIsNewRestaurantArray(restaurants),
+            isLiked = restaurantUseCases.getRestaurantsLiked(restaurants, currentUser.likes)
+        )
     }
 }
