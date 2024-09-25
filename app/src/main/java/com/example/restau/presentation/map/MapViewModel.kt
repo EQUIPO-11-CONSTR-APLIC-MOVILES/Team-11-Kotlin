@@ -1,16 +1,18 @@
 package com.example.restau.presentation.map
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
+import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.LocationUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
+import com.example.restau.domain.usecases.UserUseCases
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
@@ -20,13 +22,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
     private val restaurantsUseCases: RestaurantUseCases,
-    private val imageDownloadUseCases: ImageDownloadUseCases
+    private val imageDownloadUseCases: ImageDownloadUseCases,
+    private val userUseCases: UserUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(MapState())
@@ -43,6 +47,21 @@ class MapViewModel @Inject constructor(
 
     private var circleJob by mutableStateOf<Job?>(null)
 
+    private var currentUser by mutableStateOf(User())
+
+    var likedAndNew by mutableStateOf<List<Boolean>>(emptyList())
+        private set
+
+
+    private suspend fun updateUserData(restaurants: List<Restaurant>) {
+        val user = userUseCases.getUserObject()
+        currentUser = user
+        val newRestaurants = restaurantsUseCases.getIsNewRestaurantArray(restaurants)
+        val potentialLikes = restaurantsUseCases.hasLikedCategoriesArray(restaurants, currentUser.preferences)
+        val notLikedYet = restaurants.map { !currentUser.likes.contains(it.documentId)  }
+        likedAndNew = newRestaurants.mapIndexed { index, new -> new && potentialLikes[index] && notLikedYet[index]}
+    }
+
 
     fun onEvent(event: MapEvent) {
         when (event) {
@@ -50,6 +69,7 @@ class MapViewModel @Inject constructor(
             is MapEvent.PermissionDenied -> permissionDenied()
             is MapEvent.RadiusChanged -> changeCircleRadius(event.radius)
             is MapEvent.Closing -> cancelCircleFollowing()
+            is MapEvent.PinClick -> downloadImage(state.restaurants, event.index, event.onGather)
         }
     }
 
@@ -94,19 +114,31 @@ class MapViewModel @Inject constructor(
 
     private suspend fun initializeData(restaurants: List<Restaurant>, startingLocation: LatLng) {
         filteredRestaurants = restaurantsUseCases.getRestaurantsInRadius(restaurants, startingLocation, circleRadius)
+        updateUserData(restaurants)
         state = state.copy(
             restaurants = restaurants,
-            images = downloadImages(restaurants).await(),
+            images = restaurants.map { null },
             isLoading = false
         )
         currentLocation = startingLocation
     }
 
 
-    private fun downloadImages(restaurants: List<Restaurant>): Deferred<List<ImageBitmap>> {
-        return viewModelScope.async(Dispatchers.IO) {
-            val urlList = restaurants.map { it.imageUrl }
-            imageDownloadUseCases.downloadImages(urlList)
+    private fun downloadImage(restaurants: List<Restaurant>, index: Int, onGather: suspend () -> Unit) {
+        Log.d("DONITEST", "test")
+        Log.d("DONITEST", "${state.images[index]}")
+        if (state.images[index] == null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val bitmap = imageDownloadUseCases.downloadSingleImage(restaurants[index].imageUrl)
+                val images = state.images.toMutableList()
+                images[index] = bitmap
+                state = state.copy(
+                    images = images,
+                )
+                withContext(Dispatchers.Main) {
+                    onGather()
+                }
+            }
         }
     }
 

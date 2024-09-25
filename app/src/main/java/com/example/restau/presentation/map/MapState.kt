@@ -9,6 +9,6 @@ data class MapState(
     val startLocation: LatLng = LatLng(4.603096177609384, -74.06584744436493),
     val isLoading: Boolean = true,
     val permission: Boolean = true,
-    val images: List<ImageBitmap> = emptyList(),
+    val images: List<ImageBitmap?> = emptyList(),
     val idIndexMap: Map<String, Int> = emptyMap(),
 )

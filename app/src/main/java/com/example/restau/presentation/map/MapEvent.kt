@@ -4,6 +4,7 @@ sealed class MapEvent {
 
     data object PermissionGranted: MapEvent()
     data class RadiusChanged(val radius: Double): MapEvent()
+    data class PinClick(val index: Int, val onGather: suspend () -> Unit): MapEvent()
     data object PermissionDenied: MapEvent()
     data object Closing: MapEvent()
 
