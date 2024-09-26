@@ -21,6 +21,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +46,16 @@ fun HomeScreen(
 ) {
     val user = homeViewModel.currentUser
     Log.d("DONITEST", user.email + " SCREEN")
+
+    DisposableEffect(Unit) {
+        homeViewModel.onEvent(HomeEvent.ScreenOpened)
+
+        onDispose {
+            homeViewModel.onEvent(HomeEvent.ScreenClosed)
+        }
+    }
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {

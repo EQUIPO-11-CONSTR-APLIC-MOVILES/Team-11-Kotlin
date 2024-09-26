@@ -18,6 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RestaU"
         tools:targetApi="31">
+        <meta-data android:name="google_analytics_automatic_screen_reporting_enabled" android:value="false" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />

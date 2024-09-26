@@ -91,6 +91,7 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-analytics")
 
 //    //Retrofit
 //    implementation("com.squareup.retrofit2:retrofit:2.9.0")

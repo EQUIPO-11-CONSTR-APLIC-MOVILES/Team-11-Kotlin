@@ -38,6 +38,8 @@ import com.example.restau.domain.usecases.LocationUseCases
 import com.example.restau.domain.usecases.SendLike
 import com.example.restau.domain.usecases.UserUseCases
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -62,6 +64,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = Firebase.firestore
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAnalytics(): FirebaseAnalytics = Firebase.analytics
 
     @Provides
     @Singleton
