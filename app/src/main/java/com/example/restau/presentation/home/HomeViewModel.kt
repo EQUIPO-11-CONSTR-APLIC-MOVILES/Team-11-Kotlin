@@ -1,29 +1,27 @@
 package com.example.restau.presentation.home
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.model.User
+import com.example.restau.domain.usecases.AnalyticsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.UserUseCases
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
     private val userUseCases: UserUseCases,
-    private val analytics: FirebaseAnalytics
+    private val analyticsUseCases: AnalyticsUseCases
 ): ViewModel() {
 
     var state by mutableStateOf(HomeState())
@@ -32,9 +30,7 @@ class HomeViewModel @Inject constructor(
     var currentUser by mutableStateOf(User())
         private set
 
-    private var timerJob by mutableStateOf<Job?>(null)
-
-    private var timer by mutableIntStateOf(0)
+    private var startTime by mutableStateOf(Date())
 
     init {
         updateUserAndData()
@@ -44,33 +40,22 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val user = userUseCases.getUserObject()
             currentUser = user
-            analytics.setUserId(currentUser.documentId)
             getRestaurants()
         }
     }
 
-    private fun cancelTimer() {
-        timerJob?.cancel()
-        timer = 0
-    }
 
-    private fun startTimerJob() {
-        cancelTimer()
-        timerJob = viewModelScope.launch(Dispatchers.Default) {
-            while (true) {
-                delay(1000L)
-                timer++
-            }
-        }
+
+    private fun startTimer() {
+        startTime = Date()
     }
 
     private fun sendEvent() {
-        timerJob?.cancel()
-        analytics.logEvent("home_screen_time") {
-            param("time(s)", timer.toLong())
-            param("user", currentUser.documentId)
+        viewModelScope.launch(Dispatchers.IO) {
+            val miliDifference = Date().time - startTime.time
+            val timer = TimeUnit.MILLISECONDS.toSeconds(miliDifference)
+            analyticsUseCases.sendScreenTimeEvent("home_screen", timer, currentUser.documentId)
         }
-        timer = 0
     }
 
     fun onEvent(event: HomeEvent) {
@@ -82,7 +67,7 @@ class HomeViewModel @Inject constructor(
                 modifyLike(event.documentId, event.delete)
             }
             is HomeEvent.ScreenOpened -> {
-                startTimerJob()
+                startTimer()
             }
             is HomeEvent.ScreenClosed -> {
                 sendEvent()

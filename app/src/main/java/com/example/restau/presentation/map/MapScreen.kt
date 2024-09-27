@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.example.restau.R
 import com.example.restau.presentation.common.LoadingCircle
 import com.example.restau.presentation.map.components.CardMarker
@@ -54,6 +55,14 @@ fun MapScreen(
 
     val permissions = rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
     val context = LocalContext.current
+
+    LifecycleResumeEffect(Unit) {
+        mapViewModel.onEvent(MapEvent.ScreenOpened)
+
+        onPauseOrDispose {
+            mapViewModel.onEvent(MapEvent.ScreenClosed)
+        }
+    }
 
 
     LaunchedEffect(Unit) {

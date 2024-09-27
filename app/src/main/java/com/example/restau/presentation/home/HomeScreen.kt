@@ -21,7 +21,6 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.example.restau.R
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.presentation.common.DynamicTopBar
@@ -47,10 +47,10 @@ fun HomeScreen(
     val user = homeViewModel.currentUser
     Log.d("DONITEST", user.email + " SCREEN")
 
-    DisposableEffect(Unit) {
+    LifecycleResumeEffect(Unit) {
         homeViewModel.onEvent(HomeEvent.ScreenOpened)
 
-        onDispose {
+        onPauseOrDispose {
             homeViewModel.onEvent(HomeEvent.ScreenClosed)
         }
     }

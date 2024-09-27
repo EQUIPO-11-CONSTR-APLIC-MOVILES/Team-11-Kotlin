@@ -10,6 +10,10 @@ sealed class SearchEvent {
 
     data object ClearRecentRestaurantsEvent: SearchEvent()
 
+    data object ScreenOpened: SearchEvent()
+
+    data object ScreenClosed: SearchEvent()
+
     data class SaveRecentRestaurantEvent(val restaurantId: String): SearchEvent()
 
     data class SearchFilterEvent(val restaurantName: String, val restaurants: List<Restaurant>): SearchEvent()
