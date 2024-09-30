@@ -182,9 +182,9 @@ fun SignInForm(
                 .padding(0.dp, 170.dp, 0.dp, 20.dp)
         )
 
-        EmailTextField(signInVM.state.email) { signInVM.state = signInVM.state.copy(email = it) }
+        EmailTextField(signInVM.state.email) { signInVM.onEvent(SignInEvent.EmailChange(email = it)) }
 
-        PasswordTextField(signInVM.state.password, { signInVM.state = signInVM.state.copy(password = it) }, signInVM)
+        PasswordTextField(signInVM.state.password, { signInVM.onEvent(SignInEvent.PasswordChange(password = it)) }, signInVM)
 
         if(signInVM.state.errSignIn){
             ErrorText()
@@ -203,7 +203,7 @@ fun SignInForm(
             )
         ) {
             Text(
-                text = "Sign in",
+                text = "Sign In",
                 fontFamily = Poppins,
                 fontWeight = FontWeight.SemiBold,
 
@@ -214,35 +214,40 @@ fun SignInForm(
                 fontSize = 16.sp
             )
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp, 50.dp, 5.dp, 30.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            HorizontalDivider(
-                modifier = Modifier.weight(1f),
-                thickness = 1.dp,
-                color = Color(0xFF2F2F2F)
-            )
-            Text(
-                text = "OR",
-                modifier = Modifier.padding(horizontal = 10.dp),
-                fontFamily = Poppins,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                color = Color(0xFF2F2F2F)
-            )
-            HorizontalDivider(
-                modifier = Modifier.weight(1f),
-                thickness = 1.dp,
-                color = Color(0xFF2F2F2F)
-            )
-        }
-
-        GoogleButton()
+        OtherSignUp()
     }
+}
+
+@Composable
+fun OtherSignUp() {
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp, 50.dp, 5.dp, 30.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        HorizontalDivider(
+            modifier = Modifier.weight(1f),
+            thickness = 1.dp,
+            color = Color(0xFF2F2F2F)
+        )
+        Text(
+            text = "OR",
+            modifier = Modifier.padding(horizontal = 10.dp),
+            fontFamily = Poppins,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            color = Color(0xFF2F2F2F)
+        )
+        HorizontalDivider(
+            modifier = Modifier.weight(1f),
+            thickness = 1.dp,
+            color = Color(0xFF2F2F2F)
+        )
+    }
+
+    GoogleButton()
 }
 
 @Composable
@@ -350,7 +355,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, sign
                 },
                 tint = MaterialTheme.colorScheme.secondary,
                 contentDescription = "Toggle password visibility",
-                modifier = Modifier.clickable { signInVM.state =  signInVM.state.copy(showPassword = !signInVM.state.showPassword) })
+                modifier = Modifier.clickable { signInVM.onEvent(SignInEvent.ShowPasswordChange(!signInVM.state.showPassword)) })
         }
     )
 }
