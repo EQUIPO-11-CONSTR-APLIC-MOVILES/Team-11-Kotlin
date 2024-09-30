@@ -44,7 +44,7 @@ fun SearchScreen(
     ) { result ->
         val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
         if (!spokenText.isNullOrEmpty()) {
-            viewModel.onEvent(SearchEvent.VoiceRecognitionChangeEvent(spokenText, state.restaurants))
+            viewModel.onEvent(SearchEvent.VoiceRecognitionChangeEvent(spokenText))
         }
     }
 
@@ -72,7 +72,7 @@ fun SearchScreen(
                 onValueChange = {
                     if (it.length <= 30) {
                     viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
-                    viewModel.onEvent(SearchEvent.SearchFilterEvent(it, state.restaurants))
+                    viewModel.onEvent(SearchEvent.SearchFilterEvent(it))
                     }
                 },
                 label = { Text("Restaurant Name or Categories") },

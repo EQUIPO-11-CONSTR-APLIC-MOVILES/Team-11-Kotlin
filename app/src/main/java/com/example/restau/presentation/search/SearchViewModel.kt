@@ -39,7 +39,7 @@ class SearchViewModel @Inject constructor(
     fun onEvent(event: SearchEvent) {
         when(event) {
             is SearchEvent.SearchFilterEvent -> {
-                getFilterRestaurantsByNameAndCategories(event.restaurantName, event.restaurants)
+                getFilterRestaurantsByNameAndCategories(event.restaurantName, state.restaurants)
             }
             is SearchEvent.FilterEvent -> TODO()
             is SearchEvent.ChangeNameEvent -> {
@@ -60,7 +60,7 @@ class SearchViewModel @Inject constructor(
 
             is SearchEvent.VoiceRecognitionChangeEvent -> {
                 onRestaurantNameChange(event.spokenText)
-                getFilterRestaurantsByNameAndCategories(event.spokenText, event.restaurants)
+                getFilterRestaurantsByNameAndCategories(event.spokenText, state.restaurants)
             }
         }
     }
