@@ -25,6 +25,18 @@ class SignUpViewModel @Inject constructor(
             is SignUpEvent.SignUp -> {
                 signUp(event)
             }
+            is SignUpEvent.NameChange -> {
+                state = state.copy(name = event.name)
+            }
+            is SignUpEvent.EmailChange -> {
+                state = state.copy(email = event.email)
+            }
+            is SignUpEvent.PasswordChange -> {
+                state = state.copy(password = event.password)
+            }
+            is SignUpEvent.ShowPasswordChange -> {
+                state = state.copy(showPassword = event.showPassword)
+            }
         }
     }
 
@@ -65,11 +77,11 @@ class SignUpViewModel @Inject constructor(
 
     private fun getUserRandPic(): String {
         val pictureLinks = arrayOf(
-            "gs://restau-5dba7.appspot.com/profilePics/alien.svg",
-            "gs://restau-5dba7.appspot.com/profilePics/ant.svg",
-            "gs://restau-5dba7.appspot.com/profilePics/astronaut.svg",
-            "gs://restau-5dba7.appspot.com/profilePics/bee.svg",
-            "gs://restau-5dba7.appspot.com/profilePics/cat.svg"
+            "https://firebasestorage.googleapis.com/v0/b/restau-5dba7.appspot.com/o/profilePics%2Falien.png?alt=media&token=741eaac3-c4a5-4753-9293-9f40826dbc0d",
+            "https://firebasestorage.googleapis.com/v0/b/restau-5dba7.appspot.com/o/profilePics%2Fant.png?alt=media&token=183f90eb-5ef3-4206-a863-738c64235cef",
+            "https://firebasestorage.googleapis.com/v0/b/restau-5dba7.appspot.com/o/profilePics%2Fastronaut.png?alt=media&token=d4eb4a0f-0205-4d78-9edb-3fbcab8181de",
+            "https://firebasestorage.googleapis.com/v0/b/restau-5dba7.appspot.com/o/profilePics%2Fbee.png?alt=media&token=7a934c3e-a0bd-4557-b64d-200aec680bf2",
+            "https://firebasestorage.googleapis.com/v0/b/restau-5dba7.appspot.com/o/profilePics%2Fcat.png?alt=media&token=ec0c9822-0446-453d-92de-d67620be6008"
         )
         val rnds = (0..4).random()
         return pictureLinks[rnds]

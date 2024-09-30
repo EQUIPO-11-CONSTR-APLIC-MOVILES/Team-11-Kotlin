@@ -104,11 +104,11 @@ fun SignUpForm(
                 .padding(0.dp, 170.dp, 0.dp, 20.dp)
         )
 
-        NameTextField(signUpVM.state.name) { signUpVM.state = signUpVM.state.copy(name = it) }
+        NameTextField(signUpVM.state.name) { signUpVM.onEvent(SignUpEvent.NameChange(name = it)) }
 
-        EmailTextField(signUpVM.state.email) { signUpVM.state = signUpVM.state.copy(email = it) }
+        EmailTextField(signUpVM.state.email) { signUpVM.onEvent(SignUpEvent.EmailChange(email = it)) }
 
-        PasswordTextField(signUpVM.state.password, { signUpVM.state = signUpVM.state.copy(password = it) }, signUpVM)
+        PasswordTextField(signUpVM.state.password, { signUpVM.onEvent(SignUpEvent.PasswordChange(password = it)) }, signUpVM)
 
         if(signUpVM.state.errSignUp != ""){
             ErrorText(signUpVM.state.errSignUp)
@@ -284,7 +284,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, sign
                 },
                 tint = MaterialTheme.colorScheme.secondary,
                 contentDescription = "Toggle password visibility",
-                modifier = Modifier.clickable { signUpVM.state =  signUpVM.state.copy(showPassword = !signUpVM.state.showPassword) })
+                modifier = Modifier.clickable { signUpVM.onEvent(SignUpEvent.ShowPasswordChange(showPassword = !signUpVM.state.showPassword))})
         }
     )
 }
