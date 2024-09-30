@@ -25,6 +25,15 @@ class SignInViewModel @Inject constructor(
             is SignInEvent.SignIn -> {
                 signIn(event)
             }
+            is SignInEvent.EmailChange -> {
+                state = state.copy(email = event.email)
+            }
+            is SignInEvent.PasswordChange -> {
+                state = state.copy(password = event.password)
+            }
+            is SignInEvent.ShowPasswordChange -> {
+                state = state.copy(showPassword = event.showPassword)
+            }
         }
     }
 
