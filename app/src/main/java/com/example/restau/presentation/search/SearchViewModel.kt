@@ -8,12 +8,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.restau.domain.usecases.RestaurantUseCases
+import com.example.restau.domain.model.Restaurant
+import com.example.restau.domain.model.User
+import com.example.restau.domain.usecases.AnalyticsUseCases
 import com.example.restau.domain.usecases.RecentsUseCases
+import com.example.restau.domain.usecases.RestaurantUseCases
+import com.example.restau.domain.usecases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import androidx.activity.result.ActivityResultLauncher
 import com.example.restau.domain.model.Restaurant
@@ -21,7 +27,9 @@ import com.example.restau.domain.model.Restaurant
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
-    private val recentsUseCases: RecentsUseCases
+    private val recentsUseCases: RecentsUseCases,
+    private val analyticsUseCases: AnalyticsUseCases,
+    private val userUseCases: UserUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(SearchState())
@@ -30,10 +38,34 @@ class SearchViewModel @Inject constructor(
     var restaurantName by mutableStateOf("")
         private set
 
+    private var startTime by mutableStateOf(Date())
+
+    var currentUser by mutableStateOf(User())
+        private set
 
     init {
         getRestaurants()
         getRecentRestaurants()
+        updateUser()
+    }
+
+    private fun updateUser() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = userUseCases.getUserObject()
+            currentUser = user
+        }
+    }
+
+    private fun startTimer() {
+        startTime = Date()
+    }
+
+    private fun sendEvent() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val miliDifference = Date().time - startTime.time
+            val timer = TimeUnit.MILLISECONDS.toSeconds(miliDifference)
+            analyticsUseCases.sendScreenTimeEvent("search_screen", timer, currentUser.documentId)
+        }
     }
 
     fun onEvent(event: SearchEvent) {
@@ -62,6 +94,9 @@ class SearchViewModel @Inject constructor(
                 onRestaurantNameChange(event.spokenText)
                 getFilterRestaurantsByNameAndCategories(event.spokenText, state.restaurants)
             }
+            is SearchEvent.ScreenOpened -> startTimer()
+            is SearchEvent.ScreenClosed -> sendEvent()
+
         }
     }
 

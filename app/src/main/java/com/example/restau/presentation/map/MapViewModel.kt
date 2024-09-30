@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.model.User
+import com.example.restau.domain.usecases.AnalyticsUseCases
 import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.LocationUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
@@ -23,6 +24,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,7 +33,8 @@ class MapViewModel @Inject constructor(
     private val locationUseCases: LocationUseCases,
     private val restaurantsUseCases: RestaurantUseCases,
     private val imageDownloadUseCases: ImageDownloadUseCases,
-    private val userUseCases: UserUseCases
+    private val userUseCases: UserUseCases,
+    private val analyticsUseCases: AnalyticsUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(MapState())
@@ -52,6 +56,7 @@ class MapViewModel @Inject constructor(
     var likedAndNew by mutableStateOf<List<Boolean>>(emptyList())
         private set
 
+    private var startTime by mutableStateOf(Date())
 
     private suspend fun updateUserData(restaurants: List<Restaurant>) {
         val user = userUseCases.getUserObject()
@@ -62,6 +67,18 @@ class MapViewModel @Inject constructor(
         likedAndNew = newRestaurants.mapIndexed { index, new -> new && potentialLikes[index] && notLikedYet[index]}
     }
 
+    private fun startTimer() {
+        startTime = Date()
+    }
+
+    private fun sendEvent() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val miliDifference = Date().time - startTime.time
+            val timer = TimeUnit.MILLISECONDS.toSeconds(miliDifference)
+            analyticsUseCases.sendScreenTimeEvent("map_screen", timer, currentUser.documentId)
+        }
+    }
+
 
     fun onEvent(event: MapEvent) {
         when (event) {
@@ -70,6 +87,8 @@ class MapViewModel @Inject constructor(
             is MapEvent.RadiusChanged -> changeCircleRadius(event.radius)
             is MapEvent.Closing -> cancelCircleFollowing()
             is MapEvent.PinClick -> downloadImage(state.restaurants, event.index, event.onGather)
+            is MapEvent.ScreenOpened -> startTimer()
+            is MapEvent.ScreenClosed -> sendEvent()
         }
     }
 
@@ -150,7 +169,7 @@ class MapViewModel @Inject constructor(
 
     private fun getRestaurants(): Deferred<List<Restaurant>> {
         return viewModelScope.async(Dispatchers.IO) {
-            restaurantsUseCases.getOpenRestaurants()
+            restaurantsUseCases.getRestaurants()
         }
     }
 
