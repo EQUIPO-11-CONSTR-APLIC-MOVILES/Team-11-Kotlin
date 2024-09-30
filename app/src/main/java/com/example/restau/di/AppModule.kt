@@ -8,12 +8,15 @@ import com.example.restau.domain.repository.AuthRepository
 import android.content.Context
 import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
+import com.example.restau.data.repository.ScreenTimeEventsRepositoryImpl
 import com.example.restau.data.repository.UsersRepositoryImpl
 import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
+import com.example.restau.domain.repository.ScreenTimeEventsRepository
 import com.example.restau.domain.repository.UsersRepository
+import com.example.restau.domain.usecases.AnalyticsUseCases
 import com.example.restau.domain.usecases.GetFilterRestaurantsByNameAndCategories
 import com.example.restau.domain.usecases.DownloadImages
 import com.example.restau.domain.usecases.DownloadSingleImage
@@ -36,8 +39,11 @@ import com.example.restau.domain.usecases.HasLikedCategoriesArray
 import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.LocationUseCases
 import com.example.restau.domain.usecases.SendLike
+import com.example.restau.domain.usecases.SendScreenTimeEvent
 import com.example.restau.domain.usecases.UserUseCases
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -62,6 +68,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = Firebase.firestore
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAnalytics(): FirebaseAnalytics = Firebase.analytics
 
     @Provides
     @Singleton
@@ -154,6 +164,19 @@ object AppModule {
     @Singleton
     fun provideUsersRepository(db: FirebaseFirestore): UsersRepository =
         UsersRepositoryImpl(db)
+
+    @Provides
+    @Singleton
+    fun provideScreenTimeEventsRepository(db: FirebaseFirestore): ScreenTimeEventsRepository =
+        ScreenTimeEventsRepositoryImpl(db)
+
+    @Provides
+    @Singleton
+    fun provideAnalyticsUseCases(
+        screenTimeEventsRepository: ScreenTimeEventsRepository
+    ) = AnalyticsUseCases(
+        sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository)
+    )
 
     @Provides
     @Singleton
