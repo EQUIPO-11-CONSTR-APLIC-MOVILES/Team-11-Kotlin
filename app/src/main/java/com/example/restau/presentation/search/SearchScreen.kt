@@ -1,7 +1,12 @@
 package com.example.restau.presentation.search
 
+import android.app.Activity
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,6 +56,20 @@ fun SearchScreen(
         }
     }
 
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    val speechRecognizerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
+        if (!spokenText.isNullOrEmpty()) {
+            viewModel.onEvent(SearchEvent.VoiceRecognitionChangeEvent(spokenText))
+        }
+    }
+
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -69,9 +89,12 @@ fun SearchScreen(
             // Campo de búsqueda
             OutlinedTextField(
                 value = restaurantName,
-                onValueChange = { viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
-                                  viewModel.onEvent(SearchEvent.SearchFilterEvent(it, state.restaurants))
-                                },
+                onValueChange = {
+                    if (it.length <= 30) {
+                    viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
+                    viewModel.onEvent(SearchEvent.SearchFilterEvent(it))
+                    }
+                },
                 label = { Text("Restaurant Name or Categories") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -81,11 +104,20 @@ fun SearchScreen(
                     cursorColor = SoftRed
                 ),
                 trailingIcon = {
-                    if (restaurantName.isNotEmpty()){
-                        IconButton(onClick = {  viewModel.onEvent(SearchEvent.ChangeNameEvent("")) }) {
+                    Row{
+                        if (restaurantName.isNotEmpty()){
+                            IconButton(onClick = {  viewModel.onEvent(SearchEvent.ChangeNameEvent("")) }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.cleartext),
+                                    contentDescription = "Clear text"
+                                )
+                            }
+                        }
+
+                        IconButton(onClick = { viewModel.onEvent(SearchEvent.VoiceRecognitionEvent(activity!!, speechRecognizerLauncher)) }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.cleartext),
-                                contentDescription = "Clear text"
+                                painter = painterResource(id = R.drawable.microphone),
+                                contentDescription = "Speak restaurant"
                             )
                         }
                     }

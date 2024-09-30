@@ -1,11 +1,13 @@
 package com.example.restau.presentation.search
 
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.AnalyticsUseCases
 import com.example.restau.domain.usecases.RecentsUseCases
@@ -18,6 +20,8 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import androidx.activity.result.ActivityResultLauncher
+import com.example.restau.domain.model.Restaurant
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -66,7 +70,7 @@ class SearchViewModel @Inject constructor(
     fun onEvent(event: SearchEvent) {
         when(event) {
             is SearchEvent.SearchFilterEvent -> {
-                getFilterRestaurantsByNameAndCategories(event.restaurantName, event.restaurants)
+                getFilterRestaurantsByNameAndCategories(event.restaurantName, state.restaurants)
             }
             is SearchEvent.FilterEvent -> TODO()
             is SearchEvent.ChangeNameEvent -> {
@@ -80,8 +84,18 @@ class SearchViewModel @Inject constructor(
             is SearchEvent.SaveRecentRestaurantEvent -> {
                 saveRecentRestaurant(event.restaurantId)
             }
+
+            is SearchEvent.VoiceRecognitionEvent -> {
+                startVoiceRecognition(event.activity, event.speechRecognizerLauncher)
+            }
+
+            is SearchEvent.VoiceRecognitionChangeEvent -> {
+                onRestaurantNameChange(event.spokenText)
+                getFilterRestaurantsByNameAndCategories(event.spokenText, state.restaurants)
+            }
             is SearchEvent.ScreenOpened -> startTimer()
             is SearchEvent.ScreenClosed -> sendEvent()
+
         }
     }
 
@@ -132,5 +146,14 @@ class SearchViewModel @Inject constructor(
             state = state.copy(filteredRestaurantsByNameAndCategories = filteredRestaurants)
         }
     }
+
+    private fun startVoiceRecognition(activity: Activity, speechRecognizerLauncher: ActivityResultLauncher<Intent>) {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak the restaurant name or category")
+        }
+        speechRecognizerLauncher.launch(intent)
+    }
+
 }
 
