@@ -17,10 +17,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.restau.R
 import com.example.restau.presentation.common.LoadingCircle
 import com.example.restau.presentation.map.components.CardMarker
 import com.example.restau.presentation.map.components.NoPermissionsSign
@@ -30,6 +32,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
@@ -39,6 +42,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -78,6 +82,10 @@ fun MapScreen(
                 currentLocation = mapViewModel.currentLocation,
                 filteredRestaurants = mapViewModel.filteredRestaurants,
                 circleRadius = mapViewModel.circleRadius,
+                likedAndNew = mapViewModel.likedAndNew,
+                onPinClick = { index, onGather ->
+                    mapViewModel.onEvent(MapEvent.PinClick(index, onGather))
+                },
                 onRadiusChange = {
                     mapViewModel.onEvent(MapEvent.RadiusChanged(it))
                 },
@@ -112,7 +120,9 @@ private fun MapContent(
     filteredRestaurants: List<Boolean>,
     circleRadius: Double,
     currentLocation: LatLng,
+    onPinClick: (Int, suspend () -> Unit) -> Unit,
     onRadiusChange: (Double) -> Unit,
+    likedAndNew: List<Boolean>,
     modifier: Modifier = Modifier
 ) {
     val cameraState = rememberCameraPositionState()
@@ -138,10 +148,19 @@ private fun MapContent(
             if (!state.isLoading) {
                 state.restaurants.forEachIndexed { index, restaurant ->
                     MarkerInfoWindow(
-                        state = rememberMarkerState(position = LatLng(restaurant.latitude, restaurant.longitude)),
+                        state = rememberMarkerState(key = (state.images[index] == null).toString() ,position = LatLng(restaurant.latitude, restaurant.longitude)),
                         zIndex = Float.MAX_VALUE,
+                        infoWindowAnchor = Offset(0.5f, 0.85f),
+                        icon = if (!likedAndNew[index]) null else BitmapDescriptorFactory.fromResource(R.drawable.specialpin),
                         visible = filteredRestaurants[index],
-                        onClick = {
+                        onClick = {marker ->
+                            onPinClick(index) {
+                                delay(250L)
+                                if (marker.isInfoWindowShown) {
+                                    marker.hideInfoWindow()
+                                    marker.showInfoWindow()
+                                }
+                            }
                             scope.launch {
                                 cameraState.centerOnLocation(
                                     location = LatLng(restaurant.latitude, restaurant.longitude),
@@ -179,6 +198,7 @@ private fun MapContent(
         }
     }
 }
+
 
 private suspend fun CameraPositionState.centerOnLocation(
     location: LatLng,

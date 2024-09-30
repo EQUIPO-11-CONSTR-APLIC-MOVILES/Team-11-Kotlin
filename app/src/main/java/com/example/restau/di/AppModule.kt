@@ -33,6 +33,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.example.restau.domain.usecases.GetRestaurantsInRadius
 import com.example.restau.domain.usecases.GetRestaurantsLiked
 import com.example.restau.domain.usecases.GetUserObject
+import com.example.restau.domain.usecases.HasLikedCategoriesArray
 import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.LocationUseCases
 import com.example.restau.domain.usecases.SendLike
@@ -103,7 +104,8 @@ object AppModule {
             getIsNewRestaurantArray = GetIsNewRestaurantArray(),
             getFilterRestaurantsByNameAndCategories = GetFilterRestaurantsByNameAndCategories(),
             getRestaurantsInRadius = GetRestaurantsInRadius(),
-            getRestaurantsLiked = GetRestaurantsLiked()
+            getRestaurantsLiked = GetRestaurantsLiked(),
+            hasLikedCategoriesArray = HasLikedCategoriesArray()
         )
     }
 

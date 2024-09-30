@@ -26,8 +26,6 @@ class HomeViewModel @Inject constructor(
     var currentUser by mutableStateOf(User())
         private set
 
-
-
     init {
         updateUserAndData()
     }

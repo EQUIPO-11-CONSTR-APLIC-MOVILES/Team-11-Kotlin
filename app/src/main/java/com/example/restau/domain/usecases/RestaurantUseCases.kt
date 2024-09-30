@@ -6,5 +6,6 @@ class RestaurantUseCases(
     val getIsNewRestaurantArray: GetIsNewRestaurantArray,
     val getFilterRestaurantsByNameAndCategories: GetFilterRestaurantsByNameAndCategories,
     val getRestaurantsInRadius: GetRestaurantsInRadius,
-    val getRestaurantsLiked: GetRestaurantsLiked
+    val getRestaurantsLiked: GetRestaurantsLiked,
+    val hasLikedCategoriesArray: HasLikedCategoriesArray
 )
