@@ -1,11 +1,8 @@
 package com.example.restau.presentation.search
 
 import android.app.Activity
-import android.content.Intent
 import android.speech.RecognizerIntent
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -19,18 +16,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.RestaurantCard
 import com.example.restau.presentation.common.TopBarAction
-import com.google.firebase.Timestamp
-import java.util.Date
 import com.example.restau.ui.theme.SoftRed
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.restau.R
@@ -42,6 +35,20 @@ fun SearchScreen(
 ) {
     val state = viewModel.state
     val restaurantName = viewModel.restaurantName
+
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    val speechRecognizerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
+        if (!spokenText.isNullOrEmpty()) {
+            viewModel.onEvent(SearchEvent.VoiceRecognitionChangeEvent(spokenText, state.restaurants))
+        }
+    }
+
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -62,9 +69,12 @@ fun SearchScreen(
             // Campo de búsqueda
             OutlinedTextField(
                 value = restaurantName,
-                onValueChange = { viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
-                                  viewModel.onEvent(SearchEvent.SearchFilterEvent(it, state.restaurants))
-                                },
+                onValueChange = {
+                    if (it.length <= 30) {
+                    viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
+                    viewModel.onEvent(SearchEvent.SearchFilterEvent(it, state.restaurants))
+                    }
+                },
                 label = { Text("Restaurant Name or Categories") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -74,11 +84,20 @@ fun SearchScreen(
                     cursorColor = SoftRed
                 ),
                 trailingIcon = {
-                    if (restaurantName.isNotEmpty()){
-                        IconButton(onClick = {  viewModel.onEvent(SearchEvent.ChangeNameEvent("")) }) {
+                    Row{
+                        if (restaurantName.isNotEmpty()){
+                            IconButton(onClick = {  viewModel.onEvent(SearchEvent.ChangeNameEvent("")) }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.cleartext),
+                                    contentDescription = "Clear text"
+                                )
+                            }
+                        }
+
+                        IconButton(onClick = { viewModel.onEvent(SearchEvent.VoiceRecognitionEvent(activity!!, speechRecognizerLauncher)) }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.cleartext),
-                                contentDescription = "Clear text"
+                                painter = painterResource(id = R.drawable.microphone),
+                                contentDescription = "Speak restaurant"
                             )
                         }
                     }
