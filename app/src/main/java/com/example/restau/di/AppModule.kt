@@ -24,6 +24,7 @@ import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
 import com.example.restau.domain.usecases.AuthUseCases
 import com.example.restau.domain.usecases.ExecuteSignIn
+import com.example.restau.domain.usecases.ExecuteSignUp
 import com.example.restau.domain.usecases.GetCurrentUser
 import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
@@ -113,7 +114,9 @@ object AppModule {
     ): AuthUseCases {
         return AuthUseCases(
             executeSignIn = ExecuteSignIn(authRepository),
-            getCurrentUser = GetCurrentUser(authRepository)
+            getCurrentUser = GetCurrentUser(authRepository),
+            executeSignUp = ExecuteSignUp(authRepository),
+            setUserName = SetUserName(authRepository)
         )
     }
 

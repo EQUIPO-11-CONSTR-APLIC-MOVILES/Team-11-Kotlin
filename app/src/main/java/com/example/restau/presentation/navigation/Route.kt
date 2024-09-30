@@ -13,6 +13,7 @@ sealed class Route(
     data object LikeScreen: Route(route = "like", icon = R.drawable.like)
     data object MapScreen: Route(route = "map", icon = R.drawable.map)
     data object SignInScreen: Route(route = "signin", icon = null)
+    data object SignUpScreen: Route(route = "signup", icon = null)
 }
 
 val items = listOf(

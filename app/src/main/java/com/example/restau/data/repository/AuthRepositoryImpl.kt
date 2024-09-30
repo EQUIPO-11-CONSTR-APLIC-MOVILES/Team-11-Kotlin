@@ -1,7 +1,6 @@
 package com.example.restau.data.repository
 
 import android.util.Log
-import com.example.restau.domain.model.User
 import com.example.restau.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -23,8 +22,14 @@ class AuthRepositoryImpl(
     }
 
 
-    override suspend fun register(email: String, password: String): User? {
-        TODO("Not yet implemented")
+    override suspend fun signUp(email: String, password: String): Boolean {
+        return try {
+            val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            authResult.user != null
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "signUpWithEmail:failure", e)
+            false
+        }
     }
 
     override suspend fun getCurrentUser(): FirebaseUser? {
