@@ -26,7 +26,6 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -94,7 +93,7 @@ fun SignUpForm(
     ) {
 
         Text(
-            text = "Login",
+            text = "Create Account",
             color = Color(0xFF2F2F2F),
             fontFamily = Poppins,
             fontSize = 30.sp,
@@ -111,8 +110,8 @@ fun SignUpForm(
 
         PasswordTextField(signUpVM.state.password, { signUpVM.state = signUpVM.state.copy(password = it) }, signUpVM)
 
-        if(signUpVM.state.errSignUp){
-            ErrorText()
+        if(signUpVM.state.errSignUp != ""){
+            ErrorText(signUpVM.state.errSignUp)
         }
 
         Button(
@@ -128,7 +127,7 @@ fun SignUpForm(
             )
         ) {
             Text(
-                text = "Sign up",
+                text = "Sign Up",
                 fontFamily = Poppins,
                 fontWeight = FontWeight.SemiBold,
 
@@ -137,32 +136,6 @@ fun SignUpForm(
                     .padding(5.dp),
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp, 50.dp, 5.dp, 30.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            HorizontalDivider(
-                modifier = Modifier.weight(1f),
-                thickness = 1.dp,
-                color = Color(0xFF2F2F2F)
-            )
-            Text(
-                text = "OR",
-                modifier = Modifier.padding(horizontal = 10.dp),
-                fontFamily = Poppins,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                color = Color(0xFF2F2F2F)
-            )
-            HorizontalDivider(
-                modifier = Modifier.weight(1f),
-                thickness = 1.dp,
-                color = Color(0xFF2F2F2F)
             )
         }
     }
@@ -179,7 +152,7 @@ fun SignInText(navController: NavController) {
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Don't have an account?",
+            text = "Already have an account?",
             color = Color.Gray,
             fontFamily = Poppins,
             fontSize = 14.sp,
@@ -317,7 +290,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, sign
 }
 
 @Composable
-fun ErrorText() {
+fun ErrorText(message: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -333,7 +306,7 @@ fun ErrorText() {
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = "Invalid email or password",
+            text = message,
             color = Color(0xFFB00020),
             fontFamily = Poppins,
             fontSize = 14.sp,

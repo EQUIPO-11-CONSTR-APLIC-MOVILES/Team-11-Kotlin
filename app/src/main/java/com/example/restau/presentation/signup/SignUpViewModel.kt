@@ -35,9 +35,7 @@ class SignUpViewModel @Inject constructor(
 
                 if (isAuthenticated) {
                     event.onSuccess()
-                    authUseCases.setUserInfo(event.name, event.email)
-                } else {
-                    signUpFailure()
+                    authUseCases.setUserInfo(event.name, event.email, getUserRandPic())
                 }
             } catch (e: Exception) {
                 Log.e("SignInViewModel", "Error during sign-up", e)
@@ -47,22 +45,33 @@ class SignUpViewModel @Inject constructor(
 
     private suspend fun executeSignUp(email: String, password: String, authCheck: suspend () -> Unit): Boolean {
         return withContext(Dispatchers.IO) {
-            val authenticated = authUseCases.executeSignUp(email, password)
+            var authenticated = false
+            val result = authUseCases.executeSignUp(email, password)
+            result.onSuccess {
+                authenticated = true
+            }.onFailure {
+                signUpFailure(it.message ?: "An error occurred")
+                authenticated = false
+            }
             Log.d("SignUpViewModel", "executeSignUp: $authenticated")
             authCheck()
             authenticated
         }
     }
 
-    private fun signUpFailure() {
-        state = state.copy(errSignUp = true)
+    private fun signUpFailure(message: String) {
+        state = state.copy(errSignUp = message)
     }
 
-    private fun getUserRandPic() {
+    private fun getUserRandPic(): String {
         val pictureLinks = arrayOf(
-            "link1",
-            "link2",
-            "link3"
+            "gs://restau-5dba7.appspot.com/profilePics/alien.svg",
+            "gs://restau-5dba7.appspot.com/profilePics/ant.svg",
+            "gs://restau-5dba7.appspot.com/profilePics/astronaut.svg",
+            "gs://restau-5dba7.appspot.com/profilePics/bee.svg",
+            "gs://restau-5dba7.appspot.com/profilePics/cat.svg"
         )
+        val rnds = (0..4).random()
+        return pictureLinks[rnds]
     }
 }
