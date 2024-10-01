@@ -32,10 +32,6 @@ class LikedViewModel @Inject constructor(
 
     private var startTime by mutableStateOf(Date())
 
-    init {
-        updateUserAndData()
-    }
-
     private fun updateUserAndData() {
         viewModelScope.launch(Dispatchers.IO) {
             val user = userUseCases.getUserObject()
@@ -60,6 +56,7 @@ class LikedViewModel @Inject constructor(
         when(event) {
             is LikedEvent.ScreenOpened -> {
                 startTimer()
+                updateUserAndData()
             }
             is LikedEvent.ScreenClosed -> {
                 sendEvent()
