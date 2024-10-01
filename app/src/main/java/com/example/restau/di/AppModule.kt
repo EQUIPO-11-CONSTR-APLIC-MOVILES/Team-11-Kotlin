@@ -1,47 +1,49 @@
 package com.example.restau.di
 
 import android.app.Application
-import com.example.restau.data.repository.AuthRepositoryImpl
-import com.example.restau.data.repository.RecentsRepositoryImpl
-import com.example.restau.data.repository.RestaurantsRepositoryImpl
-import com.example.restau.domain.repository.AuthRepository
 import android.content.Context
+import com.example.restau.data.repository.AuthRepositoryImpl
 import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
+import com.example.restau.data.repository.RecentsRepositoryImpl
+import com.example.restau.data.repository.RestaurantsRepositoryImpl
 import com.example.restau.data.repository.ScreenTimeEventsRepositoryImpl
 import com.example.restau.data.repository.UsersRepositoryImpl
+import com.example.restau.domain.repository.AuthRepository
 import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
 import com.example.restau.domain.repository.ScreenTimeEventsRepository
 import com.example.restau.domain.repository.UsersRepository
+import com.example.restau.domain.usecases.AuthUseCases
 import com.example.restau.domain.usecases.AnalyticsUseCases
-import com.example.restau.domain.usecases.GetFilterRestaurantsByNameAndCategories
 import com.example.restau.domain.usecases.DownloadImages
 import com.example.restau.domain.usecases.DownloadSingleImage
+import com.example.restau.domain.usecases.ExecuteSignIn
+import com.example.restau.domain.usecases.ExecuteSignUp
+import com.example.restau.domain.usecases.GetCurrentUser
+import com.example.restau.domain.usecases.GetFilterRestaurantsByNameAndCategories
 import com.example.restau.domain.usecases.GetIsNewRestaurantArray
 import com.example.restau.domain.usecases.GetLocation
 import com.example.restau.domain.usecases.GetOpenRestaurants
 import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
-import com.example.restau.domain.usecases.AuthUseCases
-import com.example.restau.domain.usecases.ExecuteSignIn
-import com.example.restau.domain.usecases.GetCurrentUser
-import com.example.restau.domain.usecases.RecentsUseCases
-import com.example.restau.domain.usecases.RestaurantUseCases
-import com.example.restau.domain.usecases.SaveRecents
-import com.google.firebase.auth.FirebaseAuth
 import com.example.restau.domain.usecases.GetRestaurantsInRadius
 import com.example.restau.domain.usecases.GetRestaurantsLiked
 import com.example.restau.domain.usecases.GetUserObject
 import com.example.restau.domain.usecases.HasLikedCategoriesArray
 import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.LocationUseCases
+import com.example.restau.domain.usecases.RecentsUseCases
+import com.example.restau.domain.usecases.RestaurantUseCases
+import com.example.restau.domain.usecases.SaveRecents
 import com.example.restau.domain.usecases.SendLike
+import com.example.restau.domain.usecases.SetUserInfo
+import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
 import com.example.restau.domain.usecases.SendScreenTimeEvent
 import com.example.restau.domain.usecases.UserUseCases
-import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.firestore.FirebaseFirestore
@@ -87,8 +89,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(firebaseAuth: FirebaseAuth): AuthRepository {
-        return AuthRepositoryImpl(firebaseAuth)
+    fun provideAuthRepository(firebaseAuth: FirebaseAuth, db: FirebaseFirestore): AuthRepository {
+        return AuthRepositoryImpl(firebaseAuth, db)
     }
 
     @Provides
@@ -125,7 +127,9 @@ object AppModule {
     ): AuthUseCases {
         return AuthUseCases(
             executeSignIn = ExecuteSignIn(authRepository),
-            getCurrentUser = GetCurrentUser(authRepository)
+            getCurrentUser = GetCurrentUser(authRepository),
+            executeSignUp = ExecuteSignUp(authRepository),
+            setUserInfo = SetUserInfo(authRepository)
         )
     }
 

@@ -10,6 +10,7 @@ import com.example.restau.presentation.map.MapScreen
 import com.example.restau.presentation.random.RandomScreen
 import com.example.restau.presentation.search.SearchScreen
 import com.example.restau.presentation.signin.SignInScreen
+import com.example.restau.presentation.signup.SignUpScreen
 
 @Composable
 fun NavGraph(
@@ -37,5 +38,8 @@ fun NavGraph(
         composable(route = Route.SignInScreen.route) {
             SignInScreen(navHostController, authCheck)
         }
+         composable(route = Route.SignUpScreen.route) {
+             SignUpScreen(navHostController, authCheck)
+         }
     }
 }

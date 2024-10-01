@@ -1,4 +1,4 @@
-package com.example.restau.presentation.signin
+package com.example.restau.presentation.signup
 
 import android.util.Patterns
 import androidx.compose.foundation.Image
@@ -12,15 +12,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Lock
@@ -28,7 +26,6 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -38,9 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -57,9 +52,8 @@ import com.example.restau.R
 import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
 
-
 @Composable
-fun SignInScreen(
+fun SignUpScreen(
     navController: NavHostController,
     authCheck: suspend () -> Unit
 ) {
@@ -79,87 +73,15 @@ fun SignInScreen(
                 .size(100.dp)
         )
 
-        SignInForm(navController = navController, authCheck = authCheck)
+        SignUpForm(navController = navController, authCheck = authCheck)
 
-        SignUpText(navController)
+        SignInText(navController)
     }
 }
 
 @Composable
-fun GoogleButton() {
-    Button(
-        onClick = { /* Handle onClick */ },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,
-            contentColor = Color.Gray,
-        ),
-        shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
-            .height(56.dp)
-            .wrapContentWidth()
-            .background(Color.White)
-            .shadow(4.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.google_icon),
-                contentDescription = "Google Sign-In Icon",
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(end = 8.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Text(
-                text = "Sign in with Google",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
-
-@Composable
-fun SignUpText(navController: NavController) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(40.dp, 0.dp, 40.dp, 60.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Don't have an account?",
-            color = Color.Gray,
-            fontFamily = Poppins,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-            textAlign = TextAlign.Left,
-        )
-
-        Spacer(modifier = Modifier.width(5.dp))
-
-        Text(
-            text = "Sign Up",
-            color = MaterialTheme.colorScheme.secondary,
-            fontFamily = Poppins,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.ExtraBold,
-            textAlign = TextAlign.Right,
-            modifier = Modifier.clickable { navController.navigate(Route.SignUpScreen.route)  }
-        )
-    }
-}
-
-@Composable
-fun SignInForm(
-    signInVM: SignInViewModel = hiltViewModel(),
+fun SignUpForm(
+    signUpVM: SignUpViewModel = hiltViewModel(),
     navController: NavHostController,
     authCheck: suspend () -> Unit
 ) {
@@ -171,7 +93,7 @@ fun SignInForm(
     ) {
 
         Text(
-            text = "Login",
+            text = "Create Account",
             color = Color(0xFF2F2F2F),
             fontFamily = Poppins,
             fontSize = 30.sp,
@@ -182,17 +104,19 @@ fun SignInForm(
                 .padding(0.dp, 170.dp, 0.dp, 20.dp)
         )
 
-        EmailTextField(signInVM.state.email) { signInVM.onEvent(SignInEvent.EmailChange(email = it)) }
+        NameTextField(signUpVM.state.name) { signUpVM.onEvent(SignUpEvent.NameChange(name = it)) }
 
-        PasswordTextField(signInVM.state.password, { signInVM.onEvent(SignInEvent.PasswordChange(password = it)) }, signInVM)
+        EmailTextField(signUpVM.state.email) { signUpVM.onEvent(SignUpEvent.EmailChange(email = it)) }
 
-        if(signInVM.state.errSignIn){
-            ErrorText()
+        PasswordTextField(signUpVM.state.password, { signUpVM.onEvent(SignUpEvent.PasswordChange(password = it)) }, signUpVM)
+
+        if(signUpVM.state.errSignUp != ""){
+            ErrorText(signUpVM.state.errSignUp)
         }
 
         Button(
             onClick = {
-                signInVM.onEvent(SignInEvent.SignIn(signInVM.state.email, signInVM.state.password, { signedSuccess(navController) }, {  authCheck() }) )
+                signUpVM.onEvent(SignUpEvent.SignUp(signUpVM.state.name, signUpVM.state.email, signUpVM.state.password, { signedSuccess(navController) },  { authCheck() }))
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -203,7 +127,7 @@ fun SignInForm(
             )
         ) {
             Text(
-                text = "Sign In",
+                text = "Sign Up",
                 fontFamily = Poppins,
                 fontWeight = FontWeight.SemiBold,
 
@@ -214,69 +138,74 @@ fun SignInForm(
                 fontSize = 16.sp
             )
         }
-        OtherSignUp()
     }
 }
 
 @Composable
-fun OtherSignUp() {
-
+fun SignInText(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp, 50.dp, 5.dp, 30.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxHeight()
+            .padding(40.dp, 0.dp, 40.dp, 60.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Center
     ) {
-        HorizontalDivider(
-            modifier = Modifier.weight(1f),
-            thickness = 1.dp,
-            color = Color(0xFF2F2F2F)
-        )
         Text(
-            text = "OR",
-            modifier = Modifier.padding(horizontal = 10.dp),
-            fontFamily = Poppins,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            color = Color(0xFF2F2F2F)
-        )
-        HorizontalDivider(
-            modifier = Modifier.weight(1f),
-            thickness = 1.dp,
-            color = Color(0xFF2F2F2F)
-        )
-    }
-
-    GoogleButton()
-}
-
-@Composable
-fun ErrorText() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 10.dp, 0.dp, 0.dp)
-    ) {
-        Icon(
-            Icons.Outlined.ErrorOutline,
-            contentDescription = "Error Icon",
-            tint = Color(0xFFB00020),
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Text(
-            text = "Invalid email or password",
-            color = Color(0xFFB00020),
+            text = "Already have an account?",
+            color = Color.Gray,
             fontFamily = Poppins,
             fontSize = 14.sp,
             fontWeight = FontWeight.Normal,
             textAlign = TextAlign.Left,
-            modifier = Modifier
-                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.width(5.dp))
+
+        Text(
+            text = "Sign In",
+            color = MaterialTheme.colorScheme.secondary,
+            fontFamily = Poppins,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.ExtraBold,
+            textAlign = TextAlign.Right,
+            modifier = Modifier.clickable { navController.navigate(Route.SignInScreen.route)  }
         )
     }
+}
+
+@Composable
+fun NameTextField(name: String, onNameChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = name,
+        textStyle = TextStyle(
+            fontSize = 16.sp,
+            fontFamily = Poppins
+        ),
+        singleLine = true,
+        onValueChange = {
+            if (it.length <= 100) onNameChange(it)
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFF2F2F2F),
+            unfocusedBorderColor = Color(0xFF2F2F2F),
+            cursorColor = Color(0xFF2F2F2F),
+            focusedLabelColor = Color(0xFF2F2F2F),
+            unfocusedLabelColor = Color(0xFF2F2F2F)
+        ),
+        leadingIcon = {
+            Icon(
+                Icons.Outlined.AccountCircle,
+                contentDescription = "name",
+                tint = Color(0xFF2F2F2F)
+            )
+        },
+        label = { Text(text = "Name", fontSize = 16.sp) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 15.dp)
+            .wrapContentHeight()
+    )
 }
 
 @Composable
@@ -315,7 +244,7 @@ fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
 }
 
 @Composable
-fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, signInVM: SignInViewModel) {
+fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, signUpVM: SignUpViewModel) {
     val passwordVisualTransformation = remember { PasswordVisualTransformation() }
 
     OutlinedTextField(
@@ -338,7 +267,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, sign
             )
         },
         label = { Text("Password") },
-        visualTransformation = if (signInVM.state.showPassword) {
+        visualTransformation = if (signUpVM.state.showPassword) {
             VisualTransformation.None
         } else {
             passwordVisualTransformation
@@ -348,16 +277,45 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, sign
         modifier = Modifier.fillMaxWidth(),
         trailingIcon = {
             Icon(
-                if (signInVM.state.showPassword) {
+                if (signUpVM.state.showPassword) {
                     Icons.Outlined.Visibility
                 } else {
                     Icons.Outlined.VisibilityOff
                 },
                 tint = MaterialTheme.colorScheme.secondary,
                 contentDescription = "Toggle password visibility",
-                modifier = Modifier.clickable { signInVM.onEvent(SignInEvent.ShowPasswordChange(!signInVM.state.showPassword)) })
+                modifier = Modifier.clickable { signUpVM.onEvent(SignUpEvent.ShowPasswordChange(showPassword = !signUpVM.state.showPassword))})
         }
     )
+}
+
+@Composable
+fun ErrorText(message: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(0.dp, 10.dp, 0.dp, 0.dp)
+    ) {
+        Icon(
+            Icons.Outlined.ErrorOutline,
+            contentDescription = "Error Icon",
+            tint = Color(0xFFB00020),
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = message,
+            color = Color(0xFFB00020),
+            fontFamily = Poppins,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal,
+            textAlign = TextAlign.Left,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
 }
 
 fun signedSuccess(navController: NavController) {
@@ -367,4 +325,3 @@ fun signedSuccess(navController: NavController) {
         }
     }
 }
-
