@@ -188,7 +188,7 @@ fun TagGroup(
 
 fun savedSuccess(navController: NavController) {
     navController.navigate(Route.HomeScreen.route) {
-        popUpTo(navController.graph.startDestinationId) {
+        popUpTo(Route.SignInScreen.route) {
             inclusive = true
         }
     }

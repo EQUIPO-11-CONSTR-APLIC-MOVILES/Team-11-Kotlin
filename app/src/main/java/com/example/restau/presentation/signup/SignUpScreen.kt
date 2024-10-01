@@ -171,7 +171,7 @@ fun SignInText(navController: NavController) {
             fontSize = 14.sp,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Right,
-            modifier = Modifier.clickable { navController.navigate(Route.SignInScreen.route)  }
+            modifier = Modifier.clickable { navController.popBackStack( Route.SignInScreen.route, false)  }
         )
     }
 }
