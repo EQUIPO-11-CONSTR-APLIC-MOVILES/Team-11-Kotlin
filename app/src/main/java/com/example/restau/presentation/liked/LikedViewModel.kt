@@ -56,13 +56,15 @@ class LikedViewModel @Inject constructor(
         when(event) {
             is LikedEvent.ScreenOpened -> {
                 startTimer()
-                updateUserAndData()
             }
             is LikedEvent.ScreenClosed -> {
                 sendEvent()
             }
             is LikedEvent.SendLike -> {
                 modifyLike(event.documentId, event.delete)
+            }
+            is LikedEvent.ScreenLaunched -> {
+                updateUserAndData()
             }
         }
     }

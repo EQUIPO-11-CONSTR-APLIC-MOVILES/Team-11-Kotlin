@@ -32,10 +32,6 @@ class HomeViewModel @Inject constructor(
 
     private var startTime by mutableStateOf(Date())
 
-    init {
-        updateUserAndData()
-    }
-
     private fun updateUserAndData() {
         viewModelScope.launch(Dispatchers.IO) {
             val user = userUseCases.getUserObject()
@@ -71,6 +67,9 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.ScreenClosed -> {
                 sendEvent()
+            }
+            is HomeEvent.ScreenLaunched -> {
+                updateUserAndData()
             }
         }
     }
