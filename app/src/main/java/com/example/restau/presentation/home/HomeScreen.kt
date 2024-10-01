@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.example.restau.R
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.presentation.common.DynamicTopBar
@@ -45,6 +46,16 @@ fun HomeScreen(
 ) {
     val user = homeViewModel.currentUser
     Log.d("DONITEST", user.email + " SCREEN")
+
+    LifecycleResumeEffect(Unit) {
+        homeViewModel.onEvent(HomeEvent.ScreenOpened)
+
+        onPauseOrDispose {
+            homeViewModel.onEvent(HomeEvent.ScreenClosed)
+        }
+    }
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {

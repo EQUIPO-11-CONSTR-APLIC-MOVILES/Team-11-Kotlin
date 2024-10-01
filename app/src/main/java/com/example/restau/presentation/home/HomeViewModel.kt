@@ -7,17 +7,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.model.User
+import com.example.restau.domain.usecases.AnalyticsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
-    private val userUseCases: UserUseCases
+    private val userUseCases: UserUseCases,
+    private val analyticsUseCases: AnalyticsUseCases
 ): ViewModel() {
 
     var state by mutableStateOf(HomeState())
@@ -25,6 +29,8 @@ class HomeViewModel @Inject constructor(
 
     var currentUser by mutableStateOf(User())
         private set
+
+    private var startTime by mutableStateOf(Date())
 
     init {
         updateUserAndData()
@@ -35,10 +41,22 @@ class HomeViewModel @Inject constructor(
             val user = userUseCases.getUserObject()
             currentUser = user
             getRestaurants()
-            currentUser.documentId != ""
         }
     }
 
+
+
+    private fun startTimer() {
+        startTime = Date()
+    }
+
+    private fun sendEvent() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val miliDifference = Date().time - startTime.time
+            val timer = TimeUnit.MILLISECONDS.toSeconds(miliDifference)
+            analyticsUseCases.sendScreenTimeEvent("home_screen", timer, currentUser.documentId)
+        }
+    }
 
     fun onEvent(event: HomeEvent) {
         when(event) {
@@ -47,6 +65,12 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.SendLike -> {
                 modifyLike(event.documentId, event.delete)
+            }
+            is HomeEvent.ScreenOpened -> {
+                startTimer()
+            }
+            is HomeEvent.ScreenClosed -> {
+                sendEvent()
             }
         }
     }
