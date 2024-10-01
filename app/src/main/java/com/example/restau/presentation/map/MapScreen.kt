@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
@@ -136,6 +138,10 @@ private fun MapContent(
 ) {
     val cameraState = rememberCameraPositionState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val mapStyleOptions = remember {
+        MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style)
+    }
 
     LaunchedEffect(state.startLocation) {
         Log.d("DONITEST", "LAUNCHED EFFECT")
@@ -147,7 +153,8 @@ private fun MapContent(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraState,
             properties = MapProperties(
-                isMyLocationEnabled = true
+                isMyLocationEnabled = true,
+                mapStyleOptions = mapStyleOptions
             ),
             uiSettings = MapUiSettings(
                 zoomControlsEnabled = false,
@@ -159,7 +166,7 @@ private fun MapContent(
                     MarkerInfoWindow(
                         state = rememberMarkerState(key = (state.images[index] == null).toString() ,position = LatLng(restaurant.latitude, restaurant.longitude)),
                         zIndex = Float.MAX_VALUE,
-                        infoWindowAnchor = Offset(0.5f, 0.85f),
+                        infoWindowAnchor = Offset(0.5f, 0.55f),
                         icon = if (!likedAndNew[index]) null else BitmapDescriptorFactory.fromResource(R.drawable.specialpin),
                         visible = filteredRestaurants[index],
                         onClick = {marker ->

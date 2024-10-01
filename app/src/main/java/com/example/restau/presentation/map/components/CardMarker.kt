@@ -121,14 +121,14 @@ fun CustomShapeWithShadowContent(
     modifier: Modifier = Modifier,
     pointerWidth: Float = 90f,
     pointerHeight: Float = 135f,
-    shadowRadius: Dp = 20.dp,
+    shadowRadius: Dp = 7.dp,
     content: @Composable (Modifier) -> Unit  // Content slot to pass in other composables
 ) {
     val density = LocalDensity.current
 
     Box(modifier = modifier
-        .padding(20.dp)
-        .width(210.dp)
+        .padding(7.dp)
+        .width(235.dp)
         .height(320.dp)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
