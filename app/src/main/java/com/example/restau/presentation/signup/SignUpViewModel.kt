@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.usecases.AuthUseCases
+import com.example.restau.domain.usecases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val authUseCases: AuthUseCases
+    private val authUseCases: AuthUseCases,
+    private val userUseCases: UserUseCases
 ): ViewModel() {
 
     var state by mutableStateOf(SignUpState())
@@ -44,10 +46,10 @@ class SignUpViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val isAuthenticated = executeSignUp(event.email, event.password)
+                val isCreated = userUseCases.setUserInfo(event.name, event.email, getUserRandPic(), authUseCases.getCurrentUser()?.uid ?: "")
 
-                if (isAuthenticated) {
+                if (isAuthenticated && isCreated) {
                     event.onSuccess()
-                    authUseCases.setUserInfo(event.name, event.email, getUserRandPic())
                 }
             } catch (e: Exception) {
                 Log.e("SignInViewModel", "Error during sign-up", e)

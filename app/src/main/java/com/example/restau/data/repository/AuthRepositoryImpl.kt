@@ -7,13 +7,11 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 
 class AuthRepositoryImpl(
-    private val firebaseAuth: FirebaseAuth,
-    private val db: FirebaseFirestore
+    private val firebaseAuth: FirebaseAuth
 ) : AuthRepository {
 
     override suspend fun signIn(email: String, password: String): Boolean {
@@ -52,24 +50,6 @@ class AuthRepositoryImpl(
         } catch (e: Exception) {
             Log.e("AuthRepository", "getCurrentUserToken: failure", e)
             null
-        }
-    }
-
-    override suspend fun setUserInfo(name: String, email: String, picLink: String): Boolean {
-        return try {
-            val info = hashMapOf(
-                "name" to name,
-                "email" to email,
-                "profilePic" to picLink
-            )
-
-            val userID = getCurrentUser()?.uid ?: ""
-            db.collection("users").document(userID).set(info).await()
-
-            true
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "setUserInfo: failure", e)
-            false
         }
     }
 }

@@ -1,20 +1,18 @@
 package com.example.restau.presentation.preferences
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -22,6 +20,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,16 +40,9 @@ fun PreferencesScreen(
     navController: NavHostController,
     authCheck: suspend () -> Unit
 ) {
-    val tags = mapOf(
-        "Cuisine" to listOf("Italian", "Chinese", "Indian", "Japanese", "Mexican", "Thai", "Vietnamese"),
-        "Dish Type" to listOf("Pizza", "Burger", "Pasta", "Sushi", "Salad", "Sandwich", "Soup"),
-        "Meal Type" to listOf("Breakfast", "Brunch", "Lunch", "Dinner", "Dessert", "Snack"),
-        "Dietary" to listOf("Vegetarian", "Vegan", "Gluten Free", "Dairy Free", "Nut Free", "Halal", "Kosher"),
-        "Price Range" to listOf("Budget Friendly", "Mid Range", "Fine Dining"),
-        "Dining Style" to listOf("Casual", "Fast Food", "Food Truck", "Cafe", "Bar", "Pub", "Bakery"),
-        "Atmosphere" to listOf("Family Friendly", "Romantic", "Outdoor", "Pet Friendly", "Quiet", "Lively"),
-        "Features" to listOf("Takeout", "Delivery", "Reservations", "Outdoor Seating", "Wifi", "TV", "Live Music")
-    )
+    LaunchedEffect(Unit) {
+        preferencesVM.onEvent(PreferencesEvent.GetTags())
+    }
 
     Box(
         modifier = Modifier
@@ -73,28 +65,37 @@ fun PreferencesScreen(
                     .padding(0.dp, 90.dp, 0.dp, 20.dp)
             )
 
-            preferencesVM.onEvent(PreferencesEvent.VerticalScroll(rememberScrollState()))
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
 
-            preferencesVM.state.verticalScrollState?.let { Modifier.verticalScroll(it) }?.let {
-                Column(
-                    modifier = it,
-                ) {
 
-                    for ((index, tagGroup) in tags.entries.withIndex()) {
+                for (tagGroup in preferencesVM.state.tags.entries.sortedBy { it.value.first }) {
+                    item{
                         TagGroup(
-                            preferencesVM = preferencesVM,
-                            index = index,
+                            preferencesVMState = preferencesVM.state,
+                            preferencesVMOnEvent = preferencesVM::onEvent,
                             tagName = tagGroup.key,
-                            tagList = tagGroup.value
+                            tagList = tagGroup.value.second
                         )
                     }
+
+
+                }
+                item {
                     Spacer(modifier = Modifier.height(100.dp))
                 }
             }
         }
         Button(
             onClick = {
-                preferencesVM.onEvent(PreferencesEvent.SaveTags(preferencesVM.state.selectedTags, { savedSuccess(navController) }, {  authCheck() }) )
+                preferencesVM.onEvent(
+                    PreferencesEvent.SaveTags(
+                        preferencesVM.state.selectedTags,
+                        { savedSuccess(navController) },
+                        { authCheck() })
+                )
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -116,12 +117,13 @@ fun PreferencesScreen(
             )
         }
     }
+
 }
 
 @Composable
 fun TagGroup(
-    preferencesVM: PreferencesViewModel = hiltViewModel(),
-    index: Int,
+    preferencesVMState: PreferencesState,
+    preferencesVMOnEvent: (PreferencesEvent) -> Unit,
     tagName: String,
     tagList: List<String>
 ) {
@@ -129,7 +131,6 @@ fun TagGroup(
         modifier = Modifier
             .padding(0.dp, 5.dp, 0.dp, 10.dp)
     ) {
-        preferencesVM.onEvent(PreferencesEvent.StartScroll(index, rememberScrollState()))
         Text(
             text = tagName,
             color = Color(0xFF2F2F2F),
@@ -140,41 +141,43 @@ fun TagGroup(
             modifier = Modifier.padding(40.dp, 10.dp, 10.dp, 10.dp)
         )
 
-        Row(
+        LazyRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
-                .horizontalScroll(preferencesVM.state.scrollStates[index]),
-
-            ) {
-            Spacer(modifier = Modifier.width(40.dp))
+        ) {
+            item{
+                Spacer(modifier = Modifier.width(40.dp))
+            }
             for (tag in tagList) {
-                var color = Color.White
-                if (tag in preferencesVM.state.selectedTags) color =
-                    MaterialTheme.colorScheme.primary
-                ElevatedCard(
-                    colors = CardDefaults.elevatedCardColors(containerColor = color),
-                    modifier = Modifier
-                        .padding(5.dp, 0.dp, 10.dp, 0.dp)
-                        .selectable(
-                            selected = tag in preferencesVM.state.selectedTags,
-                            onClick = {
-                                preferencesVM.onEvent(PreferencesEvent.SelectTag(tag))
-                            },
-                        ),
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = 6.dp
-                    )
+                item{
+                    var color = Color.White
+                    if (tag in preferencesVMState.selectedTags) color =
+                        MaterialTheme.colorScheme.primary
+                    ElevatedCard(
+                        colors = CardDefaults.elevatedCardColors(containerColor = color),
+                        modifier = Modifier
+                            .padding(5.dp, 0.dp, 10.dp, 0.dp)
+                            .selectable(
+                                selected = tag in preferencesVMState.selectedTags,
+                                onClick = {
+                                    preferencesVMOnEvent(PreferencesEvent.SelectTag(tag))
+                                },
+                            ),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 6.dp
+                        )
 
-                ) {
-                    Text(
-                        text = tag,
-                        color = Color(0xFF2F2F2F),
-                        fontFamily = Poppins,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(10.dp, 7.dp, 10.dp, 7.dp)
-                    )
+                    ) {
+                        Text(
+                            text = tag,
+                            color = Color(0xFF2F2F2F),
+                            fontFamily = Poppins,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(10.dp, 7.dp, 10.dp, 7.dp)
+                        )
+                    }
                 }
 
             }
@@ -185,7 +188,7 @@ fun TagGroup(
 
 fun savedSuccess(navController: NavController) {
     navController.navigate(Route.HomeScreen.route) {
-        popUpTo(navController.graph.startDestinationId){
+        popUpTo(navController.graph.startDestinationId) {
             inclusive = true
         }
     }

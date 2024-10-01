@@ -63,4 +63,23 @@ class UsersRepositoryImpl(
             Log.w(TAG, e.toString())
         }
     }
+
+    override suspend fun setUserInfo(name: String, email: String, picLink: String, userID: String): Boolean {
+        return try {
+            val info = hashMapOf(
+                "name" to name,
+                "email" to email,
+                "profilePic" to picLink
+            )
+
+            Log.d("UsersRepository", "ID: $userID")
+
+            db.collection("users").document(userID).set(info).await()
+
+            true
+        } catch (e: Exception) {
+            Log.e("UsersRepository", "setUserInfo: failure", e)
+            false
+        }
+    }
 }
