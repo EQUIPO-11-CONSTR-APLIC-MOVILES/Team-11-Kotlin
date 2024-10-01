@@ -58,7 +58,9 @@ fun NavigatorScreen(
                     NavBar(
                         selected = navigatorViewModel.selected,
                         onNav = {
-                            navController.navigate(it)
+                            navController.navigate(it) {
+                                launchSingleTop = true
+                            }
                         },
                         onSelected = {
                             navigatorViewModel.onEvent(
