@@ -48,5 +48,38 @@ class UsersRepositoryImpl(
         }
     }
 
+    override suspend fun saveTags(tags: List<String>, user: User) {
+        try {
+            val dtUser = hashMapOf(
+                "preferences" to tags,
+            )
 
+            db.collection("users")
+                .document(user.documentId)
+                .set(dtUser, SetOptions.merge())
+                .await()
+
+        } catch (e: Exception) {
+            Log.w(TAG, e.toString())
+        }
+    }
+
+    override suspend fun setUserInfo(name: String, email: String, picLink: String, userID: String): Boolean {
+        return try {
+            val info = hashMapOf(
+                "name" to name,
+                "email" to email,
+                "profilePic" to picLink
+            )
+
+            Log.d("UsersRepository", "ID: $userID")
+
+            db.collection("users").document(userID).set(info).await()
+
+            true
+        } catch (e: Exception) {
+            Log.e("UsersRepository", "setUserInfo: failure", e)
+            false
+        }
+    }
 }

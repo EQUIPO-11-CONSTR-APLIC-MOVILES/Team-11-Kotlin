@@ -4,5 +4,4 @@ class AuthUseCases (
     val executeSignIn: ExecuteSignIn,
     val getCurrentUser: GetCurrentUser,
     val executeSignUp: ExecuteSignUp,
-    val setUserInfo: SetUserInfo
 )
