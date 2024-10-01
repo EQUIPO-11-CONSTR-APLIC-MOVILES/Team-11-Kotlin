@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -33,10 +32,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.example.restau.R
-import com.example.restau.domain.model.Restaurant
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
-import com.example.restau.presentation.common.RestaurantCard
+import com.example.restau.presentation.common.RestaurantsLazyList
 import com.example.restau.presentation.common.TopBarAction
 import com.example.restau.ui.theme.Poppins
 
@@ -114,63 +112,6 @@ fun HomeContent(
 }
 
 @Composable
-fun NoRestaurantOpen(
-    modifier: Modifier = Modifier
-) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.clock),
-            contentDescription = "No Open Restaurants",
-            tint = Color.Gray,
-            modifier = Modifier.size(65.dp)
-        )
-        Spacer(modifier = Modifier.height(5.dp))
-        Text(
-            text = "No Open Restaurants",
-            color = Color.Gray,
-            fontFamily = Poppins,
-            fontSize = 25.sp,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-fun RestaurantsLazyList(
-    restaurants: List<Restaurant>,
-    isNew: List<Boolean>,
-    isLiked: List<Boolean>,
-    onLike: (String, Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    LazyColumn(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 25.dp)
-    ) {
-        items(restaurants.size) { index ->
-            RestaurantCard(
-                isNew = isNew[index],
-                isFavorite = isLiked[index],
-                name = restaurants[index].name,
-                imageUrl = restaurants[index].imageUrl,
-                placeName = restaurants[index].placeName,
-                averageRating = restaurants[index].averageRating.toFloat(),
-                onFavorite = { onLike(restaurants[index].documentId, isLiked[index]) },
-                onClick = {}
-            )
-            Spacer(modifier = Modifier.height(29.dp))
-        }
-    }
-}
-
-@Composable
 fun FilterRow(
     selected: Int,
     onClick: (Int) -> Unit,
@@ -216,5 +157,32 @@ fun FilterRow(
                     .height(41.dp)
             )
         }
+    }
+}
+
+@Composable
+fun NoRestaurantOpen(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxSize()
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.clock),
+            contentDescription = "No Open Restaurants",
+            tint = Color.Gray,
+            modifier = Modifier.size(65.dp)
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(
+            text = "No Open Restaurants",
+            color = Color.Gray,
+            fontFamily = Poppins,
+            fontSize = 25.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
     }
 }
