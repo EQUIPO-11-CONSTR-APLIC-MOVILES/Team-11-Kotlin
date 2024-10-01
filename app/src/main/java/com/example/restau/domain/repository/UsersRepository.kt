@@ -7,4 +7,6 @@ interface UsersRepository {
     suspend fun getUser(email: String): User
 
     suspend fun submitLike(restaurant: String, user: User)
+
+    suspend fun saveTags(tags: List<String>, user: User)
 }

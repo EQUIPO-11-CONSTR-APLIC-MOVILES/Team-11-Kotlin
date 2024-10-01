@@ -48,5 +48,19 @@ class UsersRepositoryImpl(
         }
     }
 
+    override suspend fun saveTags(tags: List<String>, user: User) {
+        try {
+            val dtUser = hashMapOf(
+                "preferences" to tags,
+            )
 
+            db.collection("users")
+                .document(user.documentId)
+                .set(dtUser, SetOptions.merge())
+                .await()
+
+        } catch (e: Exception) {
+            Log.w(TAG, e.toString())
+        }
+    }
 }

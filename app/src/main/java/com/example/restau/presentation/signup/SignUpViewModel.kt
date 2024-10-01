@@ -43,7 +43,7 @@ class SignUpViewModel @Inject constructor(
     private fun signUp(event: SignUpEvent.SignUp){
         viewModelScope.launch {
             try {
-                val isAuthenticated = executeSignUp(event.email, event.password, event.authCheck)
+                val isAuthenticated = executeSignUp(event.email, event.password)
 
                 if (isAuthenticated) {
                     event.onSuccess()
@@ -55,7 +55,7 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private suspend fun executeSignUp(email: String, password: String, authCheck: suspend () -> Unit): Boolean {
+    private suspend fun executeSignUp(email: String, password: String): Boolean {
         return withContext(Dispatchers.IO) {
             var authenticated = false
             val result = authUseCases.executeSignUp(email, password)
@@ -66,7 +66,7 @@ class SignUpViewModel @Inject constructor(
                 authenticated = false
             }
             Log.d("SignUpViewModel", "executeSignUp: $authenticated")
-            authCheck()
+            //authCheck()
             authenticated
         }
     }

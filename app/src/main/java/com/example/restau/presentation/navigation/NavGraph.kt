@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.example.restau.presentation.home.HomeScreen
 import com.example.restau.presentation.liked.LikedScreen
 import com.example.restau.presentation.map.MapScreen
+import com.example.restau.presentation.preferences.PreferencesScreen
 import com.example.restau.presentation.random.RandomScreen
 import com.example.restau.presentation.search.SearchScreen
 import com.example.restau.presentation.signin.SignInScreen
@@ -39,7 +40,11 @@ fun NavGraph(
             SignInScreen(navHostController, authCheck)
         }
          composable(route = Route.SignUpScreen.route) {
-             SignUpScreen(navHostController, authCheck)
+             SignUpScreen(navHostController)
+         }
+
+         composable(route = Route.PreferencesScreen.route) {
+             PreferencesScreen(navController = navHostController, authCheck = authCheck)
          }
     }
 }

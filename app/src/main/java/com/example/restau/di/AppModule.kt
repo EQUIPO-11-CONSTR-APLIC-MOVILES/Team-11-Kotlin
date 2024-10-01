@@ -38,6 +38,7 @@ import com.example.restau.domain.usecases.LocationUseCases
 import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
+import com.example.restau.domain.usecases.SaveTags
 import com.example.restau.domain.usecases.SendLike
 import com.example.restau.domain.usecases.SetUserInfo
 import com.google.android.gms.location.LocationServices
@@ -193,7 +194,8 @@ object AppModule {
                 usersRepository,
                 authRepository
             ),
-            sendLike = SendLike(usersRepository)
+            sendLike = SendLike(usersRepository),
+            saveTags = SaveTags(usersRepository)
         )
 
 
