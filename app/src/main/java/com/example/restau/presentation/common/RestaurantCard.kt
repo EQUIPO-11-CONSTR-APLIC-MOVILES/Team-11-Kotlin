@@ -51,6 +51,7 @@ fun RestaurantCard(
     onFavorite: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showLikeButton: Boolean = true
 ) {
     Box(
         modifier = modifier
@@ -71,13 +72,15 @@ fun RestaurantCard(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
-        LikeButton(
-            isFavorite,
-            onFavorite,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 19.dp, top = 10.dp)
-        )
+        if (showLikeButton) {
+            LikeButton(
+                isFavorite,
+                onFavorite,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 19.dp, top = 10.dp)
+            )
+        }
         if (isNew) {
             NewLabel(
                 modifier = Modifier
