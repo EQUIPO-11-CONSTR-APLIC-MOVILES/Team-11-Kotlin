@@ -103,6 +103,8 @@ fun HomeContent(
         )
         if (state.restaurants.isEmpty() && state.nothingOpen) {
             NoRestaurantOpen()
+        } else if (state.restaurants.isEmpty() && state.nothingforyou) {
+            NoRestaurantForYou()
         } else if (state.restaurants.isEmpty()) {
             LoadingCircle()
         } else {
@@ -183,6 +185,33 @@ fun NoRestaurantOpen(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = "No Open Restaurants",
+            color = Color.Gray,
+            fontFamily = Poppins,
+            fontSize = 25.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun NoRestaurantForYou(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxSize()
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.nfy),
+            contentDescription = "No Restaurants For You",
+            tint = Color.Gray,
+            modifier = Modifier.size(65.dp)
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(
+            text = "No Restaurants For You",
             color = Color.Gray,
             fontFamily = Poppins,
             fontSize = 25.sp,
