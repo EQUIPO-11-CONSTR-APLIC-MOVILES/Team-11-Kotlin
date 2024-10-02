@@ -1,10 +1,10 @@
 package com.example.restau.domain.usecases
 
-import com.example.restau.domain.repository.AuthRepository
+import com.example.restau.domain.repository.UsersRepository
 
-class SetUserInfo(private val authRepository: AuthRepository) {
-    suspend operator fun invoke(name: String, email: String, picLink: String): Boolean {
-        return authRepository.setUserInfo(name, email, picLink)
+class SetUserInfo(private val userRepository: UsersRepository) {
+    suspend operator fun invoke(name: String, email: String, picLink: String, userID: String): Boolean {
+        return userRepository.setUserInfo(name, email, picLink, userID)
     }
 
 }

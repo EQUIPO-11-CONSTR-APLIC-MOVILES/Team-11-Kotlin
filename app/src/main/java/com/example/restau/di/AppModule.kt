@@ -8,6 +8,7 @@ import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
 import com.example.restau.data.repository.ScreenTimeEventsRepositoryImpl
+import com.example.restau.data.repository.TagsRepositoryImpl
 import com.example.restau.data.repository.UsersRepositoryImpl
 import com.example.restau.domain.repository.AuthRepository
 import com.example.restau.domain.repository.ImageRepository
@@ -15,6 +16,7 @@ import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
 import com.example.restau.domain.repository.ScreenTimeEventsRepository
+import com.example.restau.domain.repository.TagsRepository
 import com.example.restau.domain.repository.UsersRepository
 import com.example.restau.domain.usecases.AuthUseCases
 import com.example.restau.domain.usecases.AnalyticsUseCases
@@ -31,6 +33,7 @@ import com.example.restau.domain.usecases.GetRecents
 import com.example.restau.domain.usecases.GetRestaurants
 import com.example.restau.domain.usecases.GetRestaurantsInRadius
 import com.example.restau.domain.usecases.GetRestaurantsLiked
+import com.example.restau.domain.usecases.GetTags
 import com.example.restau.domain.usecases.GetUserObject
 import com.example.restau.domain.usecases.HasLikedCategoriesArray
 import com.example.restau.domain.usecases.ImageDownloadUseCases
@@ -38,11 +41,13 @@ import com.example.restau.domain.usecases.LocationUseCases
 import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
+import com.example.restau.domain.usecases.SaveTags
 import com.example.restau.domain.usecases.SendLike
 import com.example.restau.domain.usecases.SetUserInfo
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.example.restau.domain.usecases.SendScreenTimeEvent
+import com.example.restau.domain.usecases.TagsUseCases
 import com.example.restau.domain.usecases.UserUseCases
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -89,8 +94,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(firebaseAuth: FirebaseAuth, db: FirebaseFirestore): AuthRepository {
-        return AuthRepositoryImpl(firebaseAuth, db)
+    fun provideAuthRepository(firebaseAuth: FirebaseAuth): AuthRepository {
+        return AuthRepositoryImpl(firebaseAuth)
     }
 
     @Provides
@@ -128,8 +133,7 @@ object AppModule {
         return AuthUseCases(
             executeSignIn = ExecuteSignIn(authRepository),
             getCurrentUser = GetCurrentUser(authRepository),
-            executeSignUp = ExecuteSignUp(authRepository),
-            setUserInfo = SetUserInfo(authRepository)
+            executeSignUp = ExecuteSignUp(authRepository)
         )
     }
 
@@ -171,6 +175,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideTagsRepository(db: FirebaseFirestore): TagsRepository =
+        TagsRepositoryImpl(db)
+
+
+    @Provides
+    @Singleton
     fun provideScreenTimeEventsRepository(db: FirebaseFirestore): ScreenTimeEventsRepository =
         ScreenTimeEventsRepositoryImpl(db)
 
@@ -193,8 +203,19 @@ object AppModule {
                 usersRepository,
                 authRepository
             ),
-            sendLike = SendLike(usersRepository)
+            sendLike = SendLike(usersRepository),
+            saveTags = SaveTags(usersRepository),
+            setUserInfo = SetUserInfo(usersRepository)
         )
+
+    @Provides
+    @Singleton
+    fun provideTagsUseCases(
+        tagsRepository: TagsRepository
+    ) = TagsUseCases(
+        getTags = GetTags(tagsRepository)
+    )
+
 
 
 }

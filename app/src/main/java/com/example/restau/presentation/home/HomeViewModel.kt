@@ -75,6 +75,9 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.ScreenClosed -> {
                 sendEvent()
             }
+            is HomeEvent.ScreenLaunched -> {
+                updateUserAndData()
+            }
         }
     }
 

@@ -55,7 +55,6 @@ import com.example.restau.ui.theme.Poppins
 @Composable
 fun SignUpScreen(
     navController: NavHostController,
-    authCheck: suspend () -> Unit
 ) {
 
 
@@ -73,7 +72,7 @@ fun SignUpScreen(
                 .size(100.dp)
         )
 
-        SignUpForm(navController = navController, authCheck = authCheck)
+        SignUpForm(navController = navController)
 
         SignInText(navController)
     }
@@ -83,7 +82,6 @@ fun SignUpScreen(
 fun SignUpForm(
     signUpVM: SignUpViewModel = hiltViewModel(),
     navController: NavHostController,
-    authCheck: suspend () -> Unit
 ) {
 
     Column(
@@ -116,7 +114,11 @@ fun SignUpForm(
 
         Button(
             onClick = {
-                signUpVM.onEvent(SignUpEvent.SignUp(signUpVM.state.name, signUpVM.state.email, signUpVM.state.password, { signedSuccess(navController) },  { authCheck() }))
+                signUpVM.onEvent(SignUpEvent.SignUp(signUpVM.state.name, signUpVM.state.email, signUpVM.state.password) {
+                    signedSuccess(
+                        navController
+                    )
+                })
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -169,7 +171,7 @@ fun SignInText(navController: NavController) {
             fontSize = 14.sp,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Right,
-            modifier = Modifier.clickable { navController.navigate(Route.SignInScreen.route)  }
+            modifier = Modifier.clickable { navController.popBackStack( Route.SignInScreen.route, false)  }
         )
     }
 }
@@ -319,7 +321,7 @@ fun ErrorText(message: String) {
 }
 
 fun signedSuccess(navController: NavController) {
-    navController.navigate(Route.HomeScreen.route) {
+    navController.navigate(Route.PreferencesScreen.route) {
         popUpTo(navController.graph.startDestinationId){
             inclusive = true
         }

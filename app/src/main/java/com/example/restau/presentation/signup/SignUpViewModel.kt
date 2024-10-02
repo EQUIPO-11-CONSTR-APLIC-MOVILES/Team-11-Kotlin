@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.usecases.AuthUseCases
+import com.example.restau.domain.usecases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val authUseCases: AuthUseCases
+    private val authUseCases: AuthUseCases,
+    private val userUseCases: UserUseCases
 ): ViewModel() {
 
     var state by mutableStateOf(SignUpState())
@@ -43,11 +45,11 @@ class SignUpViewModel @Inject constructor(
     private fun signUp(event: SignUpEvent.SignUp){
         viewModelScope.launch {
             try {
-                val isAuthenticated = executeSignUp(event.email, event.password, event.authCheck)
+                val isAuthenticated = executeSignUp(event.email, event.password)
+                val isCreated = userUseCases.setUserInfo(event.name, event.email, getUserRandPic(), authUseCases.getCurrentUser()?.uid ?: "")
 
-                if (isAuthenticated) {
+                if (isAuthenticated && isCreated) {
                     event.onSuccess()
-                    authUseCases.setUserInfo(event.name, event.email, getUserRandPic())
                 }
             } catch (e: Exception) {
                 Log.e("SignInViewModel", "Error during sign-up", e)
@@ -55,7 +57,7 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private suspend fun executeSignUp(email: String, password: String, authCheck: suspend () -> Unit): Boolean {
+    private suspend fun executeSignUp(email: String, password: String): Boolean {
         return withContext(Dispatchers.IO) {
             var authenticated = false
             val result = authUseCases.executeSignUp(email, password)
@@ -66,7 +68,7 @@ class SignUpViewModel @Inject constructor(
                 authenticated = false
             }
             Log.d("SignUpViewModel", "executeSignUp: $authenticated")
-            authCheck()
+            //authCheck()
             authenticated
         }
     }
