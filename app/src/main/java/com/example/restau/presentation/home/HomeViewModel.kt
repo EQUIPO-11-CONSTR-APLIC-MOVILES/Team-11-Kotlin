@@ -35,10 +35,6 @@ class HomeViewModel @Inject constructor(
     var ForYouList by mutableStateOf<List<Restaurant>>(emptyList())
         private set
 
-    init {
-        updateUserAndData()
-    }
-
     private fun updateUserAndData() {
         viewModelScope.launch(Dispatchers.IO) {
             val user = userUseCases.getUserObject()
