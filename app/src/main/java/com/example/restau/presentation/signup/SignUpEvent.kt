@@ -6,4 +6,5 @@ sealed class SignUpEvent {
     data class EmailChange(val email: String): SignUpEvent()
     data class PasswordChange(val password: String): SignUpEvent()
     data class ShowPasswordChange(val showPassword: Boolean): SignUpEvent()
+    data class FeatureInteraction(val featureName: String) : SignUpEvent()
 }

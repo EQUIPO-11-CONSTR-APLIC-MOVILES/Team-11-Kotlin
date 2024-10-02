@@ -67,6 +67,12 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    private fun sendFeatureInteractionEvent(featureName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            analyticsUseCases.sendFeatureInteraction(featureName, currentUser.documentId)
+        }
+    }
+
     fun onEvent(event: SearchEvent) {
         when(event) {
             is SearchEvent.SearchFilterEvent -> {
@@ -95,7 +101,7 @@ class SearchViewModel @Inject constructor(
             }
             is SearchEvent.ScreenOpened -> startTimer()
             is SearchEvent.ScreenClosed -> sendEvent()
-
+            is SearchEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)
         }
     }
 

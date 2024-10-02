@@ -192,7 +192,7 @@ fun SignInForm(
 
         Button(
             onClick = {
-                signInVM.onEvent(SignInEvent.SignIn(signInVM.state.email, signInVM.state.password, { signedSuccess(navController) }, {  authCheck() }) )
+                signInVM.onEvent(SignInEvent.SignIn(signInVM.state.email, signInVM.state.password, { signedSuccess(navController);  signInVM.onEvent(SignInEvent.FeatureInteraction("auth_signin_feature"))}, {  authCheck() }) )
             },
             modifier = Modifier
                 .fillMaxWidth()
