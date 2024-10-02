@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,12 @@ fun SliderCard(
             .padding(33.dp)
             .fillMaxWidth()
             .height(93.dp)
+            .shadow(
+                elevation = 3.dp,
+                shape = RoundedCornerShape(25.dp),
+                ambientColor = Color.Black.copy(alpha = 1f),
+                spotColor = Color.Black.copy(alpha = 1f)
+            )
     ) {
         Column(
             verticalArrangement = Arrangement.Center,

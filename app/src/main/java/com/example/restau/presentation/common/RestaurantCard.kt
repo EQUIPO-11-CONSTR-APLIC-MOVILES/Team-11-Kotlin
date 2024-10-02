@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -54,6 +55,12 @@ fun RestaurantCard(
     Box(
         modifier = modifier
             .height(320.dp)
+            .shadow(
+                elevation = 4.dp,
+                shape = MaterialTheme.shapes.small,
+                ambientColor = Color.Black.copy(alpha = 1f),
+                spotColor = Color.Black.copy(alpha = 1f)
+            )
             .clip(MaterialTheme.shapes.small)
             .background(Color.Gray)
             .clickable { onClick() }
