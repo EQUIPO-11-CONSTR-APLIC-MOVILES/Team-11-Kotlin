@@ -96,9 +96,13 @@ fun MapScreen(
                 likedAndNew = mapViewModel.likedAndNew,
                 onPinClick = { index, onGather ->
                     mapViewModel.onEvent(MapEvent.PinClick(index, onGather))
+                    if (mapViewModel.likedAndNew[index]){
+                        mapViewModel.onEvent(MapEvent.FeatureInteraction("special_pin_feature"))
+                    }
                 },
                 onRadiusChange = {
                     mapViewModel.onEvent(MapEvent.RadiusChanged(it))
+                    mapViewModel.onEvent(MapEvent.FeatureInteraction("search_radius_feature"))
                 },
                 modifier = Modifier.padding(
                     top = paddingValues.calculateTopPadding(),

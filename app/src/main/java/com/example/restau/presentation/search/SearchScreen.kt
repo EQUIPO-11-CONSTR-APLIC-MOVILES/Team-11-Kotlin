@@ -68,6 +68,7 @@ fun SearchScreen(
         val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
         if (!spokenText.isNullOrEmpty()) {
             viewModel.onEvent(SearchEvent.VoiceRecognitionChangeEvent(spokenText))
+            viewModel.onEvent(SearchEvent.FeatureInteraction("voice_recognition_feature"))
         }
     }
 

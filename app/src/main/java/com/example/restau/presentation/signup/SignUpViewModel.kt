@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.restau.domain.usecases.AnalyticsUseCases
 import com.example.restau.domain.usecases.AuthUseCases
 import com.example.restau.domain.usecases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val authUseCases: AuthUseCases,
-    private val userUseCases: UserUseCases
+    private val userUseCases: UserUseCases,
+    private val analyticsUseCases: AnalyticsUseCases
 ): ViewModel() {
 
     var state by mutableStateOf(SignUpState())
@@ -39,6 +41,8 @@ class SignUpViewModel @Inject constructor(
             is SignUpEvent.ShowPasswordChange -> {
                 state = state.copy(showPassword = event.showPassword)
             }
+
+            is SignUpEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)
         }
     }
 
@@ -87,5 +91,11 @@ class SignUpViewModel @Inject constructor(
         )
         val rnds = (0..4).random()
         return pictureLinks[rnds]
+    }
+
+    private fun sendFeatureInteractionEvent(featureName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            analyticsUseCases.sendFeatureInteraction(featureName, "new_user")
+        }
     }
 }

@@ -57,6 +57,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun sendFeatureInteractionEvent(featureName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            analyticsUseCases.sendFeatureInteraction(featureName, currentUser.documentId)
+        }
+    }
+
     fun onEvent(event: HomeEvent) {
         when(event) {
             is HomeEvent.FilterEvent -> {
@@ -74,6 +80,8 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.ScreenLaunched -> {
                 updateUserAndData()
             }
+
+            is HomeEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)
         }
     }
 

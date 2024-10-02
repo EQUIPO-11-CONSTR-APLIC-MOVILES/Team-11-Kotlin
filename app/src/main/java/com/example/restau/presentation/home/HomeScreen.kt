@@ -73,6 +73,12 @@ fun HomeScreen(
             state = homeViewModel.state,
             onFilterClick = { filterIndex ->
                 homeViewModel.onEvent(HomeEvent.FilterEvent(filterIndex))
+                if (filterIndex == 0){ //This means that the user select and is on the open now screen (index 0)
+                    homeViewModel.onEvent(HomeEvent.FeatureInteraction("open_now_feature"))
+                }
+                else if (filterIndex == 1){ //This means that the user slect and is on the for you screen (index 1)
+                    homeViewModel.onEvent(HomeEvent.FeatureInteraction("for_you_feature"))
+                }
             },
             onLike = {documentId, delete ->
                 homeViewModel.onEvent(HomeEvent.SendLike(documentId, delete))

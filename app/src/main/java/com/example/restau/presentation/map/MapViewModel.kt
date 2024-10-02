@@ -79,6 +79,12 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    private fun sendFeatureInteractionEvent(featureName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            analyticsUseCases.sendFeatureInteraction(featureName, currentUser.documentId)
+        }
+    }
+
 
     fun onEvent(event: MapEvent) {
         when (event) {
@@ -89,6 +95,7 @@ class MapViewModel @Inject constructor(
             is MapEvent.PinClick -> downloadImage(state.restaurants, event.index, event.onGather)
             is MapEvent.ScreenOpened -> startTimer()
             is MapEvent.ScreenClosed -> sendEvent()
+            is MapEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)
         }
     }
 

@@ -118,6 +118,7 @@ fun SignUpForm(
                     signedSuccess(
                         navController
                     )
+                    signUpVM.onEvent(SignUpEvent.FeatureInteraction("auth_signup_feature"))
                 })
             },
             modifier = Modifier

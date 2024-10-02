@@ -3,6 +3,7 @@ package com.example.restau.di
 import android.app.Application
 import android.content.Context
 import com.example.restau.data.repository.AuthRepositoryImpl
+import com.example.restau.data.repository.FeaturesInteractionsEventsRepositoryImpl
 import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
@@ -11,6 +12,7 @@ import com.example.restau.data.repository.ScreenTimeEventsRepositoryImpl
 import com.example.restau.data.repository.TagsRepositoryImpl
 import com.example.restau.data.repository.UsersRepositoryImpl
 import com.example.restau.domain.repository.AuthRepository
+import com.example.restau.domain.repository.FeaturesInteractionsEventsRepository
 import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.RecentsRepository
@@ -42,6 +44,7 @@ import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
 import com.example.restau.domain.usecases.SaveTags
+import com.example.restau.domain.usecases.SendFeatureInteractionEvent
 import com.example.restau.domain.usecases.SendLike
 import com.example.restau.domain.usecases.SetUserInfo
 import com.google.android.gms.location.LocationServices
@@ -186,10 +189,17 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideFeaturesInteractionsEventsRepository(db: FirebaseFirestore): FeaturesInteractionsEventsRepository =
+        FeaturesInteractionsEventsRepositoryImpl(db)
+
+    @Provides
+    @Singleton
     fun provideAnalyticsUseCases(
-        screenTimeEventsRepository: ScreenTimeEventsRepository
+        screenTimeEventsRepository: ScreenTimeEventsRepository,
+        featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository
     ) = AnalyticsUseCases(
-        sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository)
+        sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository),
+        sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository)
     )
 
     @Provides
