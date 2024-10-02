@@ -32,9 +32,6 @@ class HomeViewModel @Inject constructor(
 
     private var startTime by mutableStateOf(Date())
 
-    var ForYouList by mutableStateOf<List<Restaurant>>(emptyList())
-        private set
-
     private fun updateUserAndData() {
         viewModelScope.launch(Dispatchers.IO) {
             val user = userUseCases.getUserObject()
@@ -113,6 +110,7 @@ class HomeViewModel @Inject constructor(
     private fun getRestaurants() {
         viewModelScope.launch(Dispatchers.IO) {
             var restaurants = emptyList<Restaurant>()
+            state = state.copy(nothingforyou = false, nothingOpen = false)
             when (state.selectedFilter) {
                 0 -> {
                     restaurants = restaurantUseCases.getOpenRestaurants()
@@ -138,17 +136,15 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private suspend fun updateForYouData(restaurants: List<Restaurant>): List<Restaurant> {
-        val user = userUseCases.getUserObject()
-        currentUser = user
+    private fun updateForYouData(restaurants: List<Restaurant>): List<Restaurant> {
         val potentialLikes = restaurantUseCases.hasLikedCategoriesArray(restaurants, currentUser.preferences)
         val notLikedYet = restaurants.map { !currentUser.likes.contains(it.documentId) }
 
-        ForYouList = restaurants.filterIndexed { index, _ ->
+        val forYouList = restaurants.filterIndexed { index, _ ->
              potentialLikes[index] && notLikedYet[index]
         }
 
-        return ForYouList
+        return forYouList
     }
 
 }
