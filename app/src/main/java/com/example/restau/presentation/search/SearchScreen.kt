@@ -197,7 +197,8 @@ fun RestaurantsLazyList(
                 placeName = restaurant.placeName,
                 averageRating = restaurant.averageRating.toFloat(),
                 onFavorite = {},
-                onClick = { onRestaurantClick(restaurant.documentId) }
+                onClick = { onRestaurantClick(restaurant.documentId) },
+                showLikeButton = false
             )
             Spacer(modifier = modifier.height(29.dp))
         }
