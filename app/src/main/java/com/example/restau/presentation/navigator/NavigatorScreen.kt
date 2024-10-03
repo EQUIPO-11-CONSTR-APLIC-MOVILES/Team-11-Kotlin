@@ -8,6 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,15 +28,22 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 fun NavigatorScreen(
     navigatorViewModel: NavigatorViewModel = hiltViewModel(),
 ) {
-
     val navController = rememberNavController()
     val systemUiController = rememberSystemUiController()
 
     val currentEntry by navController.currentBackStackEntryAsState()
 
+    val currentUser by navigatorViewModel.currentUser.collectAsState()
+
     LaunchedEffect(currentEntry) {
         navigatorViewModel.onEvent(
             NavigatorEvent.SelectedChange(itemsMap[(currentEntry?.destination?.route)?: Route.HomeScreen.route]?: 0)
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        navigatorViewModel.onEvent(
+            NavigatorEvent.AuthCheck()
         )
     }
 
@@ -46,17 +54,21 @@ fun NavigatorScreen(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = {
-                NavBar(
-                    selected = navigatorViewModel.selected,
-                    onNav = {
-                        navController.navigate(it)
-                    },
-                    onSelected = {
-                        navigatorViewModel.onEvent(
-                            NavigatorEvent.SelectedChange(it)
-                        )
-                    }
-                )
+                if (currentUser != null) {
+                    NavBar(
+                        selected = navigatorViewModel.selected,
+                        onNav = {
+                            navController.navigate(it) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onSelected = {
+                            navigatorViewModel.onEvent(
+                                NavigatorEvent.SelectedChange(it)
+                            )
+                        }
+                    )
+                }
             }
         ) {
             NavigatorContent(
@@ -66,7 +78,9 @@ fun NavigatorScreen(
                     ),
                     end = it.calculateEndPadding(LayoutDirection.Rtl),
                     bottom = it.calculateBottomPadding()
-                ), navHostController = navController
+                ), navHostController = navController,
+                isSignedIn = currentUser != null,
+                navigatorViewModel = navigatorViewModel
             )
         }
     } else {
@@ -78,14 +92,16 @@ fun NavigatorScreen(
 }
 
 @Composable
-fun NavigatorContent(
+private fun NavigatorContent(
     navHostController: NavHostController,
+    isSignedIn: Boolean,
     modifier: Modifier = Modifier,
+    navigatorViewModel: NavigatorViewModel
 ) {
     Surface(
         modifier = modifier.fillMaxSize()
     ) {
-        NavGraph(navHostController = navHostController)
+        NavGraph(navHostController = navHostController, isSignedIn, suspend { navigatorViewModel.authCheck() } )
     }
 }
 

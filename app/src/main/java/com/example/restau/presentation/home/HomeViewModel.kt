@@ -6,30 +6,95 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
+import com.example.restau.domain.model.User
+import com.example.restau.domain.usecases.AnalyticsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
+import com.example.restau.domain.usecases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val restaurantUseCases: RestaurantUseCases
+    private val restaurantUseCases: RestaurantUseCases,
+    private val userUseCases: UserUseCases,
+    private val analyticsUseCases: AnalyticsUseCases
 ): ViewModel() {
 
     var state by mutableStateOf(HomeState())
         private set
 
-    init {
-        getRestaurants()
+    var currentUser by mutableStateOf(User())
+        private set
+
+    private var startTime by mutableStateOf(Date())
+
+    private fun updateUserAndData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = userUseCases.getUserObject()
+            currentUser = user
+            getRestaurants()
+        }
     }
 
+
+
+    private fun startTimer() {
+        startTime = Date()
+    }
+
+    private fun sendEvent() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val miliDifference = Date().time - startTime.time
+            val timer = TimeUnit.MILLISECONDS.toSeconds(miliDifference)
+            analyticsUseCases.sendScreenTimeEvent("home_screen", timer, currentUser.documentId)
+        }
+    }
+
+    private fun sendFeatureInteractionEvent(featureName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            analyticsUseCases.sendFeatureInteraction(featureName, currentUser.documentId)
+        }
+    }
 
     fun onEvent(event: HomeEvent) {
         when(event) {
             is HomeEvent.FilterEvent -> {
                 filterChange(event.selectedFilter)
             }
+            is HomeEvent.SendLike -> {
+                modifyLike(event.documentId, event.delete)
+            }
+            is HomeEvent.ScreenOpened -> {
+                startTimer()
+            }
+            is HomeEvent.ScreenClosed -> {
+                sendEvent()
+            }
+            is HomeEvent.ScreenLaunched -> {
+                updateUserAndData()
+            }
+
+            is HomeEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)
+        }
+    }
+
+    private fun modifyLike(documentId: String, delete: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val likes = currentUser.likes.toMutableList()
+            if (delete) {
+                likes.remove(documentId)
+            } else {
+                likes.add(documentId)
+            }
+            currentUser = currentUser.copy(
+                likes = likes
+            )
+            updateRestaurantsState(state.restaurants)
+            userUseCases.sendLike(documentId, currentUser)
         }
     }
 
@@ -45,23 +110,41 @@ class HomeViewModel @Inject constructor(
     private fun getRestaurants() {
         viewModelScope.launch(Dispatchers.IO) {
             var restaurants = emptyList<Restaurant>()
+            state = state.copy(nothingforyou = false, nothingOpen = false)
             when (state.selectedFilter) {
                 0 -> {
                     restaurants = restaurantUseCases.getOpenRestaurants()
                     if (restaurants.isEmpty()) state = state.copy(nothingOpen = true)
                 }
                 1 -> {
-                    //TODO
-                    restaurants = restaurantUseCases.getRestaurants()
+                    restaurants = updateForYouData(restaurantUseCases.getRestaurants())
+                    if (restaurants.isEmpty()) state = state.copy(nothingforyou = true)
                 }
                 2 -> {
                     restaurants = restaurantUseCases.getRestaurants()
                 }
             }
-            state = state.copy(
-                restaurants = restaurants,
-                isNew = restaurantUseCases.getIsNewRestaurantArray(restaurants),
-            )
+            updateRestaurantsState(restaurants)
         }
     }
+
+    private fun updateRestaurantsState(restaurants: List<Restaurant>) {
+        state = state.copy(
+            restaurants = restaurants,
+            isNew = restaurantUseCases.getIsNewRestaurantArray(restaurants),
+            isLiked = restaurantUseCases.getRestaurantsLiked(restaurants, currentUser.likes)
+        )
+    }
+
+    private fun updateForYouData(restaurants: List<Restaurant>): List<Restaurant> {
+        val potentialLikes = restaurantUseCases.hasLikedCategoriesArray(restaurants, currentUser.preferences)
+        val notLikedYet = restaurants.map { !currentUser.likes.contains(it.documentId) }
+
+        val forYouList = restaurants.filterIndexed { index, _ ->
+             potentialLikes[index] && notLikedYet[index]
+        }
+
+        return forYouList
+    }
+
 }

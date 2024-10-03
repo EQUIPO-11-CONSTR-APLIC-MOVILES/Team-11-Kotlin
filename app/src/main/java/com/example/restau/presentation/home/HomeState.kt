@@ -7,5 +7,6 @@ data class HomeState(
     val isLiked: List<Boolean> = emptyList(),
     val isNew: List<Boolean> = emptyList(),
     val nothingOpen: Boolean = false,
+    val nothingforyou: Boolean = false,
     val selectedFilter: Int = 0,
 )

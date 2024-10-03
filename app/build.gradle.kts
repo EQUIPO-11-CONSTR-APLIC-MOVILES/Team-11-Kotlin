@@ -64,6 +64,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.play.services.measurement.api)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -89,6 +91,14 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-analytics")
+
+    //Lifecycle
+    implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.lifecycle.viewmodel.savedstate)
+
 
 //    //Retrofit
 //    implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -115,18 +125,27 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     //Mapas
+    implementation(libs.play.services.location)
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
 //    //Buscar lugares places
 //    implementation("com.google.android.libraries.places:places:3.3.0")
+    implementation(libs.accompanist.permissions)
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
     //Responsive
     implementation(libs.androidx.material3.adaptive.navigation.suite)
     implementation("androidx.compose.material3:material3-window-size-class")
     implementation(libs.androidx.constraintlayout.compose)
 
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 
+
+    implementation("androidx.compose.material3:material3:1.1.0")
+    implementation("androidx.compose.ui:ui:1.3.3")
+    implementation("androidx.compose.material3:material3:1.1.1")
+
+    //Iconos
+    implementation("androidx.compose.material:material-icons-extended")
 }
 
 secrets {

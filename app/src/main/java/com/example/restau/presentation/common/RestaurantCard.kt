@@ -1,6 +1,7 @@
 package com.example.restau.presentation.common
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -47,13 +49,22 @@ fun RestaurantCard(
     placeName: String,
     averageRating: Float,
     onFavorite: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showLikeButton: Boolean = true
 ) {
     Box(
         modifier = modifier
             .height(320.dp)
+            .shadow(
+                elevation = 4.dp,
+                shape = MaterialTheme.shapes.small,
+                ambientColor = Color.Black.copy(alpha = 1f),
+                spotColor = Color.Black.copy(alpha = 1f)
+            )
             .clip(MaterialTheme.shapes.small)
             .background(Color.Gray)
+            .clickable { onClick() }
     ) {
         AsyncImage(
             model = imageUrl,
@@ -61,13 +72,15 @@ fun RestaurantCard(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
-        LikeButton(
-            isFavorite,
-            onFavorite,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 19.dp, top = 10.dp)
-        )
+        if (showLikeButton) {
+            LikeButton(
+                isFavorite,
+                onFavorite,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 19.dp, top = 10.dp)
+            )
+        }
         if (isNew) {
             NewLabel(
                 modifier = Modifier
@@ -242,7 +255,8 @@ fun RestaurantCardPreview() {
             imageUrl = "https://www.allrecipes.com/thmb/lLeKelVvgs-yPAgqDfGrSzOOJIs=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/4431200-6c6df37091d341f3938dd5a4ee4b5f62.jpg",
             placeName = "Universidad de los Andes",
             averageRating = 4.8f,
-            onFavorite = {}
+            onFavorite = {},
+            onClick = {}
         )
     }
 }

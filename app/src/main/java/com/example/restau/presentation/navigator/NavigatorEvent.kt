@@ -4,4 +4,6 @@ sealed class NavigatorEvent {
 
     class SelectedChange(val selected: Int) : NavigatorEvent()
 
+    class AuthCheck() : NavigatorEvent()
+
 }
