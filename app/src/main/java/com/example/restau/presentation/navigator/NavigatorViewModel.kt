@@ -75,7 +75,7 @@ class NavigatorViewModel @Inject constructor(
                     val lat = location?.latitude.toString()
                     val lon = location?.longitude.toString()
 
-                    val apiURL = "34.134.5.98/nearbyxcuisine/"
+                    val apiURL = "http://34.134.5.98:8000/nearbyxcuisine/"
 
                     val url = URL("$apiURL?&userID=$id&lat=$lat&lon=$lon")
                     val connection = url.openConnection() as HttpURLConnection
@@ -86,7 +86,8 @@ class NavigatorViewModel @Inject constructor(
 
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         val inputStream = connection.inputStream
-                        val response = inputStream.bufferedReader().use { it.readText() }.toString()
+                        var response = inputStream.bufferedReader().use { it.readText() }.toString()
+                        response = response.replace("\"", "")
                         if (response != "null") {
 
                             alertMessage.value =
