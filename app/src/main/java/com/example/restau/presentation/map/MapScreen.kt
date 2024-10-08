@@ -170,7 +170,7 @@ private fun MapContent(
                     MarkerInfoWindow(
                         state = rememberMarkerState(key = (state.images[index] == null).toString() ,position = LatLng(restaurant.latitude, restaurant.longitude)),
                         zIndex = Float.MAX_VALUE,
-                        infoWindowAnchor = Offset(0.5f, 0.55f),
+                        infoWindowAnchor = Offset(0.5f, 0.80f),
                         icon = if (!likedAndNew[index]) null else BitmapDescriptorFactory.fromResource(R.drawable.specialpin),
                         visible = filteredRestaurants[index],
                         onClick = {marker ->
