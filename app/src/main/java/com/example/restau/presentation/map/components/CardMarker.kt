@@ -169,7 +169,7 @@ fun CustomShapeWithShadowContent(
         }
 
         Box(modifier = Modifier
-            .height(310.dp)
+            .height(305.dp)
         ) {
             content(Modifier)
         }
