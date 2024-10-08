@@ -27,6 +27,7 @@ class SignUpViewModel @Inject constructor(
     fun onEvent(event: SignUpEvent) {
         when (event) {
             is SignUpEvent.SignUp -> {
+                state = state.copy(isLoading = true)
                 signUp(event)
             }
             is SignUpEvent.NameChange -> {
@@ -55,6 +56,7 @@ class SignUpViewModel @Inject constructor(
                 if (isAuthenticated && isCreated) {
                     event.onSuccess()
                 }
+                state = state.copy(isLoading = false)
             } catch (e: Exception) {
                 Log.e("SignInViewModel", "Error during sign-up", e)
             }
