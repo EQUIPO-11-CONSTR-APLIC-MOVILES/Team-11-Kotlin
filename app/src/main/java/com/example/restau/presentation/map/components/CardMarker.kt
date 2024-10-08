@@ -129,7 +129,7 @@ fun CustomShapeWithShadowContent(
     Box(modifier = modifier
         .padding(7.dp)
         .width(235.dp)
-        .height(340.dp)
+        .height(360.dp)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val cornerRadius = 30.dp.toPx()
@@ -169,7 +169,7 @@ fun CustomShapeWithShadowContent(
         }
 
         Box(modifier = Modifier
-            .height(290.dp)
+            .height(310.dp)
         ) {
             content(Modifier)
         }
