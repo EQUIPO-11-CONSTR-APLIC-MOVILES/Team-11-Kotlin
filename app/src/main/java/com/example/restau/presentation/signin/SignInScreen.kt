@@ -81,7 +81,6 @@ fun SignInScreen(
 
         SignInForm(navController = navController, authCheck = authCheck)
 
-        SignUpText(navController)
     }
 }
 
@@ -125,7 +124,7 @@ fun GoogleButton() {
 }
 
 @Composable
-fun SignUpText(navController: NavController) {
+fun SignUpText(isLoading: Boolean, navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -152,7 +151,11 @@ fun SignUpText(navController: NavController) {
             fontSize = 14.sp,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Right,
-            modifier = Modifier.clickable { navController.navigate(Route.SignUpScreen.route)  }
+            modifier = Modifier.clickable {
+                if (!isLoading) {
+                    navController.navigate(Route.SignUpScreen.route)
+                }
+            }
         )
     }
 }
@@ -182,9 +185,9 @@ fun SignInForm(
                 .padding(0.dp, 170.dp, 0.dp, 20.dp)
         )
 
-        EmailTextField(signInVM.state.email) { signInVM.onEvent(SignInEvent.EmailChange(email = it)) }
+        EmailTextField(signInVM.state.isLoading, signInVM.state.email) { signInVM.onEvent(SignInEvent.EmailChange(email = it)) }
 
-        PasswordTextField(signInVM.state.password, { signInVM.onEvent(SignInEvent.PasswordChange(password = it)) }, signInVM)
+        PasswordTextField(signInVM.state.isLoading, signInVM.state.password, { signInVM.onEvent(SignInEvent.PasswordChange(password = it)) }, signInVM)
 
         if(signInVM.state.errSignIn){
             ErrorText()
@@ -194,6 +197,7 @@ fun SignInForm(
             onClick = {
                 signInVM.onEvent(SignInEvent.SignIn(signInVM.state.email, signInVM.state.password, { signedSuccess(navController);  signInVM.onEvent(SignInEvent.FeatureInteraction("auth_signin_feature"))}, {  authCheck() }) )
             },
+            enabled = !signInVM.state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 40.dp),
@@ -215,6 +219,19 @@ fun SignInForm(
             )
         }
         OtherSignUp()
+
+        SignUpText(signInVM.state.isLoading, navController)
+
+    }
+
+    if (signInVM.state.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = Color(0x88ffffff)
+                )
+        )
     }
 }
 
@@ -280,13 +297,14 @@ fun ErrorText() {
 }
 
 @Composable
-fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
+fun EmailTextField(isLoading: Boolean, email: String, onEmailChange: (String) -> Unit) {
     OutlinedTextField(
         value = email,
         textStyle = TextStyle(
             fontSize = 16.sp,
             fontFamily = Poppins
         ),
+        enabled = !isLoading,
         isError = email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches(),
         singleLine = true,
         onValueChange = {
@@ -315,7 +333,7 @@ fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
 }
 
 @Composable
-fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, signInVM: SignInViewModel) {
+fun PasswordTextField(isLoading: Boolean, password: String, onPasswordChange: (String) -> Unit, signInVM: SignInViewModel) {
     val passwordVisualTransformation = remember { PasswordVisualTransformation() }
 
     OutlinedTextField(
@@ -323,6 +341,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, sign
         onValueChange = {
             if (it.length <= 100) onPasswordChange(it)
         },
+        enabled = !isLoading,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF2F2F2F),
             unfocusedBorderColor = Color(0xFF2F2F2F),

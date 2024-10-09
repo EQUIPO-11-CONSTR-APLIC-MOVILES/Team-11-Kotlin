@@ -25,6 +25,7 @@ class SignInViewModel @Inject constructor(
     fun onEvent(event: SignInEvent) {
         when (event) {
             is SignInEvent.SignIn -> {
+                state = state.copy(isLoading = true)
                 signIn(event)
             }
             is SignInEvent.EmailChange -> {
@@ -51,6 +52,7 @@ class SignInViewModel @Inject constructor(
                 } else {
                     signInFailure()
                 }
+                state = state.copy(isLoading = false)
             } catch (e: Exception) {
                 Log.e("SignInViewModel", "Error during sign-in", e)
             }

@@ -73,8 +73,6 @@ fun SignUpScreen(
         )
 
         SignUpForm(navController = navController)
-
-        SignInText(navController)
     }
 }
 
@@ -102,11 +100,11 @@ fun SignUpForm(
                 .padding(0.dp, 170.dp, 0.dp, 20.dp)
         )
 
-        NameTextField(signUpVM.state.name) { signUpVM.onEvent(SignUpEvent.NameChange(name = it)) }
+        NameTextField(signUpVM.state.isLoading, signUpVM.state.name) { signUpVM.onEvent(SignUpEvent.NameChange(name = it)) }
 
-        EmailTextField(signUpVM.state.email) { signUpVM.onEvent(SignUpEvent.EmailChange(email = it)) }
+        EmailTextField(signUpVM.state.isLoading, signUpVM.state.email) { signUpVM.onEvent(SignUpEvent.EmailChange(email = it)) }
 
-        PasswordTextField(signUpVM.state.password, { signUpVM.onEvent(SignUpEvent.PasswordChange(password = it)) }, signUpVM)
+        PasswordTextField(signUpVM.state.isLoading, signUpVM.state.password, { signUpVM.onEvent(SignUpEvent.PasswordChange(password = it)) }, signUpVM)
 
         if(signUpVM.state.errSignUp != ""){
             ErrorText(signUpVM.state.errSignUp)
@@ -121,6 +119,7 @@ fun SignUpForm(
                     signUpVM.onEvent(SignUpEvent.FeatureInteraction("auth_signup_feature"))
                 })
             },
+            enabled = !signUpVM.state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 40.dp),
@@ -141,11 +140,23 @@ fun SignUpForm(
                 fontSize = 16.sp
             )
         }
+
+        SignInText(signUpVM.state.isLoading, navController)
+    }
+
+    if (signUpVM.state.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = Color(0x88ffffff)
+                )
+        )
     }
 }
 
 @Composable
-fun SignInText(navController: NavController) {
+fun SignInText(isLoading: Boolean, navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -172,19 +183,24 @@ fun SignInText(navController: NavController) {
             fontSize = 14.sp,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Right,
-            modifier = Modifier.clickable { navController.popBackStack( Route.SignInScreen.route, false)  }
+            modifier = Modifier.clickable {
+                if (!isLoading) {
+                    navController.popBackStack(Route.SignInScreen.route, false)
+                }
+            }
         )
     }
 }
 
 @Composable
-fun NameTextField(name: String, onNameChange: (String) -> Unit) {
+fun NameTextField(isLoading: Boolean, name: String, onNameChange: (String) -> Unit) {
     OutlinedTextField(
         value = name,
         textStyle = TextStyle(
             fontSize = 16.sp,
             fontFamily = Poppins
         ),
+        enabled = !isLoading,
         singleLine = true,
         onValueChange = {
             if (it.length <= 100) onNameChange(it)
@@ -212,13 +228,14 @@ fun NameTextField(name: String, onNameChange: (String) -> Unit) {
 }
 
 @Composable
-fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
+fun EmailTextField(isLoading: Boolean, email: String, onEmailChange: (String) -> Unit) {
     OutlinedTextField(
         value = email,
         textStyle = TextStyle(
             fontSize = 16.sp,
             fontFamily = Poppins
         ),
+        enabled = !isLoading,
         isError = email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches(),
         singleLine = true,
         onValueChange = {
@@ -247,7 +264,7 @@ fun EmailTextField(email: String, onEmailChange: (String) -> Unit) {
 }
 
 @Composable
-fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, signUpVM: SignUpViewModel) {
+fun PasswordTextField(isLoading: Boolean, password: String, onPasswordChange: (String) -> Unit, signUpVM: SignUpViewModel) {
     val passwordVisualTransformation = remember { PasswordVisualTransformation() }
 
     OutlinedTextField(
@@ -255,6 +272,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit, sign
         onValueChange = {
             if (it.length <= 100) onPasswordChange(it)
         },
+        enabled = !isLoading,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF2F2F2F),
             unfocusedBorderColor = Color(0xFF2F2F2F),
