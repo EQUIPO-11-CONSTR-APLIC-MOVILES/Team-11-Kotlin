@@ -9,6 +9,7 @@ import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
 import com.example.restau.data.repository.ScreenTimeEventsRepositoryImpl
+import com.example.restau.data.repository.SearchedCategoriesRepositoryImpl
 import com.example.restau.data.repository.TagsRepositoryImpl
 import com.example.restau.data.repository.UsersRepositoryImpl
 import com.example.restau.domain.repository.AuthRepository
@@ -18,40 +19,42 @@ import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
 import com.example.restau.domain.repository.ScreenTimeEventsRepository
+import com.example.restau.domain.repository.SearchedCategoriesRepository
 import com.example.restau.domain.repository.TagsRepository
 import com.example.restau.domain.repository.UsersRepository
-import com.example.restau.domain.usecases.AuthUseCases
-import com.example.restau.domain.usecases.AnalyticsUseCases
-import com.example.restau.domain.usecases.DownloadImages
-import com.example.restau.domain.usecases.DownloadSingleImage
-import com.example.restau.domain.usecases.ExecuteSignIn
-import com.example.restau.domain.usecases.ExecuteSignUp
-import com.example.restau.domain.usecases.GetCurrentUser
-import com.example.restau.domain.usecases.GetFilterRestaurantsByNameAndCategories
-import com.example.restau.domain.usecases.GetIsNewRestaurantArray
-import com.example.restau.domain.usecases.GetLocation
-import com.example.restau.domain.usecases.GetOpenRestaurants
-import com.example.restau.domain.usecases.GetRecents
-import com.example.restau.domain.usecases.GetRestaurants
-import com.example.restau.domain.usecases.GetRestaurantsInRadius
-import com.example.restau.domain.usecases.GetRestaurantsLiked
-import com.example.restau.domain.usecases.GetTags
-import com.example.restau.domain.usecases.GetUserObject
-import com.example.restau.domain.usecases.HasLikedCategoriesArray
-import com.example.restau.domain.usecases.ImageDownloadUseCases
-import com.example.restau.domain.usecases.LocationUseCases
-import com.example.restau.domain.usecases.RecentsUseCases
-import com.example.restau.domain.usecases.RestaurantUseCases
-import com.example.restau.domain.usecases.SaveRecents
-import com.example.restau.domain.usecases.SaveTags
-import com.example.restau.domain.usecases.SendFeatureInteractionEvent
-import com.example.restau.domain.usecases.SendLike
-import com.example.restau.domain.usecases.SetUserInfo
+import com.example.restau.domain.usecases.authUseCases.AuthUseCases
+import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
+import com.example.restau.domain.usecases.imagesUseCases.DownloadImages
+import com.example.restau.domain.usecases.imagesUseCases.DownloadSingleImage
+import com.example.restau.domain.usecases.authUseCases.ExecuteSignIn
+import com.example.restau.domain.usecases.authUseCases.ExecuteSignUp
+import com.example.restau.domain.usecases.authUseCases.GetCurrentUser
+import com.example.restau.domain.usecases.restaurantUseCases.GetFilterRestaurantsByNameAndCategories
+import com.example.restau.domain.usecases.restaurantUseCases.GetIsNewRestaurantArray
+import com.example.restau.domain.usecases.locationUseCases.GetLocation
+import com.example.restau.domain.usecases.restaurantUseCases.GetOpenRestaurants
+import com.example.restau.domain.usecases.recentsUseCases.GetRecents
+import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurants
+import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurantsInRadius
+import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurantsLiked
+import com.example.restau.domain.usecases.tagsUseCases.GetTags
+import com.example.restau.domain.usecases.userUseCases.GetUserObject
+import com.example.restau.domain.usecases.restaurantUseCases.HasLikedCategoriesArray
+import com.example.restau.domain.usecases.imagesUseCases.ImageDownloadUseCases
+import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
+import com.example.restau.domain.usecases.recentsUseCases.RecentsUseCases
+import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
+import com.example.restau.domain.usecases.recentsUseCases.SaveRecents
+import com.example.restau.domain.usecases.userUseCases.SaveTags
+import com.example.restau.domain.usecases.analyticsUseCases.SendFeatureInteractionEvent
+import com.example.restau.domain.usecases.userUseCases.SendLike
+import com.example.restau.domain.usecases.userUseCases.SetUserInfo
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
-import com.example.restau.domain.usecases.SendScreenTimeEvent
-import com.example.restau.domain.usecases.TagsUseCases
-import com.example.restau.domain.usecases.UserUseCases
+import com.example.restau.domain.usecases.analyticsUseCases.SendScreenTimeEvent
+import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategoriesEvent
+import com.example.restau.domain.usecases.tagsUseCases.TagsUseCases
+import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.firestore.FirebaseFirestore
@@ -194,12 +197,19 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideSearchedCategoriesEventsRepository(db: FirebaseFirestore): SearchedCategoriesRepository =
+        SearchedCategoriesRepositoryImpl(db)
+
+    @Provides
+    @Singleton
     fun provideAnalyticsUseCases(
         screenTimeEventsRepository: ScreenTimeEventsRepository,
-        featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository
+        featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository,
+        searchedCategoriesRepository: SearchedCategoriesRepository
     ) = AnalyticsUseCases(
         sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository),
-        sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository)
+        sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository),
+        sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository)
     )
 
     @Provides

@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.restau.domain.usecases.TagsUseCases
-import com.example.restau.domain.usecases.UserUseCases
+import com.example.restau.domain.usecases.tagsUseCases.TagsUseCases
+import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
