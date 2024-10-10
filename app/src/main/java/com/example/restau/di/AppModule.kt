@@ -6,6 +6,7 @@ import com.example.restau.data.repository.AuthRepositoryImpl
 import com.example.restau.data.repository.FeaturesInteractionsEventsRepositoryImpl
 import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
+import com.example.restau.data.repository.NavPathsRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
 import com.example.restau.data.repository.ScreenTimeEventsRepositoryImpl
@@ -15,13 +16,15 @@ import com.example.restau.domain.repository.AuthRepository
 import com.example.restau.domain.repository.FeaturesInteractionsEventsRepository
 import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LocationRepository
+import com.example.restau.domain.repository.NavPathsRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
 import com.example.restau.domain.repository.ScreenTimeEventsRepository
 import com.example.restau.domain.repository.TagsRepository
 import com.example.restau.domain.repository.UsersRepository
-import com.example.restau.domain.usecases.AuthUseCases
 import com.example.restau.domain.usecases.AnalyticsUseCases
+import com.example.restau.domain.usecases.AuthUseCases
+import com.example.restau.domain.usecases.CreatePath
 import com.example.restau.domain.usecases.DownloadImages
 import com.example.restau.domain.usecases.DownloadSingleImage
 import com.example.restau.domain.usecases.ExecuteSignIn
@@ -40,20 +43,22 @@ import com.example.restau.domain.usecases.GetUserObject
 import com.example.restau.domain.usecases.HasLikedCategoriesArray
 import com.example.restau.domain.usecases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.LocationUseCases
+import com.example.restau.domain.usecases.NavPathsUseCases
 import com.example.restau.domain.usecases.RecentsUseCases
 import com.example.restau.domain.usecases.RestaurantUseCases
 import com.example.restau.domain.usecases.SaveRecents
 import com.example.restau.domain.usecases.SaveTags
 import com.example.restau.domain.usecases.SendFeatureInteractionEvent
 import com.example.restau.domain.usecases.SendLike
-import com.example.restau.domain.usecases.SetUserInfo
-import com.google.android.gms.location.LocationServices
-import com.google.firebase.auth.FirebaseAuth
 import com.example.restau.domain.usecases.SendScreenTimeEvent
+import com.example.restau.domain.usecases.SetUserInfo
 import com.example.restau.domain.usecases.TagsUseCases
+import com.example.restau.domain.usecases.UpdatePath
 import com.example.restau.domain.usecases.UserUseCases
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -99,6 +104,12 @@ object AppModule {
     @Singleton
     fun provideAuthRepository(firebaseAuth: FirebaseAuth): AuthRepository {
         return AuthRepositoryImpl(firebaseAuth)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNavPathsRepository(db: FirebaseFirestore): NavPathsRepository {
+        return NavPathsRepositoryImpl(db)
     }
 
     @Provides
@@ -226,6 +237,13 @@ object AppModule {
         getTags = GetTags(tagsRepository)
     )
 
-
+    @Provides
+    @Singleton
+    fun provideNavPathsUseCases(
+        navPathsRepository: NavPathsRepository
+    ) = NavPathsUseCases(
+        createPath = CreatePath(navPathsRepository),
+        updatePath = UpdatePath(navPathsRepository)
+    )
 
 }
