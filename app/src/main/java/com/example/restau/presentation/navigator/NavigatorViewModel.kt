@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.usecases.authUseCases.AuthUseCases
 import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
+import com.example.restau.domain.usecases.pathUseCases.NavPathsUseCases
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class NavigatorViewModel @Inject constructor(
     private val authUseCases: AuthUseCases,
-    private val locationUseCases: LocationUseCases
+    private val locationUseCases: LocationUseCases,
+    private val navPathsUseCases: NavPathsUseCases
 ) : ViewModel() {
 
     var selected by mutableIntStateOf(0)
@@ -39,17 +41,28 @@ class NavigatorViewModel @Inject constructor(
 
     val alertMessage = MutableStateFlow<String?>(null)
 
+    private var pathID: String? = null
+
+
     fun onEvent(event: NavigatorEvent) {
         when (event) {
             is NavigatorEvent.SelectedChange -> {
+                viewModelScope.launch {
+                    if (selected != event.selected){
+                        navPathsUseCases.updatePath(event.selected, pathID!!)
+                    }
+                }
                 selected = event.selected
+
             }
 
             is NavigatorEvent.OnStart -> {
                 viewModelScope.launch {
                     authCheck()
                     nearRestaurants(event.context)
-                    Log.d("NavigatorViewModel", "OnStart: ${currentUser.value}")
+                    navPathsUseCases.createPath()?.let {
+                        pathID = it
+                    }
                 }
             }
         }
@@ -103,7 +116,7 @@ class NavigatorViewModel @Inject constructor(
                     }
                 }
                 catch (e: Exception) {
-                    Log.e("HomeViewModel", "Error during close restaurants", e)
+                    Log.e("HomeViewModel", "Error during near restaurants", e)
                 }
             }
         }
