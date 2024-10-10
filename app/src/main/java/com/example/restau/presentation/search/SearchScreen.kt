@@ -171,6 +171,7 @@ fun SearchScreen(
                     restaurants = state.filteredRestaurantsByNameAndCategories,
                     onRestaurantClick = { restaurantId ->
                         viewModel.onEvent(SearchEvent.SaveRecentRestaurantEvent(restaurantId))
+                        viewModel.onEvent(SearchEvent.SearchedCategoriesEvent(restaurantId))
                     }
 
                 )

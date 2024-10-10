@@ -40,7 +40,7 @@ private val db: FirebaseFirestore
             )
 
             db.collection("navigation_paths").document(pathID).set(pathMap).await()
-
+            Log.d("DONITEST", "SUCCESS")
             true
         } catch (e: Exception){
             Log.d("NavPathsRepository", "updatePath:failure", e)

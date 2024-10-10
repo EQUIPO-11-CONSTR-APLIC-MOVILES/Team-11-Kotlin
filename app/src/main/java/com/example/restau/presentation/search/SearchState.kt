@@ -1,7 +1,6 @@
 package com.example.restau.presentation.search
 
 import com.example.restau.domain.model.Restaurant
-import com.example.restau.domain.usecases.GetFilterRestaurantsByNameAndCategories
 
 data class SearchState(
     val restaurants: List<Restaurant> = emptyList(),

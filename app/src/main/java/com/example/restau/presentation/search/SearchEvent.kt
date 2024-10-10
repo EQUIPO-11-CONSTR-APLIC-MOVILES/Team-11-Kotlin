@@ -3,7 +3,6 @@ package com.example.restau.presentation.search
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
-import com.example.restau.domain.model.Restaurant
 
 sealed class SearchEvent {
 
@@ -26,6 +25,8 @@ sealed class SearchEvent {
     data class VoiceRecognitionChangeEvent(val spokenText: String): SearchEvent()
 
     data class VoiceRecognitionEvent(val activity: Activity, val speechRecognizerLauncher: ActivityResultLauncher<Intent>): SearchEvent()
+
+    data class SearchedCategoriesEvent(val restaurantId: String): SearchEvent()
 
 
 
