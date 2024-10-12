@@ -1,7 +1,5 @@
 package com.example.restau.presentation.home
 
-import com.example.restau.presentation.search.SearchEvent
-
 sealed class HomeEvent {
 
     data class FilterEvent(val selectedFilter: Int): HomeEvent()
@@ -10,5 +8,6 @@ sealed class HomeEvent {
     data object ScreenLaunched: HomeEvent()
     data object ScreenClosed: HomeEvent()
     data class FeatureInteraction(val featureName: String) : HomeEvent()
+    data class LikeDateEvent(val restaurantId: String) : HomeEvent()
 
 }
