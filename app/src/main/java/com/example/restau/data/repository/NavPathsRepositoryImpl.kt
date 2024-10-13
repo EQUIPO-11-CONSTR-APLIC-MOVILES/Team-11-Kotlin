@@ -30,6 +30,7 @@ private val db: FirebaseFirestore
         }
     }
 
+
     override suspend fun updatePath(screensIDs: List<Int>, pathID: String): Boolean {
         return try {
 
@@ -55,7 +56,6 @@ private val db: FirebaseFirestore
 
                 db.collection("navigation_paths").document(pathID).set(pathMap).await()
             }
-
             true
         } catch (e: Exception){
             Log.d("NavPathsRepository", "updatePath:failure", e)

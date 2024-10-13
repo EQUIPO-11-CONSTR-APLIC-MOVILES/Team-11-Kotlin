@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.model.User
-import com.example.restau.domain.usecases.AnalyticsUseCases
-import com.example.restau.domain.usecases.RestaurantUseCases
-import com.example.restau.domain.usecases.UserUseCases
+import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
+import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
+import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

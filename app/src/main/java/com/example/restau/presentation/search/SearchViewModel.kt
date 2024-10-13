@@ -9,10 +9,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.User
-import com.example.restau.domain.usecases.AnalyticsUseCases
-import com.example.restau.domain.usecases.RecentsUseCases
-import com.example.restau.domain.usecases.RestaurantUseCases
-import com.example.restau.domain.usecases.UserUseCases
+import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
+import com.example.restau.domain.usecases.recentsUseCases.RecentsUseCases
+import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
+import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -73,6 +73,15 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    private fun sendSearchedCategoriesEvent(restaurantId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val restaurant = state.restaurants.find { it.documentId == restaurantId }
+            if (restaurant != null) {
+                analyticsUseCases.sendSearchedCategoriesEvent(restaurant.categories)
+            }
+        }
+    }
+
     fun onEvent(event: SearchEvent) {
         when(event) {
             is SearchEvent.SearchFilterEvent -> {
@@ -102,6 +111,7 @@ class SearchViewModel @Inject constructor(
             is SearchEvent.ScreenOpened -> startTimer()
             is SearchEvent.ScreenClosed -> sendEvent()
             is SearchEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)
+            is SearchEvent.SearchedCategoriesEvent -> sendSearchedCategoriesEvent(event.restaurantId)
         }
     }
 

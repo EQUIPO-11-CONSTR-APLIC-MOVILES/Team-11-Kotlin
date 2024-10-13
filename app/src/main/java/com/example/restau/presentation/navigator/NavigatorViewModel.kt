@@ -45,9 +45,6 @@ class NavigatorViewModel @Inject constructor(
 
     private var path = mutableListOf<Int>()
 
-
-
-
     fun onEvent(event: NavigatorEvent) {
         when (event) {
             is NavigatorEvent.SelectedChange -> {

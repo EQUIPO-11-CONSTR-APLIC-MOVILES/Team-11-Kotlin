@@ -10,6 +10,7 @@ import com.example.restau.data.repository.NavPathsRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
 import com.example.restau.data.repository.ScreenTimeEventsRepositoryImpl
+import com.example.restau.data.repository.SearchedCategoriesRepositoryImpl
 import com.example.restau.data.repository.TagsRepositoryImpl
 import com.example.restau.data.repository.UsersRepositoryImpl
 import com.example.restau.domain.repository.AuthRepository
@@ -20,6 +21,7 @@ import com.example.restau.domain.repository.NavPathsRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
 import com.example.restau.domain.repository.ScreenTimeEventsRepository
+import com.example.restau.domain.repository.SearchedCategoriesRepository
 import com.example.restau.domain.repository.TagsRepository
 import com.example.restau.domain.repository.UsersRepository
 import com.example.restau.domain.usecases.AnalyticsUseCases
@@ -125,6 +127,21 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideNavPathsRepository(db: FirebaseFirestore): NavPathsRepository {
+        return NavPathsRepositoryImpl(db)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNavPathsUseCases(
+        navPathsRepository: NavPathsRepository
+    ) = NavPathsUseCases(
+        createPath = CreatePath(navPathsRepository),
+        updatePath = UpdatePath(navPathsRepository)
+    )
+
+    @Provides
+    @Singleton
     fun provideRestaurantUseCases(
         restaurantsRepository: RestaurantsRepository
     ): RestaurantUseCases {
@@ -205,12 +222,19 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideSearchedCategoriesRepository(db: FirebaseFirestore): SearchedCategoriesRepository =
+        SearchedCategoriesRepositoryImpl(db)
+
+    @Provides
+    @Singleton
     fun provideAnalyticsUseCases(
         screenTimeEventsRepository: ScreenTimeEventsRepository,
-        featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository
+        featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository,
+        searchedCategoriesRepository: SearchedCategoriesRepository
     ) = AnalyticsUseCases(
         sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository),
-        sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository)
+        sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository),
+        sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository)
     )
 
     @Provides
