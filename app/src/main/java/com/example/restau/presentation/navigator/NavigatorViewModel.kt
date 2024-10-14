@@ -78,7 +78,6 @@ class NavigatorViewModel @Inject constructor(
 
     suspend fun authCheck() {
         currentUser.value = getCurrentUser()
-        Log.d("NavigatorViewModel", "authCheck: ${currentUser.value}")
         showSplash = false
     }
 
@@ -86,7 +85,7 @@ class NavigatorViewModel @Inject constructor(
     private fun nearRestaurants(context: Context) {
         if (hasLocationPermission(context)) {
             viewModelScope.launch(Dispatchers.IO) {
-                try {
+                try{
                     val id = currentUser.first { it != null }?.uid
                     val location = locationUseCases.getLocation.invoke().first()
                     val lat = location?.latitude.toString()
@@ -118,7 +117,8 @@ class NavigatorViewModel @Inject constructor(
                                 ) "There's an $response restaurant near you" else "There's a $response restaurant near you"
                         }
                     }
-                } catch (e: Exception) {
+                }
+                catch (e: Exception) {
                     Log.e("HomeViewModel", "Error during near restaurants", e)
                 }
             }

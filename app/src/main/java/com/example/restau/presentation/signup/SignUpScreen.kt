@@ -1,6 +1,7 @@
 package com.example.restau.presentation.signup
 
 import android.util.Patterns
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,8 +56,12 @@ import com.example.restau.ui.theme.Poppins
 @Composable
 fun SignUpScreen(
     navController: NavHostController,
+    signUpVM: SignUpViewModel = hiltViewModel(),
 ) {
 
+    BackHandler {
+        if (!signUpVM.state.isLoading) navController.popBackStack()
+    }
 
     Box(
         modifier = Modifier
@@ -72,16 +77,15 @@ fun SignUpScreen(
                 .size(100.dp)
         )
 
-        SignUpForm(navController = navController)
+        SignUpForm(navController = navController, signUpVM = signUpVM)
     }
 }
 
 @Composable
 fun SignUpForm(
-    signUpVM: SignUpViewModel = hiltViewModel(),
     navController: NavHostController,
+    signUpVM: SignUpViewModel
 ) {
-
     Column(
         modifier = Modifier
             .padding(40.dp),
@@ -122,7 +126,7 @@ fun SignUpForm(
             enabled = !signUpVM.state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp),
+                .padding(top = 25.dp),
             colors = ButtonDefaults.textButtonColors(
                 contentColor = Color.White,
                 containerColor = MaterialTheme.colorScheme.secondary
@@ -161,7 +165,7 @@ fun SignInText(isLoading: Boolean, navController: NavController) {
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .padding(40.dp, 0.dp, 40.dp, 60.dp),
+            .padding(0.dp, 0.dp, 0.dp, 50.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.Center
     ) {
