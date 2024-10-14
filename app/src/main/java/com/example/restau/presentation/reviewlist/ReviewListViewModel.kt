@@ -76,7 +76,8 @@ class ReviewListViewModel @Inject constructor(
     private fun getReviews(restaurantId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             state = state.copy(
-                reviews = reviewsUseCases.getRestaurantsReviews(restaurantId)
+                reviews = reviewsUseCases.getRestaurantsReviews(restaurantId),
+                isLoading = false
             )
         }
     }

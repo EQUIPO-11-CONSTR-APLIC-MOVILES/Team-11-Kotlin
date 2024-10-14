@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
@@ -34,9 +36,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.restau.R
 import com.example.restau.domain.model.Review
 import com.example.restau.domain.model.User
 import com.example.restau.presentation.common.DynamicTopBar
+import com.example.restau.presentation.common.LoadingCircle
 import com.example.restau.presentation.common.StarPicker
 import com.example.restau.presentation.common.StarRating
 import com.example.restau.presentation.common.TopBarAction
@@ -117,21 +121,55 @@ fun ReviewListContent(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-            item {
-                LeaveReview(state.reviewValue, currentUser, onStarClick)
-                HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFB3B3B3))
+        if (state.reviews.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                item {
+                    LeaveReview(state.reviewValue, currentUser, onStarClick)
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFB3B3B3))
+                }
+                items(state.reviews) {
+                    ReviewCard(review = it)
+                }
             }
-            items(state.reviews) {
-                ReviewCard(review = it)
-            }
+        } else if (!state.isLoading){
+            LeaveReview(state.reviewValue, currentUser, onStarClick)
+            HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFB3B3B3))
+            NoReviews()
+        } else {
+            LoadingCircle()
         }
     }
+}
 
+@Composable
+fun NoReviews(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxSize()
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.star),
+            contentDescription = "Be the first one to review!",
+            tint = Color.Gray,
+            modifier = Modifier.size(65.dp)
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(
+            text = "Be the first one to review!",
+            color = Color.Gray,
+            fontFamily = Poppins,
+            fontSize = 25.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @Composable
@@ -230,7 +268,9 @@ private fun ReviewCard(
             maxLines = 7
         )
     }
-    HorizontalDivider(modifier = modifier.padding(horizontal = 34.dp).fillMaxWidth())
+    HorizontalDivider(modifier = modifier
+        .padding(horizontal = 34.dp)
+        .fillMaxWidth())
 }
 
 
