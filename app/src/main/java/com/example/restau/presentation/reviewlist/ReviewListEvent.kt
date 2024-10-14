@@ -4,5 +4,7 @@ sealed class ReviewListEvent() {
 
     data class ScreenLaunched(val restaurantId: String): ReviewListEvent()
     data class StarPressed(val value: Double): ReviewListEvent()
+    data object ScreenOpened: ReviewListEvent()
+    data object ScreenClosed: ReviewListEvent()
 
 }

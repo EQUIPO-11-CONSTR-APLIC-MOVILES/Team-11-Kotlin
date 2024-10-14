@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.restau.domain.model.Review
@@ -54,6 +55,14 @@ fun ReviewListScreen(
 
     LaunchedEffect(Unit) {
         reviewListViewModel.onEvent(ReviewListEvent.ScreenLaunched(restaurantId ?: ""))
+    }
+
+    LifecycleResumeEffect(Unit) {
+        reviewListViewModel.onEvent(ReviewListEvent.ScreenOpened)
+
+        onPauseOrDispose {
+            reviewListViewModel.onEvent(ReviewListEvent.ScreenClosed)
+        }
     }
 
     Scaffold(
