@@ -13,6 +13,7 @@ import com.example.restau.domain.model.Restaurant
 
 @Composable
 fun RestaurantsLazyList(
+    onRestaurantClick: (String) -> Unit,
     restaurants: List<Restaurant>,
     isNew: List<Boolean>,
     isLiked: List<Boolean>,
@@ -30,13 +31,14 @@ fun RestaurantsLazyList(
             if (isShown[index]) {
                 RestaurantCard(
                     isNew = isNew[index],
+                    restaurantId = restaurants[index].documentId,
                     isFavorite = isLiked[index],
                     name = restaurants[index].name,
                     imageUrl = restaurants[index].imageUrl,
                     placeName = restaurants[index].placeName,
                     averageRating = restaurants[index].averageRating.toFloat(),
                     onFavorite = { onLike(restaurants[index].documentId, isLiked[index]) },
-                    onClick = {}
+                    onClick = onRestaurantClick
                 )
                 Spacer(modifier = Modifier.height(29.dp))
             }

@@ -15,6 +15,7 @@ sealed class Route(
     data object SignInScreen: Route(route = "signin", icon = null)
     data object SignUpScreen: Route(route = "signup", icon = null)
     data object PreferencesScreen: Route(route = "preference", icon = null)
+    data object ReviewListScreen: Route(route = "reviews", icon = null)
 }
 
 val items = listOf(

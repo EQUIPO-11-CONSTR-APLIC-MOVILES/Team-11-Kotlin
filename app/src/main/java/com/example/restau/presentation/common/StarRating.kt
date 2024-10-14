@@ -1,5 +1,7 @@
 package com.example.restau.presentation.common
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +15,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -30,12 +34,13 @@ import kotlin.math.roundToInt
 fun StarRating(
     value: Double,
     size: Dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showValue: Boolean = true
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         val integerPart = floor(value).roundToInt()
         val missing = if ((5 - integerPart - 1) >= 0) 5 - integerPart - 1 else 0
@@ -54,26 +59,33 @@ fun StarRating(
             Star("empty", Modifier.size(size))
         }
         Spacer(modifier = Modifier.width(3.dp))
-        Text(
-            text = "($value)",
-            fontFamily = Poppins,
-            fontSize = 15.sp
-        )
+        if (showValue) {
+            Text(
+                text = "($value)",
+                fontFamily = Poppins,
+                fontSize = 15.sp
+            )
+        }
     }
 }
 
 @Composable
-private fun Star(
+fun Star(
     type: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tint: Color = MaterialTheme.colorScheme.primary,
+    onClick: () -> Unit = {}
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     when (type) {
         "full" -> {
             Icon(
                 painter = painterResource(id = R.drawable.star),
                 contentDescription = "star",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = modifier
+                tint = tint,
+                modifier = modifier.clickable(interactionSource = interactionSource, indication = null) {
+                    onClick()
+                }
             )
         }
 
@@ -81,16 +93,20 @@ private fun Star(
             Icon(
                 painter = painterResource(id = R.drawable.empty_star),
                 contentDescription = "empty star",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = modifier
+                tint = tint,
+                modifier = modifier.clickable(interactionSource = interactionSource, indication = null) {
+                    onClick()
+                }
             )
         }
         else -> {
             Icon(
                 painter = painterResource(id = R.drawable.half_star),
                 contentDescription = "half star",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = modifier
+                tint = tint,
+                modifier = modifier.clickable(interactionSource = interactionSource, indication = null) {
+                    onClick()
+                }
             )
         }
 

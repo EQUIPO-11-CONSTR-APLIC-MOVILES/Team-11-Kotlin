@@ -1,5 +1,6 @@
 package com.example.restau.presentation.common
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,13 +44,14 @@ import com.example.restau.ui.theme.RestaUTheme
 @Composable
 fun RestaurantCard(
     isNew: Boolean,
+    restaurantId: String,
     isFavorite: Boolean,
     name: String,
     imageUrl: String,
     placeName: String,
     averageRating: Float,
     onFavorite: () -> Unit,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     showLikeButton: Boolean = true
 ) {
@@ -64,7 +66,7 @@ fun RestaurantCard(
             )
             .clip(MaterialTheme.shapes.small)
             .background(Color.Gray)
-            .clickable { onClick() }
+            .clickable { onClick(restaurantId) }
     ) {
         AsyncImage(
             model = imageUrl,
@@ -250,13 +252,16 @@ fun RestaurantCardPreview() {
     RestaUTheme {
         RestaurantCard(
             isNew = true,
+            restaurantId = "12234",
             isFavorite = true,
             name = "Doni's",
             imageUrl = "https://www.allrecipes.com/thmb/lLeKelVvgs-yPAgqDfGrSzOOJIs=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/4431200-6c6df37091d341f3938dd5a4ee4b5f62.jpg",
             placeName = "Universidad de los Andes",
             averageRating = 4.8f,
             onFavorite = {},
-            onClick = {}
+            onClick = {restaurantId ->
+                Log.d("TEST", restaurantId)
+            }
         )
     }
 }

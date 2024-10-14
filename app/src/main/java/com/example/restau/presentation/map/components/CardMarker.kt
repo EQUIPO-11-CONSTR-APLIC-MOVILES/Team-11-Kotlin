@@ -92,7 +92,7 @@ fun CardMarker(
                 )
             }
             Spacer(modifier = Modifier.height(13.dp))
-            StarRating(value = restaurant.averageRating, size = 28.dp)
+            StarRating(value = restaurant.averageRating, size = 28.dp, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(10.dp))
             Button(
                 onClick = { /*TODO*/ },

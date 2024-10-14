@@ -193,6 +193,7 @@ fun RestaurantsLazyList(
             RestaurantCard(
                 isNew = true,
                 isFavorite = true,
+                restaurantId = restaurant.documentId,
                 name = restaurant.name,
                 imageUrl = restaurant.imageUrl,
                 placeName = restaurant.placeName,

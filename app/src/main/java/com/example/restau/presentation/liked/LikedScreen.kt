@@ -96,7 +96,8 @@ fun LikedContent(
                 isNew = state.isNew,
                 isShown = state.isLiked,
                 isLiked = state.isLiked,
-                onLike = onLike
+                onLike = onLike,
+                onRestaurantClick = {}
             )
         }
     }
