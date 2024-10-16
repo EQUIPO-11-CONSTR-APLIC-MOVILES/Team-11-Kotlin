@@ -129,7 +129,7 @@ fun SignUpText(isLoading: Boolean, navController: NavController) {
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .padding(40.dp, 0.dp, 40.dp, 60.dp),
+            .padding(0.dp, 0.dp, 0.dp, 50.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -200,7 +200,7 @@ fun SignInForm(
             enabled = !signInVM.state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp),
+                .padding(top = 25.dp),
             colors = ButtonDefaults.textButtonColors(
                 contentColor = Color.White,
                 containerColor = MaterialTheme.colorScheme.secondary
@@ -241,7 +241,7 @@ fun OtherSignUp() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp, 50.dp, 5.dp, 30.dp),
+            .padding(5.dp, 30.dp, 5.dp, 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         HorizontalDivider(

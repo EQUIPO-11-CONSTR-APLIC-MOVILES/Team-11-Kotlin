@@ -30,17 +30,32 @@ private val db: FirebaseFirestore
         }
     }
 
-    override suspend fun updatePath(newScreenID: Int, pathID: String): Boolean {
+    override suspend fun updatePath(screensIDs: List<Int>, pathID: String): Boolean {
         return try {
 
             val oldPath = db.collection("navigation_paths").document(pathID).get().await().getString("path")
 
-            val pathMap = hashMapOf(
-                "path" to "$oldPath > ${screens[newScreenID]}"
-            )
+            val oldPathList = oldPath?.split(" > ")
 
-            db.collection("navigation_paths").document(pathID).set(pathMap).await()
-            Log.d("DONITEST", "SUCCESS")
+            var newPath = ""
+            for (screenID in screensIDs){
+                if (newPath.isEmpty()){
+                    if (oldPathList?.get(oldPathList.size - 1) != screens[screenID]) {
+                        newPath = "${screens[screenID]}"
+                    }
+                }
+                else "$newPath > ${screens[screenID]}"
+            }
+
+
+            if(newPath.isNotEmpty()){
+                val pathMap = hashMapOf(
+                    "path" to "$oldPath > $newPath"
+                )
+
+                db.collection("navigation_paths").document(pathID).set(pathMap).await()
+            }
+
             true
         } catch (e: Exception){
             Log.d("NavPathsRepository", "updatePath:failure", e)
