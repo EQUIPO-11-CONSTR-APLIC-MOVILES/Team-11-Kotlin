@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
@@ -35,7 +34,8 @@ fun StarRating(
     value: Double,
     size: Dp,
     modifier: Modifier = Modifier,
-    showValue: Boolean = true
+    showValue: Boolean = true,
+    tint: Color = MaterialTheme.colorScheme.primary
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -46,17 +46,17 @@ fun StarRating(
         val missing = if ((5 - integerPart - 1) >= 0) 5 - integerPart - 1 else 0
         val remainder = value - integerPart
         repeat(integerPart) {
-            Star("full", Modifier.size(size))
+            Star("full", Modifier.size(size), tint)
         }
         if (integerPart != 5) {
             if (remainder < 0.25) {
-                Star("empty", Modifier.size(size))
+                Star("empty", Modifier.size(size), tint)
             } else {
-                Star("half", Modifier.size(size))
+                Star("half", Modifier.size(size), tint)
             }
         }
         repeat(missing) {
-            Star("empty", Modifier.size(size))
+            Star("empty", Modifier.size(size), tint)
         }
         Spacer(modifier = Modifier.width(3.dp))
         if (showValue) {

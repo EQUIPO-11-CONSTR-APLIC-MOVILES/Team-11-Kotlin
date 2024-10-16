@@ -49,22 +49,13 @@ class ReviewListViewModel @Inject constructor(
                 getUser()
                 getReviews(event.restaurantId)
             }
-            is ReviewListEvent.StarPressed -> {
-                changeValue(event.value)
-            }
             is ReviewListEvent.ScreenOpened -> {
-                //startTimer()
+                startTimer()
             }
             is ReviewListEvent.ScreenClosed -> {
-                //sendEvent()
+                sendEvent()
             }
         }
-    }
-
-    private fun changeValue(value: Double) {
-        state = state.copy(
-            reviewValue = value
-        )
     }
 
     private fun getUser() {

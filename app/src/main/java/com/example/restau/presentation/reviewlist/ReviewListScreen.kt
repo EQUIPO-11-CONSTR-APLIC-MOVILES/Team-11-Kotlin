@@ -1,6 +1,7 @@
 package com.example.restau.presentation.reviewlist
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,7 +42,6 @@ import com.example.restau.domain.model.Review
 import com.example.restau.domain.model.User
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
-import com.example.restau.presentation.common.StarPicker
 import com.example.restau.presentation.common.StarRating
 import com.example.restau.presentation.common.TopBarAction
 import com.example.restau.ui.theme.Poppins
@@ -103,8 +103,8 @@ fun ReviewListScreen(
             ),
             currentUser = reviewListViewModel.currentUser,
             state = reviewListViewModel.state,
-            onStarClick = {index ->
-                reviewListViewModel.onEvent(ReviewListEvent.StarPressed(index))
+            onStarsClick = {
+
             }
         )
     }
@@ -114,7 +114,7 @@ fun ReviewListScreen(
 fun ReviewListContent(
     state: ReviewListState,
     currentUser: User,
-    onStarClick: (Double) -> Unit,
+    onStarsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -128,7 +128,7 @@ fun ReviewListContent(
                 verticalArrangement = Arrangement.Top
             ) {
                 item {
-                    LeaveReview(state.reviewValue, currentUser, onStarClick)
+                    LeaveReview(currentUser, onStarsClick)
                     HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFB3B3B3))
                 }
                 items(state.reviews) {
@@ -136,7 +136,7 @@ fun ReviewListContent(
                 }
             }
         } else if (!state.isLoading){
-            LeaveReview(state.reviewValue, currentUser, onStarClick)
+            LeaveReview(currentUser, onStarsClick)
             HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFB3B3B3))
             NoReviews()
         } else {
@@ -174,9 +174,8 @@ fun NoReviews(
 
 @Composable
 private fun LeaveReview(
-    value: Double,
     currentUser: User,
-    onStarClick: (Double) -> Unit,
+    onStarsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -206,8 +205,15 @@ private fun LeaveReview(
                     .background(Color.LightGray)
             )
             Spacer(modifier = Modifier.width(20.dp))
-            StarPicker(onClick = onStarClick, value = value , size = 35.dp)
-            
+            StarRating(
+                value = 0.0,
+                size = 35.dp,
+                showValue = false,
+                tint = Color.LightGray,
+                modifier = Modifier.clickable {
+                    onStarsClick()
+                }
+            )
         }
     }
 }
