@@ -1,4 +1,5 @@
 package com.example.restau.presentation.restaurant
 
-class RestaurantEvent {
+sealed class RestaurantEvent {
+    data class ScreenLaunched(val restaurantId: String): RestaurantEvent()
 }
