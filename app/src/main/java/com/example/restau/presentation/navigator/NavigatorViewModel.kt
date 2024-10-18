@@ -41,15 +41,19 @@ class NavigatorViewModel @Inject constructor(
 
     val alertMessage = MutableStateFlow<String?>(null)
 
-    private var pathID: String? = null
+    private var pathID = MutableStateFlow<String?>(null)
 
+    private var path = mutableListOf<Int>()
 
     fun onEvent(event: NavigatorEvent) {
         when (event) {
             is NavigatorEvent.SelectedChange -> {
                 viewModelScope.launch {
-                    if (selected != event.selected){
-                        navPathsUseCases.updatePath(event.selected, pathID!!)
+                    if (selected != event.selected) path.add(event.selected)
+                    val pathIDValue = pathID.value
+                    if (pathIDValue != null) {
+                        navPathsUseCases.updatePath(path, pathIDValue)
+                        path.clear()
                     }
                 }
                 selected = event.selected
@@ -61,7 +65,7 @@ class NavigatorViewModel @Inject constructor(
                     authCheck()
                     nearRestaurants(event.context)
                     navPathsUseCases.createPath()?.let {
-                        pathID = it
+                        pathID.value = it
                     }
                 }
             }

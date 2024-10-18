@@ -260,6 +260,4 @@ object AppModule {
         getTags = GetTags(tagsRepository)
     )
 
-
-
 }
