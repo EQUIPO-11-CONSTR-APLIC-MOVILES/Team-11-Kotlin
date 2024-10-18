@@ -34,7 +34,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,6 +56,7 @@ import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.StarRating
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
 import com.example.restau.ui.theme.RestaUTheme
 
@@ -80,23 +80,25 @@ fun RestaurantScreen(
             DynamicTopBar(
                 label = {},
                 hasBackButton = true,
-                action = TopBarAction.LocationAction({/*TODO*/ }),
+                action = TopBarAction.LocationAction { navController.navigate(Route.MapScreen.route) },
                 modifier = Modifier
                     .background(Color.White)
             )
         }
     ) {
-        RestaurantContent(
-            restaurantVM = restaurantViewModel,
-            state = restaurantViewModel.state,
-            modifier = Modifier
-                .padding(
-                    top = it.calculateTopPadding(),
-                    start = it.calculateStartPadding(LayoutDirection.Ltr),
-                    end = it.calculateEndPadding(LayoutDirection.Rtl)
-                )
-                .background(Color.White)
-        )
+        if (restaurantViewModel.state.restaurant.documentId.isNotEmpty()) {
+            RestaurantContent(
+                restaurantVM = restaurantViewModel,
+                state = restaurantViewModel.state,
+                modifier = Modifier
+                    .padding(
+                        top = it.calculateTopPadding(),
+                        start = it.calculateStartPadding(LayoutDirection.Ltr),
+                        end = it.calculateEndPadding(LayoutDirection.Rtl)
+                    )
+                    .background(Color.White)
+            )
+        }
     }
 }
 
@@ -141,8 +143,9 @@ fun RestaurantContent(
                 fontFamily = Poppins,
                 fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Left,
+                lineHeight = 16.sp,
                 modifier = Modifier
-                    .padding(start = 30.dp, end = 10.dp, bottom = 0.dp)
+                    .padding(start = 30.dp, end = 10.dp, bottom = 0.dp, top = 4.dp)
                     .wrapContentWidth()
                     .wrapContentHeight(),
                 color = Color(0xFFA5A5A5)
@@ -158,30 +161,28 @@ fun RestaurantContent(
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        if (state.restaurant.documentId.isNotEmpty()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                ButtonOptionBar(
-                    icon = painterResource(id = R.drawable.group_331),
-                    name = "Menu",
-                    onClick = {})
-                ButtonOptionBar(
-                    icon = painterResource(id = R.drawable.calendar_month),
-                    name = "Schedule",
-                    onClick = { restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
-                ButtonOptionBar(
-                    icon = painterResource(id = R.drawable.call),
-                    name = "Contact",
-                    onClick = {})
-                ButtonOptionBar(
-                    icon = painterResource(id = R.drawable.kid_star),
-                    name = "Rate",
-                    onClick = {})
-            }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            ButtonOptionBar(
+                icon = painterResource(id = R.drawable.group_331),
+                name = "Menu",
+                onClick = {})
+            ButtonOptionBar(
+                icon = painterResource(id = R.drawable.calendar_month),
+                name = "Schedule",
+                onClick = { restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
+            ButtonOptionBar(
+                icon = painterResource(id = R.drawable.call),
+                name = "Contact",
+                onClick = {})
+            ButtonOptionBar(
+                icon = painterResource(id = R.drawable.kid_star),
+                name = "Rate",
+                onClick = {})
         }
 
         Spacer(modifier = Modifier.height(30.dp))
@@ -220,7 +221,9 @@ fun RestaurantContent(
         )
     }
 
-    if (state.showSchedule) SchedulePopup(state, onDismiss = { restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
+    if (state.showSchedule) SchedulePopup(
+        state,
+        onDismiss = { restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
 }
 
 @Composable
@@ -311,7 +314,8 @@ fun SchedulePopup(
                         .align(Alignment.TopEnd)
                         .clickable { onDismiss() },
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close",)
+                    contentDescription = "Close",
+                )
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -333,7 +337,15 @@ fun SchedulePopup(
 
                 val schedule = state.restaurant.schedule
 
-                val days = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+                val days = listOf(
+                    "Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday"
+                )
 
                 for (day in days) {
                     Row(
@@ -352,7 +364,11 @@ fun SchedulePopup(
                         )
                         Spacer(Modifier.width(15.dp))
                         Text(
-                            text = "${formatTime((schedule[day.lowercase()]?.get("start") ?: 0).toInt())} - ${formatTime((schedule[day.lowercase()]?.get("end") ?: 0).toInt())}",
+                            text = "${formatTime((schedule[day.lowercase()]?.get("start") ?: 0).toInt())} - ${
+                                formatTime(
+                                    (schedule[day.lowercase()]?.get("end") ?: 0).toInt()
+                                )
+                            }",
                             fontSize = 15.sp,
                             fontFamily = Poppins
                         )
