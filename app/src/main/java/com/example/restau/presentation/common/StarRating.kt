@@ -1,5 +1,6 @@
 package com.example.restau.presentation.common
 
+import android.media.Rating
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,11 +31,13 @@ import kotlin.math.roundToInt
 fun StarRating(
     value: Double,
     size: Dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showRating: Boolean = true,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = horizontalArrangement,
         modifier = modifier.fillMaxWidth()
     ) {
         val integerPart = floor(value).roundToInt()
@@ -53,12 +56,15 @@ fun StarRating(
         repeat(missing) {
             Star("empty", Modifier.size(size))
         }
-        Spacer(modifier = Modifier.width(3.dp))
-        Text(
-            text = "($value)",
-            fontFamily = Poppins,
-            fontSize = 15.sp
-        )
+
+        if(showRating){
+            Spacer(modifier = Modifier.width(3.dp))
+            Text(
+                text = "($value)",
+                fontFamily = Poppins,
+                fontSize = 15.sp
+            )
+        }
     }
 }
 
@@ -70,7 +76,7 @@ private fun Star(
     when (type) {
         "full" -> {
             Icon(
-                painter = painterResource(id = R.drawable.star),
+                painter = painterResource(id = R.drawable.filledstar),
                 contentDescription = "star",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = modifier
@@ -79,7 +85,7 @@ private fun Star(
 
         "empty" -> {
             Icon(
-                painter = painterResource(id = R.drawable.empty_star),
+                painter = painterResource(id = R.drawable.outlinedstar),
                 contentDescription = "empty star",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = modifier
@@ -87,7 +93,7 @@ private fun Star(
         }
         else -> {
             Icon(
-                painter = painterResource(id = R.drawable.half_star),
+                painter = painterResource(id = R.drawable.halffilledstar),
                 contentDescription = "half star",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = modifier

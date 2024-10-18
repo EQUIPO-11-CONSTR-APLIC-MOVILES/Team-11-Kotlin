@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.navigation.NavHostController
 import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
@@ -34,6 +35,7 @@ import com.example.restau.ui.theme.Poppins
 
 @Composable
 fun LikedScreen(
+    navController: NavHostController,
     likedViewModel: LikedViewModel = hiltViewModel()
 ) {
 
@@ -70,7 +72,8 @@ fun LikedScreen(
                 top = it.calculateTopPadding(),
                 start = it.calculateStartPadding(LayoutDirection.Ltr),
                 end = it.calculateEndPadding(LayoutDirection.Rtl)
-            )
+            ),
+            navController = navController
         )
     }
 }
@@ -80,6 +83,7 @@ fun LikedContent(
     state: LikedState,
     onLike: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    navController: NavHostController
 ) {
 
     Column(
@@ -96,7 +100,8 @@ fun LikedContent(
                 isNew = state.isNew,
                 isShown = state.isLiked,
                 isLiked = state.isLiked,
-                onLike = onLike
+                onLike = onLike,
+                navController = navController
             )
         }
     }
