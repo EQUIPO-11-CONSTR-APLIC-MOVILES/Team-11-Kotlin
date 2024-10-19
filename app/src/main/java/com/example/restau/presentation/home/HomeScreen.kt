@@ -32,13 +32,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
 import com.example.restau.presentation.common.RestaurantsLazyList
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
 
 @Composable
@@ -124,7 +124,7 @@ fun HomeContent(
                 isNew = state.isNew,
                 isLiked = state.isLiked,
                 onLike = onLike,
-                navController = navController
+                onClick = { navController.navigate(Route.RestaurantScreen.route + it) }
             )
         }
     }

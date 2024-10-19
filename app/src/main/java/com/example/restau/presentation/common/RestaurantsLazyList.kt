@@ -9,10 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.restau.domain.model.Restaurant
-import com.example.restau.presentation.navigation.Route
 
 @Composable
 fun RestaurantsLazyList(
@@ -22,7 +19,7 @@ fun RestaurantsLazyList(
     onLike: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
     isShown: List<Boolean> = restaurants.map { true },
-    navController: NavHostController
+    onClick: (String) -> Unit,
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -41,7 +38,7 @@ fun RestaurantsLazyList(
                     averageRating = restaurants[index].averageRating.toFloat(),
                     onFavorite = { onLike(restaurants[index].documentId, isLiked[index]) },
                     onClick = {
-                        navController.navigate(Route.RestaurantScreen.route + "/${restaurants[index].documentId}")
+                        onClick("/${restaurants[index].documentId}")
                     }
                 )
                 Spacer(modifier = Modifier.height(29.dp))

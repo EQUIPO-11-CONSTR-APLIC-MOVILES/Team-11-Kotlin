@@ -31,6 +31,7 @@ import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
 import com.example.restau.presentation.common.RestaurantsLazyList
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
 
 @Composable
@@ -101,7 +102,7 @@ fun LikedContent(
                 isShown = state.isLiked,
                 isLiked = state.isLiked,
                 onLike = onLike,
-                navController = navController
+                onClick = { navController.navigate(Route.RestaurantScreen.route + it) }
             )
         }
     }

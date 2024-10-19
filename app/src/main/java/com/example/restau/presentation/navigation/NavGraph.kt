@@ -31,7 +31,7 @@ fun NavGraph(
             RandomScreen()
         }
         composable(route = Route.SearchScreen.route) {
-            SearchScreen()
+            SearchScreen(navController = navHostController)
         }
         composable(route = Route.LikeScreen.route) {
             LikedScreen(navController = navHostController)
