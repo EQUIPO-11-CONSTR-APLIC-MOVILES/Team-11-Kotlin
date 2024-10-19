@@ -12,6 +12,7 @@ import com.example.restau.presentation.map.MapScreen
 import com.example.restau.presentation.preferences.PreferencesScreen
 import com.example.restau.presentation.random.RandomScreen
 import com.example.restau.presentation.restaurant.RestaurantScreen
+import com.example.restau.presentation.reviewlist.ReviewListScreen
 import com.example.restau.presentation.search.SearchScreen
 import com.example.restau.presentation.signin.SignInScreen
 import com.example.restau.presentation.signup.SignUpScreen
@@ -37,7 +38,7 @@ fun NavGraph(
             LikedScreen(navController = navHostController)
         }
         composable(route = Route.MapScreen.route) {
-            MapScreen()
+            MapScreen(navController = navHostController)
         }
         composable(route = Route.SignInScreen.route) {
             SignInScreen(navHostController, authCheck)
@@ -49,13 +50,21 @@ fun NavGraph(
          composable(route = Route.PreferencesScreen.route) {
              PreferencesScreen(navController = navHostController, authCheck = authCheck)
          }
+         composable(
+             route = Route.ReviewListScreen.route + "/{restaurantId}",
+             arguments = listOf(navArgument("restaurantId") { type = NavType.StringType })
+         ){
+            val id = it.arguments?.getString("restaurantId")
+            ReviewListScreen(navController = navHostController, restaurantId = id)
+         }
+
 
          composable(
              route = Route.RestaurantScreen.route + "/{restaurantID}",
              arguments = listOf(navArgument("restaurantID") { type = NavType.StringType })
          ){
              val id = it.arguments?.getString("restaurantID")
-             RestaurantScreen(restaurantID = id)
+             RestaurantScreen(restaurantID = id, navController = navHostController)
          }
     }
 }

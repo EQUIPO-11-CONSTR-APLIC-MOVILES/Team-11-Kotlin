@@ -31,6 +31,7 @@ fun RestaurantsLazyList(
             if (isShown[index]) {
                 RestaurantCard(
                     isNew = isNew[index],
+                    restaurantId = restaurants[index].documentId,
                     isFavorite = isLiked[index],
                     name = restaurants[index].name,
                     imageUrl = restaurants[index].imageUrl,

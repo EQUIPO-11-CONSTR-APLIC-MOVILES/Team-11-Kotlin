@@ -10,6 +10,7 @@ import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.NavPathsRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
+import com.example.restau.data.repository.ReviewsRepositoryImpl
 import com.example.restau.data.repository.ScreenTimeEventsRepositoryImpl
 import com.example.restau.data.repository.SearchedCategoriesRepositoryImpl
 import com.example.restau.data.repository.TagsRepositoryImpl
@@ -22,6 +23,7 @@ import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.NavPathsRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
+import com.example.restau.domain.repository.ReviewsRepository
 import com.example.restau.domain.repository.ScreenTimeEventsRepository
 import com.example.restau.domain.repository.SearchedCategoriesRepository
 import com.example.restau.domain.repository.TagsRepository
@@ -63,6 +65,8 @@ import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategori
 import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
 import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurant
 import com.example.restau.domain.usecases.restaurantUseCases.IsOpen
+import com.example.restau.domain.usecases.reviewsUseCases.GetRestaurantsReviews
+import com.example.restau.domain.usecases.reviewsUseCases.ReviewsUseCases
 import com.example.restau.domain.usecases.tagsUseCases.TagsUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -131,6 +135,20 @@ object AppModule {
     fun provideNavPathsRepository(db: FirebaseFirestore): NavPathsRepository {
         return NavPathsRepositoryImpl(db)
     }
+
+    @Provides
+    @Singleton
+    fun provideReviewsRepository(db: FirebaseFirestore): ReviewsRepository {
+        return ReviewsRepositoryImpl(db)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReviewsUseCases(
+        reviewsRepository: ReviewsRepository
+    ) = ReviewsUseCases(
+        getRestaurantsReviews = GetRestaurantsReviews(reviewsRepository)
+    )
 
     @Provides
     @Singleton
@@ -273,5 +291,7 @@ object AppModule {
     ) = TagsUseCases(
         getTags = GetTags(tagsRepository)
     )
+
+
 
 }

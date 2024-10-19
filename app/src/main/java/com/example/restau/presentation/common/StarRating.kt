@@ -1,21 +1,23 @@
 package com.example.restau.presentation.common
 
-import android.media.Rating
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -32,33 +34,33 @@ fun StarRating(
     value: Double,
     size: Dp,
     modifier: Modifier = Modifier,
-    showRating: Boolean = true,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    showValue: Boolean = true,
+    tint: Color = MaterialTheme.colorScheme.primary
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = horizontalArrangement,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         val integerPart = floor(value).roundToInt()
         val missing = if ((5 - integerPart - 1) >= 0) 5 - integerPart - 1 else 0
         val remainder = value - integerPart
         repeat(integerPart) {
-            Star("full", Modifier.size(size))
+            Star("full", Modifier.size(size), tint)
         }
         if (integerPart != 5) {
             if (remainder < 0.25) {
-                Star("empty", Modifier.size(size))
+                Star("empty", Modifier.size(size), tint)
             } else {
-                Star("half", Modifier.size(size))
+                Star("half", Modifier.size(size), tint)
             }
         }
         repeat(missing) {
-            Star("empty", Modifier.size(size))
+            Star("empty", Modifier.size(size), tint)
         }
-
-        if(showRating){
-            Spacer(modifier = Modifier.width(3.dp))
+        Spacer(modifier = Modifier.width(3.dp))
+        if (showValue) {
             Text(
                 text = "($value)",
                 fontFamily = Poppins,
@@ -69,17 +71,22 @@ fun StarRating(
 }
 
 @Composable
-private fun Star(
+fun Star(
     type: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tint: Color = MaterialTheme.colorScheme.primary,
+    onClick: () -> Unit = {}
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     when (type) {
         "full" -> {
             Icon(
                 painter = painterResource(id = R.drawable.filledstar),
                 contentDescription = "star",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = modifier
+                tint = tint,
+                modifier = modifier.clickable(interactionSource = interactionSource, indication = null) {
+                    onClick()
+                }
             )
         }
 
@@ -87,21 +94,25 @@ private fun Star(
             Icon(
                 painter = painterResource(id = R.drawable.outlinedstar),
                 contentDescription = "empty star",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = modifier
+                tint = tint,
+                modifier = modifier.clickable(interactionSource = interactionSource, indication = null) {
+                    onClick()
+                }
             )
         }
         else -> {
             Icon(
                 painter = painterResource(id = R.drawable.halffilledstar),
                 contentDescription = "half star",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = modifier
+                tint = tint,
+                modifier = modifier.clickable(interactionSource = interactionSource, indication = null) {
+                    onClick()
+                }
             )
         }
 
     }
-    Spacer(modifier = Modifier.width(1.dp))
+    Spacer(modifier = Modifier.width(5.dp))
 }
 
 @Preview(showBackground = true)

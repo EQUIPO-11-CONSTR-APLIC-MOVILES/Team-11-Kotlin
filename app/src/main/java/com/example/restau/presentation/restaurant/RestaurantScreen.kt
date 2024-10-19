@@ -52,11 +52,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.StarRating
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
 import com.example.restau.ui.theme.RestaUTheme
 
@@ -66,6 +68,7 @@ import com.example.restau.ui.theme.RestaUTheme
 fun RestaurantScreen(
     restaurantID: String?,
     restaurantViewModel: RestaurantViewModel = hiltViewModel(),
+    navController: NavController
 ) {
     LaunchedEffect(Unit) {
         restaurantViewModel.onEvent(RestaurantEvent.ScreenLaunched(restaurantID ?: ""))
@@ -86,7 +89,10 @@ fun RestaurantScreen(
                     restaurantViewModel.onEvent(RestaurantEvent.LaunchMaps(restaurantViewModel.state.restaurant.latitude, restaurantViewModel.state.restaurant.longitude, restaurantViewModel.state.restaurant.name, restaurantViewModel.state.restaurant.placeName,context))
                                                      },
                 modifier = Modifier
-                    .background(Color.White)
+                    .background(Color.White),
+                onBack = {
+                    navController.popBackStack()
+                }
             )
         }
     ) {
@@ -100,7 +106,8 @@ fun RestaurantScreen(
                         start = it.calculateStartPadding(LayoutDirection.Ltr),
                         end = it.calculateEndPadding(LayoutDirection.Rtl)
                     )
-                    .background(Color.White)
+                    .background(Color.White),
+                navController = navController
             )
         }
     }
@@ -111,7 +118,8 @@ fun RestaurantScreen(
 fun RestaurantContent(
     restaurantVM: RestaurantViewModel,
     state: RestaurantState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavController
 ) {
     Column(
         modifier = modifier
@@ -158,7 +166,7 @@ fun RestaurantContent(
             StarRating(
                 state.restaurant.averageRating,
                 20.dp,
-                showRating = false,
+                showValue = false,
                 horizontalArrangement = Arrangement.Start
             )
         }
@@ -186,7 +194,7 @@ fun RestaurantContent(
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.kid_star),
                 name = "Rate",
-                onClick = {})
+                onClick = {navController.navigate(Route.ReviewListScreen.route + "/${state.restaurant.documentId}")})
         }
 
         Spacer(modifier = Modifier.height(30.dp))
