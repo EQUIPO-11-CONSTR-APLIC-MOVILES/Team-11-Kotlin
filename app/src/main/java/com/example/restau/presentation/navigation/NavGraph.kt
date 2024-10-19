@@ -1,6 +1,5 @@
 package com.example.restau.presentation.navigation
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -12,10 +11,10 @@ import com.example.restau.presentation.liked.LikedScreen
 import com.example.restau.presentation.map.MapScreen
 import com.example.restau.presentation.preferences.PreferencesScreen
 import com.example.restau.presentation.random.RandomScreen
+import com.example.restau.presentation.restaurant.RestaurantScreen
 import com.example.restau.presentation.search.SearchScreen
 import com.example.restau.presentation.signin.SignInScreen
 import com.example.restau.presentation.signup.SignUpScreen
-import com.example.restau.presentation.restaurant.RestaurantScreen
 
 @Composable
 fun NavGraph(
@@ -56,7 +55,7 @@ fun NavGraph(
              arguments = listOf(navArgument("restaurantID") { type = NavType.StringType })
          ){
              val id = it.arguments?.getString("restaurantID")
-             RestaurantScreen(navController = navHostController, restaurantID = id)
+             RestaurantScreen(restaurantID = id)
          }
     }
 }

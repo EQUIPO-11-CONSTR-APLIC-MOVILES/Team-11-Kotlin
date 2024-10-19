@@ -1,6 +1,7 @@
 package com.example.restau.presentation.restaurant
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,13 +52,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.StarRating
 import com.example.restau.presentation.common.TopBarAction
-import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
 import com.example.restau.ui.theme.RestaUTheme
 
@@ -65,12 +65,13 @@ import com.example.restau.ui.theme.RestaUTheme
 @Composable
 fun RestaurantScreen(
     restaurantID: String?,
-    navController: NavController,
     restaurantViewModel: RestaurantViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(Unit) {
         restaurantViewModel.onEvent(RestaurantEvent.ScreenLaunched(restaurantID ?: ""))
     }
+
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier
@@ -80,7 +81,10 @@ fun RestaurantScreen(
             DynamicTopBar(
                 label = {},
                 hasBackButton = true,
-                action = TopBarAction.LocationAction { navController.navigate(Route.MapScreen.route) },
+                action = TopBarAction.LocationAction {
+                    Log.d("RestaurantScreen", "Launch Maps")
+                    restaurantViewModel.onEvent(RestaurantEvent.LaunchMaps(restaurantViewModel.state.restaurant.latitude, restaurantViewModel.state.restaurant.longitude, restaurantViewModel.state.restaurant.name, restaurantViewModel.state.restaurant.placeName,context))
+                                                     },
                 modifier = Modifier
                     .background(Color.White)
             )
