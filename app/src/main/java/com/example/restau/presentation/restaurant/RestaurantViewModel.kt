@@ -8,25 +8,31 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.User
+import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
 import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class RestaurantViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
     private val userUseCases: UserUseCases,
-    private val locationUseCases: LocationUseCases
+    private val locationUseCases: LocationUseCases,
+    private val analyticsUseCases: AnalyticsUseCases
 ): ViewModel(){
 
     var state by mutableStateOf(RestaurantState())
 
     var currentUser by mutableStateOf(User())
         private set
+
+    private var startTime by mutableStateOf(Date())
 
 
     fun onEvent(event: RestaurantEvent) {
@@ -43,9 +49,26 @@ class RestaurantViewModel @Inject constructor(
             is RestaurantEvent.LaunchMaps -> {
                 launchMaps(event.lat, event.lon, event.name, event.place, event.context)
             }
+            is RestaurantEvent.ScreenOpened -> {
+                startTimer()
+            }
+            is RestaurantEvent.ScreenClosed -> {
+                sendEvent()
+            }
         }
     }
 
+    private fun startTimer() {
+        startTime = Date()
+    }
+
+    private fun sendEvent() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val miliDifference = Date().time - startTime.time
+            val timer = TimeUnit.MILLISECONDS.toSeconds(miliDifference)
+            analyticsUseCases.sendScreenTimeEvent("detail_screen", timer, currentUser.documentId)
+        }
+    }
 
     private fun onLaunch(restaurantID: String){
         viewModelScope.launch {

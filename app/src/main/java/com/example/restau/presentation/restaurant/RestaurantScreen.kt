@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.restau.R
@@ -72,6 +73,14 @@ fun RestaurantScreen(
 ) {
     LaunchedEffect(Unit) {
         restaurantViewModel.onEvent(RestaurantEvent.ScreenLaunched(restaurantID ?: ""))
+    }
+
+    LifecycleResumeEffect(Unit) {
+        restaurantViewModel.onEvent(RestaurantEvent.ScreenOpened)
+
+        onPauseOrDispose {
+            restaurantViewModel.onEvent(RestaurantEvent.ScreenClosed)
+        }
     }
 
     val context = LocalContext.current
