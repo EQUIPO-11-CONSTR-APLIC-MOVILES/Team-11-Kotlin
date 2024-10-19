@@ -29,7 +29,7 @@ fun NavGraph(
             HomeScreen(navController = navHostController)
         }
         composable(route = Route.RandomScreen.route) {
-            RandomScreen()
+            RandomScreen(navController = navHostController)
         }
         composable(route = Route.SearchScreen.route) {
             SearchScreen(navController = navHostController)
