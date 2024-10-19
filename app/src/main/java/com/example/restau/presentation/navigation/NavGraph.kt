@@ -11,6 +11,7 @@ import com.example.restau.presentation.liked.LikedScreen
 import com.example.restau.presentation.map.MapScreen
 import com.example.restau.presentation.preferences.PreferencesScreen
 import com.example.restau.presentation.random.RandomScreen
+import com.example.restau.presentation.restaurant.RestaurantScreen
 import com.example.restau.presentation.reviewlist.ReviewListScreen
 import com.example.restau.presentation.search.SearchScreen
 import com.example.restau.presentation.signin.SignInScreen
@@ -25,19 +26,19 @@ fun NavGraph(
      NavHost(navController = navHostController, startDestination = if (isSignedIn) Route.HomeScreen.route else Route.SignInScreen.route ) {
 
         composable(route = Route.HomeScreen.route) {
-            HomeScreen(navHostController)
+            HomeScreen(navController = navHostController)
         }
         composable(route = Route.RandomScreen.route) {
             RandomScreen()
         }
         composable(route = Route.SearchScreen.route) {
-            SearchScreen()
+            SearchScreen(navController = navHostController)
         }
         composable(route = Route.LikeScreen.route) {
-            LikedScreen()
+            LikedScreen(navController = navHostController)
         }
         composable(route = Route.MapScreen.route) {
-            MapScreen()
+            MapScreen(navController = navHostController)
         }
         composable(route = Route.SignInScreen.route) {
             SignInScreen(navHostController, authCheck)
@@ -45,7 +46,7 @@ fun NavGraph(
          composable(route = Route.SignUpScreen.route) {
              SignUpScreen(navController = navHostController)
          }
-    
+
          composable(route = Route.PreferencesScreen.route) {
              PreferencesScreen(navController = navHostController, authCheck = authCheck)
          }
@@ -57,5 +58,13 @@ fun NavGraph(
             ReviewListScreen(navController = navHostController, restaurantId = id)
          }
 
+
+         composable(
+             route = Route.RestaurantScreen.route + "/{restaurantID}",
+             arguments = listOf(navArgument("restaurantID") { type = NavType.StringType })
+         ){
+             val id = it.arguments?.getString("restaurantID")
+             RestaurantScreen(restaurantID = id, navController = navHostController)
+         }
     }
 }

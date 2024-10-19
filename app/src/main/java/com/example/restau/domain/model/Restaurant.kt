@@ -4,7 +4,7 @@ import com.google.firebase.Timestamp
 import java.util.Date
 
 data class Restaurant(
-    val documentId: String = "",
+    var documentId: String = "",
     val name: String = "",
     val placeName: String = "",
     val openingDate: Timestamp = Timestamp(Date()),
@@ -13,5 +13,6 @@ data class Restaurant(
     val averageRating: Double = 0.0,
     val imageUrl: String = "",
     val categories: List<String> = emptyList(),
-    val schedule: Map<String, Map<String, Double>> = emptyMap()
+    val schedule: Map<String, Map<String, Double>> = emptyMap(),
+    val description: String = "",
 )

@@ -8,4 +8,8 @@ interface RestaurantsRepository {
 
     suspend fun getOpenRestaurants(day: String, time: Int): List<Restaurant>
 
+    suspend fun getRestaurant(id: String): Restaurant
+
+    suspend fun isOpen(day: String, time: Int, restaurantID: String): Boolean
+
 }

@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -92,26 +90,8 @@ fun CardMarker(
                 )
             }
             Spacer(modifier = Modifier.height(13.dp))
-            StarRating(value = restaurant.averageRating, size = 28.dp, modifier = Modifier.fillMaxWidth())
+            StarRating(value = restaurant.averageRating, size = 22.dp, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(10.dp))
-            Button(
-                onClick = { /*TODO*/ },
-                shape = MaterialTheme.shapes.extraLarge,
-                colors = ButtonDefaults.buttonColors().copy(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = Color.White
-                ),
-                modifier = Modifier.padding(horizontal = 15.dp)
-            ) {
-                Text(
-                    text = "Check Out",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = Poppins,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
         }
     }
 }
@@ -129,7 +109,7 @@ fun CustomShapeWithShadowContent(
     Box(modifier = modifier
         .padding(7.dp)
         .width(235.dp)
-        .height(360.dp)
+        .height(310.dp)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val cornerRadius = 30.dp.toPx()
@@ -169,7 +149,7 @@ fun CustomShapeWithShadowContent(
         }
 
         Box(modifier = Modifier
-            .height(305.dp)
+            .height(265.dp)
         ) {
             content(Modifier)
         }

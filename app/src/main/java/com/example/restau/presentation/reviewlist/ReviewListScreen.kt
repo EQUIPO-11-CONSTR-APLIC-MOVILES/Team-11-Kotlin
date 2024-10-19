@@ -207,7 +207,7 @@ private fun LeaveReview(
             Spacer(modifier = Modifier.width(20.dp))
             StarRating(
                 value = 0.0,
-                size = 35.dp,
+                size = 30.dp,
                 showValue = false,
                 tint = Color.LightGray,
                 modifier = Modifier.clickable {
@@ -254,8 +254,8 @@ private fun ReviewCard(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            StarRating(value = review.rating.toDouble(), size = 28.dp, showValue = false)
-            Spacer(modifier = Modifier.width(8.dp))
+            StarRating(value = review.rating.toDouble(), size = 22.dp, showValue = false)
+            Spacer(modifier = Modifier.width(5.dp))
             Text(
                 text = getWeekString(review.date),
                 fontSize = 14.sp,

@@ -40,7 +40,7 @@ class MapViewModel @Inject constructor(
     var state by mutableStateOf(MapState())
         private set
 
-    var currentLocation by mutableStateOf(LatLng(0.0, 0.0))
+    var currentLocation by mutableStateOf(LatLng(4.603096177609384, -74.06584744436493))
         private set
 
     var circleRadius by mutableDoubleStateOf(100.0)
@@ -131,7 +131,7 @@ class MapViewModel @Inject constructor(
             initializeData(restaurants.await(), startingLocation.await())
             locationUseCases.getLocation.invoke().collect {
                 if (isActive) {
-                    currentLocation = it?: currentLocation
+                    //currentLocation = it?: currentLocation
                     filteredRestaurants = restaurantsUseCases.getRestaurantsInRadius(state.restaurants, currentLocation, circleRadius)
                 }
             }
@@ -146,7 +146,7 @@ class MapViewModel @Inject constructor(
             images = restaurants.map { null },
             isLoading = false
         )
-        currentLocation = startingLocation
+        //currentLocation = startingLocation
     }
 
 

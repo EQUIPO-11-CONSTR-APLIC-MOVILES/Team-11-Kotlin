@@ -5,6 +5,7 @@ import android.content.Context
 import com.example.restau.data.repository.AuthRepositoryImpl
 import com.example.restau.data.repository.FeaturesInteractionsEventsRepositoryImpl
 import com.example.restau.data.repository.ImageRepositoryImpl
+import com.example.restau.data.repository.LikeDateRestaurantRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.NavPathsRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
@@ -17,6 +18,7 @@ import com.example.restau.data.repository.UsersRepositoryImpl
 import com.example.restau.domain.repository.AuthRepository
 import com.example.restau.domain.repository.FeaturesInteractionsEventsRepository
 import com.example.restau.domain.repository.ImageRepository
+import com.example.restau.domain.repository.LikeDateRestaurantRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.NavPathsRepository
 import com.example.restau.domain.repository.RecentsRepository
@@ -54,11 +56,15 @@ import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.example.restau.domain.usecases.recentsUseCases.SaveRecents
 import com.example.restau.domain.usecases.userUseCases.SaveTags
 import com.example.restau.domain.usecases.analyticsUseCases.SendFeatureInteractionEvent
+import com.example.restau.domain.usecases.analyticsUseCases.SendLikeDateRestaurantEvent
 import com.example.restau.domain.usecases.userUseCases.SendLike
 import com.example.restau.domain.usecases.userUseCases.SetUserInfo
 import com.google.android.gms.location.LocationServices
 import com.example.restau.domain.usecases.analyticsUseCases.SendScreenTimeEvent
 import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategoriesEvent
+import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
+import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurant
+import com.example.restau.domain.usecases.restaurantUseCases.IsOpen
 import com.example.restau.domain.usecases.reviewsUseCases.GetRestaurantsReviews
 import com.example.restau.domain.usecases.reviewsUseCases.ReviewsUseCases
 import com.example.restau.domain.usecases.tagsUseCases.TagsUseCases
@@ -165,7 +171,9 @@ object AppModule {
             getFilterRestaurantsByNameAndCategories = GetFilterRestaurantsByNameAndCategories(),
             getRestaurantsInRadius = GetRestaurantsInRadius(),
             getRestaurantsLiked = GetRestaurantsLiked(),
-            hasLikedCategoriesArray = HasLikedCategoriesArray()
+            hasLikedCategoriesArray = HasLikedCategoriesArray(),
+            getRestaurant = GetRestaurant(restaurantsRepository),
+            isOpen = IsOpen(restaurantsRepository)
         )
     }
 
@@ -196,7 +204,10 @@ object AppModule {
     @Singleton
     fun provideLocationUseCases(
         locationRepository: LocationRepository
-    ): LocationUseCases = LocationUseCases(GetLocation(locationRepository))
+    ): LocationUseCases = LocationUseCases(
+        GetLocation(locationRepository),
+        LaunchMaps()
+    )
 
     @Provides
     @Singleton
@@ -240,14 +251,21 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideLikeDateRestaurantRepository(db: FirebaseFirestore): LikeDateRestaurantRepository =
+        LikeDateRestaurantRepositoryImpl(db)
+
+    @Provides
+    @Singleton
     fun provideAnalyticsUseCases(
         screenTimeEventsRepository: ScreenTimeEventsRepository,
         featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository,
-        searchedCategoriesRepository: SearchedCategoriesRepository
+        searchedCategoriesRepository: SearchedCategoriesRepository,
+        likeDateRestaurantRepository: LikeDateRestaurantRepository
     ) = AnalyticsUseCases(
         sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository),
         sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository),
-        sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository)
+        sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository),
+        sendLikeDateRestaurantEvent = SendLikeDateRestaurantEvent(likeDateRestaurantRepository)
     )
 
     @Provides

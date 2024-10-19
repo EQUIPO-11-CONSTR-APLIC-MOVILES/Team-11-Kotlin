@@ -34,12 +34,13 @@ fun StarRating(
     value: Double,
     size: Dp,
     modifier: Modifier = Modifier,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
     showValue: Boolean = true,
     tint: Color = MaterialTheme.colorScheme.primary
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = horizontalArrangement,
         modifier = modifier
     ) {
         val integerPart = floor(value).roundToInt()
@@ -80,7 +81,7 @@ fun Star(
     when (type) {
         "full" -> {
             Icon(
-                painter = painterResource(id = R.drawable.star),
+                painter = painterResource(id = R.drawable.filledstar),
                 contentDescription = "star",
                 tint = tint,
                 modifier = modifier.clickable(interactionSource = interactionSource, indication = null) {
@@ -91,7 +92,7 @@ fun Star(
 
         "empty" -> {
             Icon(
-                painter = painterResource(id = R.drawable.empty_star),
+                painter = painterResource(id = R.drawable.outlinedstar),
                 contentDescription = "empty star",
                 tint = tint,
                 modifier = modifier.clickable(interactionSource = interactionSource, indication = null) {
@@ -101,7 +102,7 @@ fun Star(
         }
         else -> {
             Icon(
-                painter = painterResource(id = R.drawable.half_star),
+                painter = painterResource(id = R.drawable.halffilledstar),
                 contentDescription = "half star",
                 tint = tint,
                 modifier = modifier.clickable(interactionSource = interactionSource, indication = null) {
@@ -111,7 +112,7 @@ fun Star(
         }
 
     }
-    Spacer(modifier = Modifier.width(1.dp))
+    Spacer(modifier = Modifier.width(5.dp))
 }
 
 @Preview(showBackground = true)

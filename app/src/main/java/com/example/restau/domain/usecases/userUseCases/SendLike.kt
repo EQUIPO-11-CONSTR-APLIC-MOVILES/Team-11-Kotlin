@@ -7,8 +7,8 @@ class SendLike(
     private val usersRepository: UsersRepository
 ) {
 
-    suspend operator fun invoke(restaurant: String, user: User) {
-        usersRepository.submitLike(restaurant, user)
+    suspend operator fun invoke(user: User) {
+        usersRepository.submitLike(user)
     }
 
 }

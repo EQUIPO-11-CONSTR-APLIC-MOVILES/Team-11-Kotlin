@@ -24,11 +24,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.navigation.NavController
 import com.example.restau.R
 import com.example.restau.presentation.common.LoadingCircle
 import com.example.restau.presentation.map.components.CardMarker
 import com.example.restau.presentation.map.components.NoPermissionsSign
 import com.example.restau.presentation.map.components.SliderCard
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.radiusBlue
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
@@ -52,7 +54,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
-    mapViewModel: MapViewModel = hiltViewModel()
+    mapViewModel: MapViewModel = hiltViewModel(),
+    navController: NavController
 ) {
 
     val permissions = rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
@@ -108,7 +111,10 @@ fun MapScreen(
                     top = paddingValues.calculateTopPadding(),
                     start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                     end = paddingValues.calculateEndPadding(LayoutDirection.Rtl)
-                )
+                ),
+                onCardClick = { restaurantId ->
+                    navController.navigate(Route.RestaurantScreen.route + "/${restaurantId}")
+                }
             )
         } else {
             NoPermissionsSign(tryAgain = {
@@ -138,7 +144,8 @@ private fun MapContent(
     onPinClick: (Int, suspend () -> Unit) -> Unit,
     onRadiusChange: (Double) -> Unit,
     likedAndNew: List<Boolean>,
-    modifier: Modifier = Modifier
+    onCardClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val cameraState = rememberCameraPositionState()
     val scope = rememberCoroutineScope()
@@ -170,9 +177,12 @@ private fun MapContent(
                     MarkerInfoWindow(
                         state = rememberMarkerState(key = (state.images[index] == null).toString() ,position = LatLng(restaurant.latitude, restaurant.longitude)),
                         zIndex = Float.MAX_VALUE,
-                        infoWindowAnchor = Offset(0.5f, 0.80f),
+                        infoWindowAnchor = Offset(0.5f, 0.56f),
                         icon = if (!likedAndNew[index]) null else BitmapDescriptorFactory.fromResource(R.drawable.specialpin),
                         visible = filteredRestaurants[index],
+                        onInfoWindowClick = {
+                            onCardClick(restaurant.documentId)
+                        },
                         onClick = {marker ->
                             onPinClick(index) {
                                 delay(250L)
@@ -192,7 +202,7 @@ private fun MapContent(
                     ) {
                         CardMarker(
                             restaurant = restaurant,
-                            bitmap = state.images[index]
+                            bitmap = state.images[index],
                         )
                     }
                 }

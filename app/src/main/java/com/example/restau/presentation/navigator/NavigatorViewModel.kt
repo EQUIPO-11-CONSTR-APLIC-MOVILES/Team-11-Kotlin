@@ -78,6 +78,7 @@ class NavigatorViewModel @Inject constructor(
 
     suspend fun authCheck() {
         currentUser.value = getCurrentUser()
+        Log.d("NavigatorViewModel", "authCheck: ${currentUser.value}")
         showSplash = false
     }
 

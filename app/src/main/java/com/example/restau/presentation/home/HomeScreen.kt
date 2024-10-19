@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
@@ -43,7 +43,7 @@ import com.example.restau.ui.theme.Poppins
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
+    navController: NavHostController,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val user = homeViewModel.currentUser
@@ -85,26 +85,25 @@ fun HomeScreen(
             },
             onLike = {documentId, delete ->
                 homeViewModel.onEvent(HomeEvent.SendLike(documentId, delete))
-            },
-            onRestaurantClick = { _ ->
-                //navController.navigate(Route.ReviewListScreen.route + "/${restaurantId}")
+                if (!delete) homeViewModel.onEvent(HomeEvent.LikeDateEvent(documentId))
             },
             modifier = Modifier.padding(
                 top = it.calculateTopPadding(),
                 start = it.calculateStartPadding(LayoutDirection.Ltr),
                 end = it.calculateEndPadding(LayoutDirection.Rtl)
-            )
+            ),
+            navController = navController
         )
     }
 }
 
 @Composable
 fun HomeContent(
-    onRestaurantClick: (String) -> Unit,
     state: HomeState,
     onFilterClick: (Int) -> Unit,
     onLike: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    navController: NavHostController
 ) {
 
     Column(
@@ -126,7 +125,7 @@ fun HomeContent(
                 isNew = state.isNew,
                 isLiked = state.isLiked,
                 onLike = onLike,
-                onRestaurantClick = onRestaurantClick
+                onClick = { navController.navigate(Route.RestaurantScreen.route + it) }
             )
         }
     }
