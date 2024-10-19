@@ -5,6 +5,7 @@ import android.content.Context
 import com.example.restau.data.repository.AuthRepositoryImpl
 import com.example.restau.data.repository.FeaturesInteractionsEventsRepositoryImpl
 import com.example.restau.data.repository.ImageRepositoryImpl
+import com.example.restau.data.repository.LikeDateRestaurantRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.NavPathsRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
@@ -16,6 +17,7 @@ import com.example.restau.data.repository.UsersRepositoryImpl
 import com.example.restau.domain.repository.AuthRepository
 import com.example.restau.domain.repository.FeaturesInteractionsEventsRepository
 import com.example.restau.domain.repository.ImageRepository
+import com.example.restau.domain.repository.LikeDateRestaurantRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.NavPathsRepository
 import com.example.restau.domain.repository.RecentsRepository
@@ -52,6 +54,7 @@ import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.example.restau.domain.usecases.recentsUseCases.SaveRecents
 import com.example.restau.domain.usecases.userUseCases.SaveTags
 import com.example.restau.domain.usecases.analyticsUseCases.SendFeatureInteractionEvent
+import com.example.restau.domain.usecases.analyticsUseCases.SendLikeDateRestaurantEvent
 import com.example.restau.domain.usecases.userUseCases.SendLike
 import com.example.restau.domain.usecases.userUseCases.SetUserInfo
 import com.google.android.gms.location.LocationServices
@@ -230,14 +233,21 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideLikeDateRestaurantRepository(db: FirebaseFirestore): LikeDateRestaurantRepository =
+        LikeDateRestaurantRepositoryImpl(db)
+
+    @Provides
+    @Singleton
     fun provideAnalyticsUseCases(
         screenTimeEventsRepository: ScreenTimeEventsRepository,
         featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository,
-        searchedCategoriesRepository: SearchedCategoriesRepository
+        searchedCategoriesRepository: SearchedCategoriesRepository,
+        likeDateRestaurantRepository: LikeDateRestaurantRepository
     ) = AnalyticsUseCases(
         sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository),
         sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository),
-        sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository)
+        sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository),
+        sendLikeDateRestaurantEvent = SendLikeDateRestaurantEvent(likeDateRestaurantRepository)
     )
 
     @Provides

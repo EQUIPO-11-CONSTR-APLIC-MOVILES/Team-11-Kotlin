@@ -79,6 +79,13 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)
+            is HomeEvent.LikeDateEvent -> sendLikeDateRestaurantEvent(event.restaurantId)
+        }
+    }
+
+    private fun sendLikeDateRestaurantEvent(restaurantId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            analyticsUseCases.sendLikeDateRestaurantEvent(restaurantId)
         }
     }
 

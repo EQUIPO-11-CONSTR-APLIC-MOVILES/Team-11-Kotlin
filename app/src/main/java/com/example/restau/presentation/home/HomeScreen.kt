@@ -85,6 +85,7 @@ fun HomeScreen(
             },
             onLike = {documentId, delete ->
                 homeViewModel.onEvent(HomeEvent.SendLike(documentId, delete))
+                if (!delete) homeViewModel.onEvent(HomeEvent.LikeDateEvent(documentId))
             },
             modifier = Modifier.padding(
                 top = it.calculateTopPadding(),
