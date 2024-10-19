@@ -101,7 +101,7 @@ class HomeViewModel @Inject constructor(
                 likes = likes
             )
             updateRestaurantsState(state.restaurants)
-            userUseCases.sendLike(documentId, currentUser)
+            userUseCases.sendLike(currentUser)
         }
     }
 

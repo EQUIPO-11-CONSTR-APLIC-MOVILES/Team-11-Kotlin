@@ -57,4 +57,29 @@ class RestaurantsRepositoryImpl(
         return restaurants
     }
 
+    override suspend fun getRestaurant(id: String): Restaurant {
+        return try {
+            val restaurant = db.collection("restaurants")
+                .document(id)
+                .get()
+                .await()
+                .toObject<Restaurant>()!!
+            restaurant.documentId = id
+            restaurant
+        } catch (e: Exception) {
+            Log.w(TAG, e.toString())
+            Restaurant()
+        }
+    }
+
+    override suspend fun isOpen(day: String, time: Int, restaurantID: String): Boolean {
+        return try {
+            val restaurant = getRestaurant(restaurantID)
+            val schedule = restaurant.schedule[day]
+            ((schedule?.get("start")!! <= time) && (schedule["end"]!! >= time))
+        } catch (e: Exception) {
+            Log.w(TAG, e.toString())
+            true
+        }
+    }
 }

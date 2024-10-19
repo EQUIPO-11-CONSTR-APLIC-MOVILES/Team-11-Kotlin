@@ -60,6 +60,9 @@ import com.example.restau.domain.usecases.userUseCases.SetUserInfo
 import com.google.android.gms.location.LocationServices
 import com.example.restau.domain.usecases.analyticsUseCases.SendScreenTimeEvent
 import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategoriesEvent
+import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
+import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurant
+import com.example.restau.domain.usecases.restaurantUseCases.IsOpen
 import com.example.restau.domain.usecases.tagsUseCases.TagsUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -150,7 +153,9 @@ object AppModule {
             getFilterRestaurantsByNameAndCategories = GetFilterRestaurantsByNameAndCategories(),
             getRestaurantsInRadius = GetRestaurantsInRadius(),
             getRestaurantsLiked = GetRestaurantsLiked(),
-            hasLikedCategoriesArray = HasLikedCategoriesArray()
+            hasLikedCategoriesArray = HasLikedCategoriesArray(),
+            getRestaurant = GetRestaurant(restaurantsRepository),
+            isOpen = IsOpen(restaurantsRepository)
         )
     }
 
@@ -181,7 +186,10 @@ object AppModule {
     @Singleton
     fun provideLocationUseCases(
         locationRepository: LocationRepository
-    ): LocationUseCases = LocationUseCases(GetLocation(locationRepository))
+    ): LocationUseCases = LocationUseCases(
+        GetLocation(locationRepository),
+        LaunchMaps()
+    )
 
     @Provides
     @Singleton

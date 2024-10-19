@@ -31,20 +31,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.navigation.NavHostController
 import com.example.restau.R
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.RestaurantCard
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.SoftRed
 
 @Composable
 fun SearchScreen(
+    navController: NavHostController,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     val state = viewModel.state
@@ -157,8 +159,7 @@ fun SearchScreen(
                 }
                 RestaurantsLazyList(
                     restaurants = state.recentRestaurants,
-                    onRestaurantClick = { //TODO: Restaurant Detail
-                    }
+                    onRestaurantClick = { navController.navigate(Route.RestaurantScreen.route + "/$it") }
                 )
             }
             else if (state.recentRestaurants.isEmpty() && restaurantName.isEmpty()) {
@@ -170,6 +171,7 @@ fun SearchScreen(
                 RestaurantsLazyList(
                     restaurants = state.filteredRestaurantsByNameAndCategories,
                     onRestaurantClick = { restaurantId ->
+                        navController.navigate(Route.RestaurantScreen.route + "/$restaurantId")
                         viewModel.onEvent(SearchEvent.SaveRecentRestaurantEvent(restaurantId))
                         viewModel.onEvent(SearchEvent.SearchedCategoriesEvent(restaurantId))
                     }
@@ -220,8 +222,8 @@ private fun LoadingCircle(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SearchScreenPreview() {
-    SearchScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun SearchScreenPreview() {
+//    SearchScreen()
+//}

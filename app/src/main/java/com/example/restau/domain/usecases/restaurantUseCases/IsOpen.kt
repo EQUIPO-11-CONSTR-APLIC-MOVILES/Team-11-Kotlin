@@ -7,13 +7,13 @@ import com.example.restau.domain.repository.RestaurantsRepository
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class GetOpenRestaurants(
+class IsOpen(
     private val restaurantsRepository: RestaurantsRepository
 ) {
-    suspend operator fun invoke(): List<Restaurant> {
+    suspend operator fun invoke(restaurantID: String): Boolean {
         val day = getDay()
         val time = getTime()
-        return restaurantsRepository.getOpenRestaurants(day, time)
+        return restaurantsRepository.isOpen(day, time, restaurantID)
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -38,6 +38,4 @@ class GetOpenRestaurants(
         }
         return day
     }
-
-
 }
