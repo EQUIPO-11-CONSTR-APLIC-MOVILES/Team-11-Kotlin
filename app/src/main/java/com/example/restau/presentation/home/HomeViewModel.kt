@@ -1,8 +1,12 @@
 package com.example.restau.presentation.home
 
+import android.app.Application
+import android.content.Context
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
@@ -10,8 +14,17 @@ import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
+import com.example.restau.utils.NetworkConnectionState
+import com.example.restau.utils.currentConnectivityState
+import com.example.restau.utils.getConnectivityAsStateFlow
+import com.example.restau.utils.observeConnectivityAsFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -21,10 +34,20 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
     private val userUseCases: UserUseCases,
-    private val analyticsUseCases: AnalyticsUseCases
-): ViewModel() {
+    private val analyticsUseCases: AnalyticsUseCases,
+    private val application: Application
+): AndroidViewModel(application) {
+
+    private val context: Context
+        get() = getApplication<Application>().applicationContext
+
+    // Expose the network state as a StateFlow
+    val isConnected: StateFlow<Boolean> = context.getConnectivityAsStateFlow(viewModelScope)
 
     var state by mutableStateOf(HomeState())
+        private set
+
+    var showFallback by mutableStateOf(false)
         private set
 
     var currentUser by mutableStateOf(User())
@@ -36,7 +59,13 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val user = userUseCases.getUserObject()
             currentUser = user
-            getRestaurants()
+            val restaurants = restaurantUseCases.getRestaurants()
+            if (!isConnected.value && restaurants.isEmpty()) {
+                showFallback = true
+            } else {
+                showFallback = false
+                getRestaurants()
+            }
         }
     }
 
@@ -82,6 +111,7 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.LikeDateEvent -> sendLikeDateRestaurantEvent(event.restaurantId)
         }
     }
+
 
     private fun sendLikeDateRestaurantEvent(restaurantId: String) {
         viewModelScope.launch(Dispatchers.IO) {
