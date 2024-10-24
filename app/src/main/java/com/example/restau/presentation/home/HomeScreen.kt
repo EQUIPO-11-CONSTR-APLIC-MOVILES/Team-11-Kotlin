@@ -37,6 +37,7 @@ import androidx.navigation.NavHostController
 import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.RestaurantsLazyList
 import com.example.restau.presentation.common.TopBarAction
 import com.example.restau.presentation.navigation.Route
@@ -205,33 +206,6 @@ fun NoRestaurantOpen(
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = "No Open Restaurants",
-            color = Color.Gray,
-            fontFamily = Poppins,
-            fontSize = 25.sp,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-fun NoConnection(
-    modifier: Modifier = Modifier
-) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize().padding(5.dp)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.signal),
-            contentDescription = "Check your connectivity and start your experience!",
-            tint = Color.Gray,
-            modifier = Modifier.size(65.dp)
-        )
-        Spacer(modifier = Modifier.height(5.dp))
-        Text(
-            text = "Check your connectivity and start your experience!",
             color = Color.Gray,
             fontFamily = Poppins,
             fontSize = 25.sp,
