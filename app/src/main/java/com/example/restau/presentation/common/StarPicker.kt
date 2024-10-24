@@ -1,6 +1,5 @@
 package com.example.restau.presentation.common
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -13,8 +12,8 @@ import androidx.compose.ui.unit.Dp
 
 @Composable
 fun StarPicker(
-    onClick: (Double) -> Unit,
-    value: Double,
+    onStarSelect: (Int) -> Unit,
+    value: Int,
     size: Dp,
     modifier: Modifier = Modifier
 ) {
@@ -28,19 +27,19 @@ fun StarPicker(
                 Modifier.size(size),
                 pickTint(value, i.toDouble()),
                 onClick = {
-                    onClick(i.toDouble())
+                    onStarSelect(i)
                 }
             )
         }
     }
 }
 
-private fun pickType(value: Double, target: Double): String {
+private fun pickType(value: Int, target: Double): String {
     return if (value >= target) "full" else "empty"
 }
 
 @Composable
-private fun pickTint(value: Double, target: Double): Color {
+private fun pickTint(value: Int, target: Double): Color {
     return if (value >= target)  MaterialTheme.colorScheme.primary else Color(0xFFB9B9B9)
 }
 

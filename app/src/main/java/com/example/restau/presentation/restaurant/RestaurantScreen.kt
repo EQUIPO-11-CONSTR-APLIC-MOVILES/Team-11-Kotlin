@@ -203,7 +203,7 @@ fun RestaurantContent(
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.kid_star),
                 name = "Rate",
-                onClick = {navController.navigate(Route.ReviewListScreen.route + "/${state.restaurant.documentId}")})
+                onClick = {navController.navigate(Route.ReviewListScreen.route + "/${state.restaurant.documentId}" + "/${state.restaurant.name}")})
         }
 
         Spacer(modifier = Modifier.height(30.dp))

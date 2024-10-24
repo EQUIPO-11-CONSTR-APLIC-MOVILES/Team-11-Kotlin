@@ -35,4 +35,15 @@ class ReviewsRepositoryImpl(
         return reviews
     }
 
+    override suspend fun addReview(review: Review): Boolean {
+        return try {
+            val reviewRef = db.collection("reviews").document()
+            reviewRef.set(review).await()
+            true
+        } catch (e: Exception) {
+            Log.w(TAG, "Error adding review: ${e.message}")
+            false
+        }
+    }
+
 }
