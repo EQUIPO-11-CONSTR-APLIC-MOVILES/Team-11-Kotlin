@@ -6,4 +6,6 @@ interface ReviewsRepository {
 
     suspend fun getRestaurantsReviews(restaurantId: String): List<Review>
 
+    suspend fun addReview(review: Review): Boolean
+
 }

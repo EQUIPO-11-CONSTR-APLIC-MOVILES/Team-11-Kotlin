@@ -1,6 +1,7 @@
 package com.example.restau.domain.usecases.reviewsUseCases
 
 class ReviewsUseCases(
-    val getRestaurantsReviews: GetRestaurantsReviews
+    val getRestaurantsReviews: GetRestaurantsReviews,
+    val addReview: AddReview
 ) {
 }

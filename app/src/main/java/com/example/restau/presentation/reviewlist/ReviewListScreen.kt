@@ -1,7 +1,6 @@
 package com.example.restau.presentation.reviewlist
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,8 +41,10 @@ import com.example.restau.domain.model.Review
 import com.example.restau.domain.model.User
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.common.StarPicker
 import com.example.restau.presentation.common.StarRating
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
 import com.google.firebase.Timestamp
 import java.util.Date
@@ -54,11 +55,15 @@ import kotlin.math.round
 fun ReviewListScreen(
     navController: NavController,
     restaurantId: String?,
+    restaurantName: String?,
     reviewListViewModel: ReviewListViewModel = hiltViewModel(),
 ) {
 
+    val tempRating = reviewListViewModel.tempRating
+
     LaunchedEffect(Unit) {
         reviewListViewModel.onEvent(ReviewListEvent.ScreenLaunched(restaurantId ?: ""))
+        reviewListViewModel.onEvent(ReviewListEvent.TempReviewRatingChange(0))
     }
 
     LifecycleResumeEffect(Unit) {
@@ -103,9 +108,11 @@ fun ReviewListScreen(
             ),
             currentUser = reviewListViewModel.currentUser,
             state = reviewListViewModel.state,
-            onStarsClick = {
-
-            }
+            reviewListViewModel = reviewListViewModel,
+            navController = navController,
+            restaurantId = restaurantId,
+            restaurantName = restaurantName,
+            tempRating = tempRating
         )
     }
 }
@@ -114,7 +121,11 @@ fun ReviewListScreen(
 fun ReviewListContent(
     state: ReviewListState,
     currentUser: User,
-    onStarsClick: () -> Unit,
+    navController: NavController,
+    restaurantId: String?,
+    restaurantName: String?,
+    reviewListViewModel: ReviewListViewModel,
+    tempRating: Int,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -128,7 +139,7 @@ fun ReviewListContent(
                 verticalArrangement = Arrangement.Top
             ) {
                 item {
-                    LeaveReview(currentUser, onStarsClick)
+                    LeaveReview(currentUser, navController, restaurantId, restaurantName, reviewListViewModel, tempRating)
                     HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFB3B3B3))
                 }
                 items(state.reviews) {
@@ -136,7 +147,7 @@ fun ReviewListContent(
                 }
             }
         } else if (!state.isLoading){
-            LeaveReview(currentUser, onStarsClick)
+            LeaveReview(currentUser, navController, restaurantId, restaurantName, reviewListViewModel, tempRating)
             HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFB3B3B3))
             NoReviews()
         } else {
@@ -175,7 +186,11 @@ fun NoReviews(
 @Composable
 private fun LeaveReview(
     currentUser: User,
-    onStarsClick: () -> Unit,
+    navController: NavController,
+    restaurantId: String?,
+    restaurantName: String?,
+    reviewListViewModel: ReviewListViewModel,
+    tempRating: Int,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -205,15 +220,11 @@ private fun LeaveReview(
                     .background(Color.LightGray)
             )
             Spacer(modifier = Modifier.width(20.dp))
-            StarRating(
-                value = 0.0,
-                size = 30.dp,
-                showValue = false,
-                tint = Color.LightGray,
-                modifier = Modifier.clickable {
-                    onStarsClick()
-                }
-            )
+            StarPicker(onStarSelect = { selectedRating ->
+                reviewListViewModel.onEvent(ReviewListEvent.TempReviewRatingChange(selectedRating))
+                navController.navigate(Route.ReviewCreationScreen.route + "/${restaurantId}" + "/${selectedRating}" + "/${restaurantName}")
+            },
+            value = tempRating, size =30.dp)
         }
     }
 }

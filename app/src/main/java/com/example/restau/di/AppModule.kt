@@ -65,6 +65,7 @@ import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategori
 import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
 import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurant
 import com.example.restau.domain.usecases.restaurantUseCases.IsOpen
+import com.example.restau.domain.usecases.reviewsUseCases.AddReview
 import com.example.restau.domain.usecases.reviewsUseCases.GetRestaurantsReviews
 import com.example.restau.domain.usecases.reviewsUseCases.ReviewsUseCases
 import com.example.restau.domain.usecases.tagsUseCases.TagsUseCases
@@ -147,7 +148,8 @@ object AppModule {
     fun provideReviewsUseCases(
         reviewsRepository: ReviewsRepository
     ) = ReviewsUseCases(
-        getRestaurantsReviews = GetRestaurantsReviews(reviewsRepository)
+        getRestaurantsReviews = GetRestaurantsReviews(reviewsRepository),
+        addReview = AddReview(reviewsRepository)
     )
 
     @Provides

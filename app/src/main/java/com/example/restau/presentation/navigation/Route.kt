@@ -16,6 +16,7 @@ sealed class Route(
     data object SignUpScreen: Route(route = "signup", icon = null)
     data object PreferencesScreen: Route(route = "preference", icon = null)
     data object ReviewListScreen: Route(route = "reviews", icon = null)
+    data object ReviewCreationScreen: Route(route = "addreviews", icon = null)
     data object RestaurantScreen: Route(route = "restaurant", icon = null)
 }
 

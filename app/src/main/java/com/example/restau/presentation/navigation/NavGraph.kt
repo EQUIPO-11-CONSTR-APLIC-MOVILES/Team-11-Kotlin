@@ -16,6 +16,7 @@ import com.example.restau.presentation.reviewlist.ReviewListScreen
 import com.example.restau.presentation.search.SearchScreen
 import com.example.restau.presentation.signin.SignInScreen
 import com.example.restau.presentation.signup.SignUpScreen
+import com.example.restau.presentation.reviewcreation.ReviewCreationScreen
 
 @Composable
 fun NavGraph(
@@ -51,11 +52,25 @@ fun NavGraph(
              PreferencesScreen(navController = navHostController, authCheck = authCheck)
          }
          composable(
-             route = Route.ReviewListScreen.route + "/{restaurantId}",
-             arguments = listOf(navArgument("restaurantId") { type = NavType.StringType })
+             route = Route.ReviewListScreen.route + "/{restaurantId}" + "/{restaurantName}",
+             arguments = listOf(navArgument("restaurantId") { type = NavType.StringType },
+                                navArgument("restaurantName") { type = NavType.StringType })
          ){
             val id = it.arguments?.getString("restaurantId")
-            ReviewListScreen(navController = navHostController, restaurantId = id)
+            val restaurantName = it.arguments?.getString("restaurantName")
+            ReviewListScreen(navController = navHostController, restaurantId = id, restaurantName = restaurantName)
+         }
+
+         composable(
+             route = Route.ReviewCreationScreen.route + "/{restaurantId}" + "/{tempRate}"  + "/{restaurantName}",
+             arguments = listOf(navArgument("restaurantId") { type = NavType.StringType },
+                                navArgument("tempRate") { type = NavType.IntType },
+                                navArgument("restaurantName") { type = NavType.StringType })
+         ){
+             val id = it.arguments?.getString("restaurantId")
+             val tempRate = it.arguments?.getInt("tempRate")?: 0
+             val restaurantName = it.arguments?.getString("restaurantName")
+             ReviewCreationScreen(navController = navHostController, restaurantId = id, tempRate = tempRate, restaurantName = restaurantName)
          }
 
 

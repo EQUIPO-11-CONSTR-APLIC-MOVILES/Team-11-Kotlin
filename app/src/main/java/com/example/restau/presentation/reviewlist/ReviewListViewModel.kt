@@ -1,6 +1,7 @@
 package com.example.restau.presentation.reviewlist
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -29,6 +30,9 @@ class ReviewListViewModel @Inject constructor(
     var currentUser by mutableStateOf(User())
         private set
 
+    var tempRating by  mutableIntStateOf(0)
+        private set
+
     private var startTime by mutableStateOf(Date())
 
     private fun startTimer() {
@@ -55,6 +59,10 @@ class ReviewListViewModel @Inject constructor(
             is ReviewListEvent.ScreenClosed -> {
                 sendEvent()
             }
+
+            is ReviewListEvent.TempReviewRatingChange -> {
+                onChangeTempRating(event.tempRating)
+            }
         }
     }
 
@@ -71,6 +79,10 @@ class ReviewListViewModel @Inject constructor(
                 isLoading = false
             )
         }
+    }
+
+    private fun onChangeTempRating(newrating: Int) {
+        tempRating = newrating
     }
 
 }
