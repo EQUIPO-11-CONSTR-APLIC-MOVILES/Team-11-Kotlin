@@ -1,6 +1,5 @@
 package com.example.restau.presentation.home
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +20,8 @@ import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +37,7 @@ import androidx.navigation.NavHostController
 import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.RestaurantsLazyList
 import com.example.restau.presentation.common.TopBarAction
 import com.example.restau.presentation.navigation.Route
@@ -47,9 +49,9 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val user = homeViewModel.currentUser
-    Log.d("DONITEST", user.email + " SCREEN")
+    val isConnected by homeViewModel.isConnected.collectAsState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isConnected) {
         homeViewModel.onEvent(HomeEvent.ScreenLaunched)
     }
 
@@ -73,6 +75,7 @@ fun HomeScreen(
         }
     ) {
         HomeContent(
+            showFallback = homeViewModel.showFallback,
             state = homeViewModel.state,
             onFilterClick = { filterIndex ->
                 homeViewModel.onEvent(HomeEvent.FilterEvent(filterIndex))
@@ -103,30 +106,35 @@ fun HomeContent(
     onFilterClick: (Int) -> Unit,
     onLike: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    showFallback: Boolean
 ) {
 
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        FilterRow(
-            selected = state.selectedFilter,
-            onClick = onFilterClick
-        )
-        if (state.restaurants.isEmpty() && state.nothingOpen) {
-            NoRestaurantOpen()
-        } else if (state.restaurants.isEmpty() && state.nothingforyou) {
-            NoRestaurantForYou()
-        } else if (state.restaurants.isEmpty()) {
-            LoadingCircle()
-        } else {
-            RestaurantsLazyList(
-                restaurants = state.restaurants,
-                isNew = state.isNew,
-                isLiked = state.isLiked,
-                onLike = onLike,
-                onClick = { navController.navigate(Route.RestaurantScreen.route + it) }
+        if (!showFallback) {
+            FilterRow(
+                selected = state.selectedFilter,
+                onClick = onFilterClick
             )
+            if (state.restaurants.isEmpty() && state.nothingOpen) {
+                NoRestaurantOpen()
+            } else if (state.restaurants.isEmpty() && state.nothingforyou) {
+                NoRestaurantForYou()
+            } else if (state.restaurants.isEmpty()) {
+                LoadingCircle()
+            } else {
+                RestaurantsLazyList(
+                    restaurants = state.restaurants,
+                    isNew = state.isNew,
+                    isLiked = state.isLiked,
+                    onLike = onLike,
+                    onClick = { navController.navigate(Route.RestaurantScreen.route + it) }
+                )
+            }
+        } else {
+            NoConnection()
         }
     }
 }
