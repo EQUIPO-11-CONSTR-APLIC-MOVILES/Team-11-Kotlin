@@ -1,5 +1,6 @@
 package com.example.restau.presentation.reviewlist
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +44,7 @@ import com.example.restau.domain.model.Review
 import com.example.restau.domain.model.User
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.StarPicker
 import com.example.restau.presentation.common.StarRating
 import com.example.restau.presentation.common.TopBarAction
@@ -61,7 +65,9 @@ fun ReviewListScreen(
 
     val tempRating = reviewListViewModel.tempRating
 
-    LaunchedEffect(Unit) {
+    val isConnected by reviewListViewModel.isConnected.collectAsState()
+
+    LaunchedEffect(isConnected) {
         reviewListViewModel.onEvent(ReviewListEvent.ScreenLaunched(restaurantId ?: ""))
         reviewListViewModel.onEvent(ReviewListEvent.TempReviewRatingChange(0))
     }
@@ -100,7 +106,9 @@ fun ReviewListScreen(
             )
         }
     ) {
+        Log.d("DONITEST", reviewListViewModel.state.showFallback.toString())
         ReviewListContent(
+            showFallback = reviewListViewModel.state.showFallback,
             modifier = Modifier.padding(
                 top = it.calculateTopPadding(),
                 start = it.calculateLeftPadding(LayoutDirection.Ltr),
@@ -119,6 +127,7 @@ fun ReviewListScreen(
 
 @Composable
 fun ReviewListContent(
+    showFallback: Boolean,
     state: ReviewListState,
     currentUser: User,
     navController: NavController,
@@ -132,26 +141,52 @@ fun ReviewListContent(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (state.reviews.isNotEmpty()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
-            ) {
-                item {
-                    LeaveReview(currentUser, navController, restaurantId, restaurantName, reviewListViewModel, tempRating)
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFB3B3B3))
+        if (!showFallback) {
+            if (state.reviews.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    item {
+                        LeaveReview(
+                            currentUser,
+                            navController,
+                            restaurantId,
+                            restaurantName,
+                            reviewListViewModel,
+                            tempRating
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            thickness = 1.dp,
+                            color = Color(0xFFB3B3B3)
+                        )
+                    }
+                    items(state.reviews) {
+                        ReviewCard(review = it)
+                    }
                 }
-                items(state.reviews) {
-                    ReviewCard(review = it)
-                }
+            } else if (!state.isLoading) {
+                LeaveReview(
+                    currentUser,
+                    navController,
+                    restaurantId,
+                    restaurantName,
+                    reviewListViewModel,
+                    tempRating
+                )
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = Color(0xFFB3B3B3)
+                )
+                NoReviews()
+            } else {
+                LoadingCircle()
             }
-        } else if (!state.isLoading){
-            LeaveReview(currentUser, navController, restaurantId, restaurantName, reviewListViewModel, tempRating)
-            HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color(0xFFB3B3B3))
-            NoReviews()
         } else {
-            LoadingCircle()
+            NoConnection()
         }
     }
 }

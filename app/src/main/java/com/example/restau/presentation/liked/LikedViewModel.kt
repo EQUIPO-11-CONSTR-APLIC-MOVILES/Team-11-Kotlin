@@ -30,10 +30,7 @@ class LikedViewModel @Inject constructor(
     private val application: Application
 ): AndroidViewModel(application) {
 
-    private val context: Context
-        get() = getApplication<Application>().applicationContext
-
-    val isConnected: StateFlow<Boolean> = context.getConnectivityAsStateFlow(viewModelScope)
+    val isConnected: StateFlow<Boolean> = application.getConnectivityAsStateFlow(viewModelScope)
 
     var showFallback by mutableStateOf(false)
         private set
