@@ -146,6 +146,8 @@ dependencies {
 
     //Iconos
     implementation("androidx.compose.material:material-icons-extended")
+
+    implementation("com.google.code.gson:gson:2.8.8")
 }
 
 secrets {

@@ -159,7 +159,10 @@ fun SearchScreen(
                 }
                 RestaurantsLazyList(
                     restaurants = state.recentRestaurants,
-                    onRestaurantClick = { navController.navigate(Route.RestaurantScreen.route + "/$it") }
+                    onRestaurantClick = {
+                        val restaurantId = it.documentId
+                        navController.navigate(Route.RestaurantScreen.route + "/$restaurantId")
+                    }
                 )
             }
             else if (state.recentRestaurants.isEmpty() && restaurantName.isEmpty()) {
@@ -170,9 +173,10 @@ fun SearchScreen(
             }else  {
                 RestaurantsLazyList(
                     restaurants = state.filteredRestaurantsByNameAndCategories,
-                    onRestaurantClick = { restaurantId ->
+                    onRestaurantClick = { restaurant ->
+                        val restaurantId = restaurant.documentId
                         navController.navigate(Route.RestaurantScreen.route + "/$restaurantId")
-                        viewModel.onEvent(SearchEvent.SaveRecentRestaurantEvent(restaurantId))
+                        viewModel.onEvent(SearchEvent.SaveRecentRestaurantEvent(restaurant))
                         viewModel.onEvent(SearchEvent.SearchedCategoriesEvent(restaurantId))
                     }
 
@@ -186,14 +190,14 @@ fun SearchScreen(
 fun RestaurantsLazyList(
     restaurants: List<Restaurant>,
     modifier: Modifier = Modifier,
-    onRestaurantClick: (String) -> Unit
+    onRestaurantClick: (Restaurant) -> Unit
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize()
     ) {
         items(restaurants) { restaurant ->
             RestaurantCard(
-                isNew = true,
+                isNew = false,
                 isFavorite = true,
                 restaurantId = restaurant.documentId,
                 name = restaurant.name,
@@ -201,7 +205,7 @@ fun RestaurantsLazyList(
                 placeName = restaurant.placeName,
                 averageRating = restaurant.averageRating.toFloat(),
                 onFavorite = {},
-                onClick = { onRestaurantClick(restaurant.documentId) },
+                onClick = { onRestaurantClick(restaurant) },
                 showLikeButton = false
             )
             Spacer(modifier = modifier.height(29.dp))

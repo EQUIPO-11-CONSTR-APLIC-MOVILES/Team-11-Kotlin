@@ -97,7 +97,7 @@ class SearchViewModel @Inject constructor(
             }
 
             is SearchEvent.SaveRecentRestaurantEvent -> {
-                saveRecentRestaurant(event.restaurantId)
+                saveRecentRestaurant(event.restaurant)
             }
 
             is SearchEvent.VoiceRecognitionEvent -> {
@@ -122,7 +122,9 @@ class SearchViewModel @Inject constructor(
     private fun getRestaurants() {
         viewModelScope.launch(Dispatchers.IO) {
             val restaurants = restaurantUseCases.getRestaurants()
-            state = state.copy(restaurants = restaurants)
+            state = state.copy(
+            restaurants = restaurants
+            )
 
             getRecentRestaurants()
         }
@@ -131,19 +133,18 @@ class SearchViewModel @Inject constructor(
     private fun getRecentRestaurants() {
         if (state.recentRestaurants.isEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
-                recentsUseCases.getRecents().collect { recentIds ->
-                    // Filtrar la lista de restaurantes para obtener los recientes
-                    val recentRestaurants = state.restaurants.filter { it.documentId in recentIds }
-                    state = state.copy(recentRestaurants = recentRestaurants)
+                recentsUseCases.getRecents().collect { recentRestaurantsSet ->
+                    val recentRestaurantsList = recentRestaurantsSet.toList()
+                    state = state.copy(recentRestaurants = recentRestaurantsList)
                 }
             }
         }
     }
 
-    private fun saveRecentRestaurant(restaurantId: String) {
+    private fun saveRecentRestaurant(restaurant: Restaurant) {
         viewModelScope.launch(Dispatchers.IO) {
-            val currentRecents = recentsUseCases.getRecents().first() ?: emptySet()
-            val updatedRecents = currentRecents + restaurantId
+            val currentRecents = recentsUseCases.getRecents().first() ?: emptySet<Restaurant>()
+            val updatedRecents = currentRecents + restaurant
             recentsUseCases.saveRecents(updatedRecents)
             //Log.d("RecentsCheck", "Updated Recents: $updatedRecents")
         }
