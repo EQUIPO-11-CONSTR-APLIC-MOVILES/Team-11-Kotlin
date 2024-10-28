@@ -1,10 +1,17 @@
 package com.example.restau.presentation.map
 
+import android.app.Application
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.location.LocationManager
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
@@ -14,12 +21,14 @@ import com.example.restau.domain.usecases.imagesUseCases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
 import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
+import com.example.restau.utils.getConnectivityAsStateFlow
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -34,8 +43,11 @@ class MapViewModel @Inject constructor(
     private val restaurantsUseCases: RestaurantUseCases,
     private val imageDownloadUseCases: ImageDownloadUseCases,
     private val userUseCases: UserUseCases,
-    private val analyticsUseCases: AnalyticsUseCases
-) : ViewModel() {
+    private val analyticsUseCases: AnalyticsUseCases,
+    private val application: Application
+) : AndroidViewModel(application) {
+
+    val isConnected: StateFlow<Boolean> = application.getConnectivityAsStateFlow(viewModelScope)
 
     var state by mutableStateOf(MapState())
         private set
@@ -57,6 +69,15 @@ class MapViewModel @Inject constructor(
         private set
 
     private var startTime by mutableStateOf(Date())
+
+    var locationEnabled by mutableStateOf(isLocationEnabled(application))
+        private set
+
+    private val locationReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            locationEnabled = isLocationEnabled(application)
+        }
+    }
 
     private suspend fun updateUserData(restaurants: List<Restaurant>) {
         val user = userUseCases.getUserObject()
@@ -84,6 +105,25 @@ class MapViewModel @Inject constructor(
             analyticsUseCases.sendFeatureInteraction(featureName, currentUser.documentId)
         }
     }
+
+
+    private fun isLocationEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    init {
+        val filter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
+        application.registerReceiver(locationReceiver, filter)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Unregister the receiver to prevent memory leaks
+        application.unregisterReceiver(locationReceiver)
+    }
+
 
 
     fun onEvent(event: MapEvent) {

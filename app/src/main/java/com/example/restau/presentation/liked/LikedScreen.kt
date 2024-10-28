@@ -80,7 +80,8 @@ fun LikedScreen(
                 start = it.calculateStartPadding(LayoutDirection.Ltr),
                 end = it.calculateEndPadding(LayoutDirection.Rtl)
             ),
-            navController = navController
+            navController = navController,
+            reload = likedViewModel.reload
         )
     }
 }
@@ -91,7 +92,8 @@ fun LikedContent(
     onLike: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    showFallback: Boolean
+    showFallback: Boolean,
+    reload: Boolean
 ) {
 
     Column(
@@ -110,7 +112,8 @@ fun LikedContent(
                     isShown = state.isLiked,
                     isLiked = state.isLiked,
                     onLike = onLike,
-                    onClick = { navController.navigate(Route.RestaurantScreen.route + it) }
+                    onClick = { navController.navigate(Route.RestaurantScreen.route + it) },
+                    reload = reload
                 )
             }
         } else {

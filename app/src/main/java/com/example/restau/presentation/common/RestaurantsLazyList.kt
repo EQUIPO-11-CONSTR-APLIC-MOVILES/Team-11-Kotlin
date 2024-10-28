@@ -20,6 +20,7 @@ fun RestaurantsLazyList(
     modifier: Modifier = Modifier,
     isShown: List<Boolean> = restaurants.map { true },
     onClick: (String) -> Unit,
+    reload: Boolean = false
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -40,7 +41,8 @@ fun RestaurantsLazyList(
                     onFavorite = { onLike(restaurants[index].documentId, isLiked[index]) },
                     onClick = {
                         onClick("/${restaurants[index].documentId}")
-                    }
+                    },
+                    reload = reload
                 )
                 Spacer(modifier = Modifier.height(29.dp))
             }
