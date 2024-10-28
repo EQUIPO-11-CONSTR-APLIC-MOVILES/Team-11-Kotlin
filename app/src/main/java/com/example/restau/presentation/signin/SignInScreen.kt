@@ -189,8 +189,8 @@ fun SignInForm(
 
         PasswordTextField(signInVM.state.isLoading, signInVM.state.password, { signInVM.onEvent(SignInEvent.PasswordChange(password = it)) }, signInVM)
 
-        if(signInVM.state.errSignIn){
-            ErrorText()
+        if(signInVM.state.errSignIn != ""){
+            ErrorText(signInVM.state.errSignIn)
         }
 
         Button(
@@ -268,7 +268,7 @@ fun OtherSignUp() {
 }
 
 @Composable
-fun ErrorText() {
+fun ErrorText(message: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -284,7 +284,7 @@ fun ErrorText() {
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = "Invalid email or password",
+            text = message,
             color = Color(0xFFB00020),
             fontFamily = Poppins,
             fontSize = 14.sp,
