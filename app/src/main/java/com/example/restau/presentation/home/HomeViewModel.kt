@@ -33,6 +33,9 @@ class HomeViewModel @Inject constructor(
     var state by mutableStateOf(HomeState())
         private set
 
+    var reload by mutableStateOf(false)
+        private set
+
     var showFallback by mutableStateOf(false)
         private set
 
@@ -91,6 +94,7 @@ class HomeViewModel @Inject constructor(
             }
             is HomeEvent.ScreenLaunched -> {
                 updateUserAndData()
+                reload = !reload
             }
 
             is HomeEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)

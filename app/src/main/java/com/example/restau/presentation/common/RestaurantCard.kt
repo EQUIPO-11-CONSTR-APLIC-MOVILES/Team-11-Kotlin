@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.restau.R
 import com.example.restau.ui.theme.Poppins
 import com.example.restau.ui.theme.RestaUTheme
@@ -53,8 +55,12 @@ fun RestaurantCard(
     onFavorite: () -> Unit,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    showLikeButton: Boolean = true
+    showLikeButton: Boolean = true,
+    reload: Boolean = false
 ) {
+
+    val imageRequest = ImageRequest.Builder(LocalContext.current).data(imageUrl).build()
+
     Box(
         modifier = modifier
             .height(320.dp)
@@ -68,12 +74,23 @@ fun RestaurantCard(
             .background(Color.Gray)
             .clickable { onClick(restaurantId) }
     ) {
-        AsyncImage(
-            model = imageUrl,
-            contentDescription = "$name Restaurant Image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        if (reload) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "$name Restaurant Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                error = painterResource(id = R.drawable.restaurant)
+            )
+        } else {
+            AsyncImage(
+                model = imageRequest,
+                contentDescription = "$name Restaurant Image reload",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                error = painterResource(id = R.drawable.restaurant)
+            )
+        }
         if (showLikeButton) {
             LikeButton(
                 isFavorite,

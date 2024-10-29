@@ -35,6 +35,9 @@ class LikedViewModel @Inject constructor(
     var showFallback by mutableStateOf(false)
         private set
 
+    var reload by mutableStateOf(false)
+        private set
+
     var state by mutableStateOf(LikedState())
         private set
 
@@ -83,6 +86,7 @@ class LikedViewModel @Inject constructor(
             }
             is LikedEvent.ScreenLaunched -> {
                 updateUserAndData()
+                reload = !reload
             }
         }
     }
