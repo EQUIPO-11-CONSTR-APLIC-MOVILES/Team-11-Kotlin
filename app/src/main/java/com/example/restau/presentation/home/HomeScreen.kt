@@ -96,7 +96,9 @@ fun HomeScreen(
                 end = it.calculateEndPadding(LayoutDirection.Rtl)
             ),
             navController = navController,
-            reload = homeViewModel.reload
+            reload = homeViewModel.reload,
+            completionPercent = homeViewModel.completion,
+            isConnected = isConnected
         )
     }
 }
@@ -104,11 +106,13 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     state: HomeState,
+    completionPercent: Int,
     onFilterClick: (Int) -> Unit,
     onLike: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController,
     showFallback: Boolean,
+    isConnected: Boolean,
     reload: Boolean
 ) {
 
@@ -134,7 +138,9 @@ fun HomeContent(
                     onLike = onLike,
                     onClick = { navController.navigate(Route.RestaurantScreen.route + it) },
                     reload = reload,
-                    isFeatured = state.isFeatured
+                    isFeatured = state.isFeatured,
+                    showCompletion = isConnected,
+                    completionPercent = completionPercent
                 )
             }
         } else {
