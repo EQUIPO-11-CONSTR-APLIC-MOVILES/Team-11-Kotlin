@@ -9,4 +9,5 @@ data class HomeState(
     val nothingOpen: Boolean = false,
     val nothingforyou: Boolean = false,
     val selectedFilter: Int = 0,
+    val isFeatured: List<Boolean> = emptyList()
 )

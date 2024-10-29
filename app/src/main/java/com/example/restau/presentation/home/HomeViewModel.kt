@@ -25,7 +25,7 @@ class HomeViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
     private val userUseCases: UserUseCases,
     private val analyticsUseCases: AnalyticsUseCases,
-    private val application: Application
+    private val application: Application,
 ): AndroidViewModel(application) {
 
     val isConnected: StateFlow<Boolean> = application.getConnectivityAsStateFlow(viewModelScope)
@@ -151,6 +151,10 @@ class HomeViewModel @Inject constructor(
                     restaurants = restaurantUseCases.getRestaurants()
                 }
             }
+            val featuredNames = analyticsUseCases.getLikeReviewWeek()
+            state = state.copy(
+                isFeatured = restaurantUseCases.getFeaturedArray(restaurants, featuredNames)
+            )
             updateRestaurantsState(restaurants)
         }
     }
@@ -159,7 +163,7 @@ class HomeViewModel @Inject constructor(
         state = state.copy(
             restaurants = restaurants,
             isNew = restaurantUseCases.getIsNewRestaurantArray(restaurants),
-            isLiked = restaurantUseCases.getRestaurantsLiked(restaurants, currentUser.likes)
+            isLiked = restaurantUseCases.getRestaurantsLiked(restaurants, currentUser.likes),
         )
     }
 

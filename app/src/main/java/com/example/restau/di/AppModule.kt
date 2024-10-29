@@ -2,6 +2,8 @@ package com.example.restau.di
 
 import android.app.Application
 import android.content.Context
+import com.example.restau.data.remote.AnalyticsAPI
+import com.example.restau.data.repository.AnalyticsRepositoryImpl
 import com.example.restau.data.repository.AuthRepositoryImpl
 import com.example.restau.data.repository.FeaturesInteractionsEventsRepositoryImpl
 import com.example.restau.data.repository.ImageRepositoryImpl
@@ -15,6 +17,7 @@ import com.example.restau.data.repository.ScreenTimeEventsRepositoryImpl
 import com.example.restau.data.repository.SearchedCategoriesRepositoryImpl
 import com.example.restau.data.repository.TagsRepositoryImpl
 import com.example.restau.data.repository.UsersRepositoryImpl
+import com.example.restau.domain.repository.AnalyticsRepository
 import com.example.restau.domain.repository.AuthRepository
 import com.example.restau.domain.repository.FeaturesInteractionsEventsRepository
 import com.example.restau.domain.repository.ImageRepository
@@ -33,6 +36,7 @@ import com.example.restau.domain.usecases.pathUseCases.NavPathsUseCases
 import com.example.restau.domain.usecases.pathUseCases.UpdatePath
 import com.example.restau.domain.usecases.authUseCases.AuthUseCases
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
+import com.example.restau.domain.usecases.analyticsUseCases.GetLikeReviewWeek
 import com.example.restau.domain.usecases.imagesUseCases.DownloadImages
 import com.example.restau.domain.usecases.imagesUseCases.DownloadSingleImage
 import com.example.restau.domain.usecases.authUseCases.ExecuteSignIn
@@ -63,6 +67,7 @@ import com.google.android.gms.location.LocationServices
 import com.example.restau.domain.usecases.analyticsUseCases.SendScreenTimeEvent
 import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategoriesEvent
 import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
+import com.example.restau.domain.usecases.restaurantUseCases.GetFeaturedArray
 import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurant
 import com.example.restau.domain.usecases.restaurantUseCases.IsOpen
 import com.example.restau.domain.usecases.reviewsUseCases.AddReview
@@ -81,6 +86,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 
@@ -175,7 +183,8 @@ object AppModule {
             getRestaurantsLiked = GetRestaurantsLiked(),
             hasLikedCategoriesArray = HasLikedCategoriesArray(),
             getRestaurant = GetRestaurant(restaurantsRepository),
-            isOpen = IsOpen(restaurantsRepository)
+            isOpen = IsOpen(restaurantsRepository),
+            getFeaturedArray = GetFeaturedArray()
         )
     }
 
@@ -201,6 +210,23 @@ object AppModule {
             LocationServices.getFusedLocationProviderClient(context)
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideAnalyticsAPI(): AnalyticsAPI {
+        return Retrofit
+            .Builder()
+            .baseUrl("http://35.239.202.192:8000/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AnalyticsAPI::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAnalyticsRepository(
+        analyticsAPI: AnalyticsAPI
+    ): AnalyticsRepository = AnalyticsRepositoryImpl(analyticsAPI)
 
     @Provides
     @Singleton
@@ -262,12 +288,14 @@ object AppModule {
         screenTimeEventsRepository: ScreenTimeEventsRepository,
         featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository,
         searchedCategoriesRepository: SearchedCategoriesRepository,
-        likeDateRestaurantRepository: LikeDateRestaurantRepository
+        likeDateRestaurantRepository: LikeDateRestaurantRepository,
+        analyticsRepository: AnalyticsRepository
     ) = AnalyticsUseCases(
         sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository),
         sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository),
         sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository),
-        sendLikeDateRestaurantEvent = SendLikeDateRestaurantEvent(likeDateRestaurantRepository)
+        sendLikeDateRestaurantEvent = SendLikeDateRestaurantEvent(likeDateRestaurantRepository),
+        getLikeReviewWeek = GetLikeReviewWeek(analyticsRepository)
     )
 
     @Provides
