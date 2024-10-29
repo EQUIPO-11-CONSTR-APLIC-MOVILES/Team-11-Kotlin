@@ -4,6 +4,7 @@ class AnalyticsUseCases(
     val sendScreenTimeEvent: SendScreenTimeEvent,
     val sendFeatureInteraction: SendFeatureInteractionEvent,
     val sendSearchedCategoriesEvent: SendSearchedCategoriesEvent,
-    val sendLikeDateRestaurantEvent: SendLikeDateRestaurantEvent
+    val sendLikeDateRestaurantEvent: SendLikeDateRestaurantEvent,
+    val getLikeReviewWeek: GetLikeReviewWeek
 ) {
 }

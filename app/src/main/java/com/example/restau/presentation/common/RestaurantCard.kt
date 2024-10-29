@@ -42,6 +42,7 @@ import coil.request.ImageRequest
 import com.example.restau.R
 import com.example.restau.ui.theme.Poppins
 import com.example.restau.ui.theme.RestaUTheme
+import com.example.restau.ui.theme.SoftRed
 
 @Composable
 fun RestaurantCard(
@@ -56,7 +57,8 @@ fun RestaurantCard(
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     showLikeButton: Boolean = true,
-    reload: Boolean = false
+    reload: Boolean = false,
+    isFeatured: Boolean = false
 ) {
 
     val imageRequest = ImageRequest.Builder(LocalContext.current).data(imageUrl).build()
@@ -100,12 +102,20 @@ fun RestaurantCard(
                     .padding(start = 19.dp, top = 10.dp)
             )
         }
-        if (isNew) {
-            NewLabel(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 10.dp, end = 11.dp)
-            )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 10.dp, end = 11.dp)
+        ) {
+            if (isFeatured) {
+                FeaturedLabel()
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            if (isNew) {
+                NewLabel()
+            }
         }
         RestaurantLabel(
             name, placeName, averageRating, modifier = Modifier
@@ -167,6 +177,38 @@ fun NewLabel(
                 fontFamily = Poppins,
                 textAlign = TextAlign.Center
             )
+        }
+    }
+}
+
+@Composable
+fun FeaturedLabel(
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors().copy(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.Black,
+        ),
+        modifier = modifier
+            .width(72.dp)
+            .height(38.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Top",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = Poppins,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
@@ -278,7 +320,8 @@ fun RestaurantCardPreview() {
             onFavorite = {},
             onClick = {restaurantId ->
                 Log.d("TEST", restaurantId)
-            }
+            },
+            isFeatured = true
         )
     }
 }

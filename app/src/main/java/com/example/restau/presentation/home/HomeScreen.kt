@@ -133,8 +133,8 @@ fun HomeContent(
                     isLiked = state.isLiked,
                     onLike = onLike,
                     onClick = { navController.navigate(Route.RestaurantScreen.route + it) },
-                    reload = reload
-
+                    reload = reload,
+                    isFeatured = state.isFeatured
                 )
             }
         } else {

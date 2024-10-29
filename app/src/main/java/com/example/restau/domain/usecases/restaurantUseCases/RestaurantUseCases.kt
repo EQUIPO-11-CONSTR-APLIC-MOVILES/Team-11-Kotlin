@@ -10,4 +10,5 @@ class RestaurantUseCases(
     val hasLikedCategoriesArray: HasLikedCategoriesArray,
     val getRestaurant: GetRestaurant,
     val isOpen: IsOpen,
+    val getFeaturedArray: GetFeaturedArray
 )
