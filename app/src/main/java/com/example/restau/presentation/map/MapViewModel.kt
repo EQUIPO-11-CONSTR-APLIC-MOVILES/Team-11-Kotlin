@@ -12,7 +12,6 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.model.User
@@ -183,7 +182,7 @@ class MapViewModel @Inject constructor(
         updateUserData(restaurants)
         state = state.copy(
             restaurants = restaurants,
-            images = restaurants.map { null },
+            images = state.images.ifEmpty { restaurants.map { null } },
             isLoading = false
         )
         currentLocation = startingLocation
