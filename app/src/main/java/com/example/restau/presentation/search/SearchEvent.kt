@@ -3,6 +3,7 @@ package com.example.restau.presentation.search
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import com.example.restau.domain.model.Restaurant
 
 sealed class SearchEvent {
 
@@ -18,7 +19,7 @@ sealed class SearchEvent {
 
     data class FeatureInteraction(val featureName: String) : SearchEvent()
 
-    data class SaveRecentRestaurantEvent(val restaurantId: String): SearchEvent()
+    data class SaveRecentRestaurantEvent(val restaurant: Restaurant): SearchEvent()
 
     data class SearchFilterEvent(val restaurantName: String): SearchEvent()
 
