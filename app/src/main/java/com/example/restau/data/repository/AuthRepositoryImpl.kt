@@ -2,6 +2,7 @@ package com.example.restau.data.repository
 
 import android.util.Log
 import com.example.restau.domain.repository.AuthRepository
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -14,13 +15,19 @@ class AuthRepositoryImpl(
     private val firebaseAuth: FirebaseAuth
 ) : AuthRepository {
 
-    override suspend fun signIn(email: String, password: String): Boolean {
+    override suspend fun signIn(email: String, password: String): Result<String> {
         return try {
             val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            authResult.user != null
+            if (authResult.user != null) Result.success("Sign-in successful")
+            else Result.failure(Exception("Unknown error"))
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Result.failure(Exception("Invalid credentials"))
+        } catch (e: IllegalArgumentException) {
+            Result.failure(Exception("Email or password cannot be empty"))
+        } catch (e: FirebaseNetworkException) {
+            Result.failure(Exception("Connectivity error: Please check your connection and try again."))
         } catch (e: Exception) {
-            Log.e("AuthRepository", "signInWithEmail:failure", e)
-            false
+            Result.failure(Exception(e.message))
         }
     }
 
@@ -39,8 +46,12 @@ class AuthRepositoryImpl(
             Result.failure(Exception("Invalid credentials"))
         } catch (e: FirebaseAuthUserCollisionException) {
             Result.failure(Exception("User already exists"))
+        } catch (e: IllegalArgumentException) {
+            Result.failure(Exception("Fields cannot be empty"))
+        } catch (e: FirebaseNetworkException) {
+            Result.failure(Exception("Connectivity error: Please check your connection and try again."))
         } catch (e: Exception) {
-            Result.failure(Exception("Sign-up failed: ${e.message}"))
+            Result.failure(Exception(e.message))
         }
     }
 

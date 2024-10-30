@@ -71,7 +71,6 @@ class SignUpViewModel @Inject constructor(
                 authenticated = true
             }.onFailure {
                 signUpFailure(it.message ?: "An error occurred")
-                authenticated = false
             }
             Log.d("SignUpViewModel", "executeSignUp: $authenticated")
             //authCheck()
