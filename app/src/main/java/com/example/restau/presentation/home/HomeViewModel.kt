@@ -36,6 +36,9 @@ class HomeViewModel @Inject constructor(
     var reload by mutableStateOf(false)
         private set
 
+    var completion by mutableStateOf(0)
+        private set
+
     var showFallback by mutableStateOf(false)
         private set
 
@@ -151,17 +154,16 @@ class HomeViewModel @Inject constructor(
                     restaurants = restaurantUseCases.getRestaurants()
                 }
             }
-            val featuredNames = analyticsUseCases.getLikeReviewWeek()
-            state = state.copy(
-                isFeatured = restaurantUseCases.getFeaturedArray(restaurants, featuredNames)
-            )
+            completion = analyticsUseCases.getPercentageCompletion(currentUser.documentId)
             updateRestaurantsState(restaurants)
         }
     }
 
-    private fun updateRestaurantsState(restaurants: List<Restaurant>) {
+    private suspend fun updateRestaurantsState(restaurants: List<Restaurant>) {
+        val featuredNames = analyticsUseCases.getLikeReviewWeek()
         state = state.copy(
             restaurants = restaurants,
+            isFeatured = restaurantUseCases.getFeaturedArray(restaurants, featuredNames),
             isNew = restaurantUseCases.getIsNewRestaurantArray(restaurants),
             isLiked = restaurantUseCases.getRestaurantsLiked(restaurants, currentUser.likes),
         )

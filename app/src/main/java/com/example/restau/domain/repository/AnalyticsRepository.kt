@@ -6,4 +6,6 @@ interface AnalyticsRepository {
 
     suspend fun getLikeReviewWeek(): List<RestaurantData>
 
+    suspend fun getPercentageCompletion(userID:String): Int
+
 }

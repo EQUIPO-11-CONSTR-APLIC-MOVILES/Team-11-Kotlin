@@ -23,4 +23,18 @@ class AnalyticsRepositoryImpl(
         }
     }
 
+    override suspend fun getPercentageCompletion(userID: String): Int {
+        try {
+            val response = analyticsAPI.getPercentageCompletion(userID)
+            if (response.isSuccessful) {
+                Log.d("DONITEST", response.body().toString())
+                return (response.body()?: 0)
+            }
+            return (0)
+        } catch (e: Exception) {
+            Log.e("ANALYTICSREPOSITORY", e.message.toString())
+            return (0)
+        }
+    }
+
 }

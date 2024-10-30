@@ -37,6 +37,7 @@ import com.example.restau.domain.usecases.pathUseCases.UpdatePath
 import com.example.restau.domain.usecases.authUseCases.AuthUseCases
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.analyticsUseCases.GetLikeReviewWeek
+import com.example.restau.domain.usecases.analyticsUseCases.GetPercentageCompletion
 import com.example.restau.domain.usecases.imagesUseCases.DownloadImages
 import com.example.restau.domain.usecases.imagesUseCases.DownloadSingleImage
 import com.example.restau.domain.usecases.authUseCases.ExecuteSignIn
@@ -295,7 +296,8 @@ object AppModule {
         sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository),
         sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository),
         sendLikeDateRestaurantEvent = SendLikeDateRestaurantEvent(likeDateRestaurantRepository),
-        getLikeReviewWeek = GetLikeReviewWeek(analyticsRepository)
+        getLikeReviewWeek = GetLikeReviewWeek(analyticsRepository),
+        getPercentageCompletion = GetPercentageCompletion(analyticsRepository)
     )
 
     @Provides
