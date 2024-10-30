@@ -146,7 +146,8 @@ fun MapScreen(
                     ),
                     onCardClick = { restaurantId ->
                         navController.navigate(Route.RestaurantScreen.route + "/${restaurantId}")
-                    }
+                    },
+                    locationEnabled = mapViewModel.locationEnabled
                 )
             } else {
                 NoPermissionsSign(tryAgain = {
@@ -179,6 +180,7 @@ private fun MapContent(
     likedAndNew: List<Boolean>,
     onCardClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    locationEnabled: Boolean,
 ) {
     val cameraState = rememberCameraPositionState()
     val scope = rememberCoroutineScope()
@@ -197,7 +199,7 @@ private fun MapContent(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraState,
             properties = MapProperties(
-                isMyLocationEnabled = true,
+                isMyLocationEnabled = locationEnabled,
                 mapStyleOptions = mapStyleOptions
             ),
             uiSettings = MapUiSettings(

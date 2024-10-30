@@ -1,6 +1,7 @@
 package com.example.restau.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -9,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.restau.presentation.home.HomeScreen
 import com.example.restau.presentation.liked.LikedScreen
 import com.example.restau.presentation.map.MapScreen
+import com.example.restau.presentation.map.MapViewModel
 import com.example.restau.presentation.preferences.PreferencesScreen
 import com.example.restau.presentation.random.RandomScreen
 import com.example.restau.presentation.restaurant.RestaurantScreen
@@ -24,6 +26,7 @@ fun NavGraph(
     isSignedIn: Boolean,
     authCheck: suspend () -> Unit
 ) {
+    val mapViewModel: MapViewModel = hiltViewModel()
      NavHost(navController = navHostController, startDestination = if (isSignedIn) Route.HomeScreen.route else Route.SignInScreen.route ) {
 
         composable(route = Route.HomeScreen.route) {
@@ -39,7 +42,7 @@ fun NavGraph(
             LikedScreen(navController = navHostController)
         }
         composable(route = Route.MapScreen.route) {
-            MapScreen(navController = navHostController)
+            MapScreen(navController = navHostController, mapViewModel = mapViewModel)
         }
         composable(route = Route.SignInScreen.route) {
             SignInScreen(navHostController, authCheck)
