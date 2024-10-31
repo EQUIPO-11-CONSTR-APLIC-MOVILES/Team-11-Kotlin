@@ -1,9 +1,11 @@
 package com.example.restau.presentation.reviewcreation
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Review
@@ -11,8 +13,10 @@ import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.reviewsUseCases.ReviewsUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
+import com.example.restau.utils.getConnectivityAsStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -22,8 +26,11 @@ import javax.inject.Inject
 class ReviewCreationViewModel @Inject constructor(
     private val reviewsUseCases: ReviewsUseCases,
     private val userUseCases: UserUseCases,
-    private val analyticsUseCases: AnalyticsUseCases
-): ViewModel() {
+    private val analyticsUseCases: AnalyticsUseCases,
+    private val application: Application,
+): AndroidViewModel(application) {
+
+    val isConnected: StateFlow<Boolean> = application.getConnectivityAsStateFlow(viewModelScope)
 
     var state by mutableStateOf(ReviewCreationState())
         private set
@@ -40,6 +47,9 @@ class ReviewCreationViewModel @Inject constructor(
         private set
 
     var showErrorDialog by mutableStateOf(false)
+        private set
+
+    var showFallback by mutableStateOf(false)
         private set
 
     init {
@@ -69,7 +79,7 @@ class ReviewCreationViewModel @Inject constructor(
             }
 
             ReviewCreationEvent.ScreenLaunched -> {
-                getUser()
+                showFallback = !isConnected.value
             }
 
             is ReviewCreationEvent.ReviewTextChange -> {
@@ -103,6 +113,8 @@ class ReviewCreationViewModel @Inject constructor(
     private fun addReview(review: Review) {
         viewModelScope.launch(Dispatchers.IO) {
             state = state.copy(isLoading = true)
+
+            showFallback = !isConnected.value
 
             val result = reviewsUseCases.addReview(review)
 
