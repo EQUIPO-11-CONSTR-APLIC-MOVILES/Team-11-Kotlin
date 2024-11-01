@@ -1,6 +1,7 @@
 package com.example.restau.presentation.search
 
 import android.app.Activity
+import android.app.Application
 import android.content.Intent
 import android.speech.RecognizerIntent
 import androidx.compose.runtime.getValue
@@ -21,15 +22,21 @@ import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import androidx.activity.result.ActivityResultLauncher
+import androidx.lifecycle.AndroidViewModel
 import com.example.restau.domain.model.Restaurant
+import com.example.restau.utils.getConnectivityAsStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
     private val recentsUseCases: RecentsUseCases,
     private val analyticsUseCases: AnalyticsUseCases,
-    private val userUseCases: UserUseCases
-) : ViewModel() {
+    private val userUseCases: UserUseCases,
+    private val application: Application,
+    ) : AndroidViewModel(application) {
+
+    val isConnected: StateFlow<Boolean> = application.getConnectivityAsStateFlow(viewModelScope)
 
     var state by mutableStateOf(SearchState())
         private set
@@ -42,11 +49,8 @@ class SearchViewModel @Inject constructor(
     var currentUser by mutableStateOf(User())
         private set
 
-    init {
-        getRestaurants()
-        getRecentRestaurants()
-        updateUser()
-    }
+    var showFallback by mutableStateOf(false)
+        private set
 
     private fun updateUser() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -112,6 +116,11 @@ class SearchViewModel @Inject constructor(
             is SearchEvent.ScreenClosed -> sendEvent()
             is SearchEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)
             is SearchEvent.SearchedCategoriesEvent -> sendSearchedCategoriesEvent(event.restaurantId)
+            SearchEvent.ScreenLaunched -> {
+                getRestaurants()
+                getRecentRestaurants()
+                updateUser()
+            }
         }
     }
 
@@ -122,9 +131,14 @@ class SearchViewModel @Inject constructor(
     private fun getRestaurants() {
         viewModelScope.launch(Dispatchers.IO) {
             val restaurants = restaurantUseCases.getRestaurants()
-            state = state.copy(
-            restaurants = restaurants
-            )
+            if (!isConnected.value && restaurants.isEmpty()) {
+                showFallback = true
+            } else {
+                showFallback = false
+                state = state.copy(
+                    restaurants = restaurants
+                )
+            }
 
             getRecentRestaurants()
         }

@@ -2,6 +2,7 @@ package com.example.restau.presentation.search
 
 import android.app.Activity
 import android.speech.RecognizerIntent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,9 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,8 +43,10 @@ import androidx.navigation.NavHostController
 import com.example.restau.R
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.presentation.common.DynamicTopBar
+import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.RestaurantCard
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.home.HomeEvent
 import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.SoftRed
 
@@ -52,6 +58,13 @@ fun SearchScreen(
     val state = viewModel.state
     val restaurantName = viewModel.restaurantName
     val user = viewModel.currentUser
+
+    val isConnected by viewModel.isConnected.collectAsState()
+
+    LaunchedEffect(isConnected) {
+        viewModel.onEvent(SearchEvent.ScreenLaunched)
+    }
+
 
     LifecycleResumeEffect(Unit) {
         viewModel.onEvent(SearchEvent.ScreenOpened)
@@ -136,7 +149,11 @@ fun SearchScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (state.recentRestaurants.isNotEmpty() && restaurantName.isEmpty()) {
+            if (viewModel.showFallback){
+                NoConnection()
+            }
+
+            else if (state.recentRestaurants.isNotEmpty() && restaurantName.isEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally

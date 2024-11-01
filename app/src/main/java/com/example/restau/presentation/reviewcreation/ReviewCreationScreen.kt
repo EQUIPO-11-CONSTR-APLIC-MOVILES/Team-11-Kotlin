@@ -24,6 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +41,7 @@ import com.example.restau.domain.model.Review
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.StarPicker
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.home.HomeEvent
 import com.example.restau.ui.theme.Poppins
 import com.example.restau.ui.theme.SoftRed
 import com.google.firebase.Timestamp
@@ -59,6 +62,12 @@ fun ReviewCreationScreen(
     val showErrorDialog = reviewCreationViewModel.showErrorDialog
     val rating = reviewCreationViewModel.rating
 
+    val isConnected by reviewCreationViewModel.isConnected.collectAsState()
+
+    LaunchedEffect(isConnected) {
+        reviewCreationViewModel.onEvent(ReviewCreationEvent.ScreenLaunched)
+    }
+
     LaunchedEffect(Unit) {
         reviewCreationViewModel.onEvent(ReviewCreationEvent.ScreenLaunched)
         reviewCreationViewModel.onEvent(ReviewCreationEvent.ReviewRatingChange(tempRate))
@@ -76,7 +85,11 @@ fun ReviewCreationScreen(
         AlertDialog(
             onDismissRequest = { reviewCreationViewModel.onEvent(ReviewCreationEvent.ShowErrorDialog(false))},
             confirmButton = {
-                TextButton(onClick = { reviewCreationViewModel.onEvent(ReviewCreationEvent.ShowErrorDialog(false)) },
+                TextButton(onClick = { reviewCreationViewModel.onEvent(ReviewCreationEvent.ShowErrorDialog(false))
+                    if (reviewCreationViewModel.showFallback && reviewText.trim().isNotEmpty()) {
+                        navController.popBackStack()
+                    }
+                },
                     modifier = Modifier
                     .padding(8.dp)
                     .size(width = 120.dp, height = 50.dp)
@@ -90,7 +103,7 @@ fun ReviewCreationScreen(
                 }
             },
             title = { Text(text = "Error", fontSize = 18.sp, fontWeight = FontWeight.Bold) },
-            text = {ErrorText(rating = rating, reviewText = reviewText)},
+            text = {ErrorText(rating = rating, reviewText = reviewText, showFallback = reviewCreationViewModel.showFallback)},
             shape = MaterialTheme.shapes.medium
         )
     }
@@ -209,6 +222,10 @@ fun ReviewCreationScreen(
                     } else {
                         reviewCreationViewModel.onEvent(ReviewCreationEvent.ShowErrorDialog(true))
                     }
+
+                    if (reviewCreationViewModel.showFallback){
+                        reviewCreationViewModel.onEvent(ReviewCreationEvent.ShowErrorDialog(true))
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -223,11 +240,13 @@ fun ReviewCreationScreen(
 }
 
 @Composable
-fun ErrorText(rating: Int, reviewText: String) {
+fun ErrorText(rating: Int, reviewText: String, showFallback: Boolean) {
     if (rating == 0) {
         Text("Review rating cannot be 0, please leave a rating", fontSize = 16.sp)
     } else if (reviewText.trim().isEmpty()) {
         Text("Review cannot be empty", fontSize = 16.sp)
+    } else if (showFallback) {
+        Text("No internet connection detected, but don’t worry your review won’t be lost. It will be posted as soon as the connection is restored.", fontSize = 16.sp)
     }
 }
 
