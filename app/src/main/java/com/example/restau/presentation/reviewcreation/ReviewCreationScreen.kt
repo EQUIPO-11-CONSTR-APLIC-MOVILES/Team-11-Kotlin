@@ -1,5 +1,6 @@
 package com.example.restau.presentation.reviewcreation
 
+import android.icu.text.CaseMap.Title
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -102,7 +103,7 @@ fun ReviewCreationScreen(
                     )
                 }
             },
-            title = { Text(text = "Error", fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+            title = { TitleErrorText(showFallback = reviewCreationViewModel.showFallback, reviewText = reviewText) },
             text = {ErrorText(rating = rating, reviewText = reviewText, showFallback = reviewCreationViewModel.showFallback)},
             shape = MaterialTheme.shapes.medium
         )
@@ -247,6 +248,16 @@ fun ErrorText(rating: Int, reviewText: String, showFallback: Boolean) {
         Text("Review cannot be empty", fontSize = 16.sp)
     } else if (showFallback) {
         Text("No internet connection detected, but don’t worry your review won’t be lost. It will be posted as soon as the connection is restored.", fontSize = 16.sp)
+    }
+}
+
+@Composable
+fun TitleErrorText(showFallback: Boolean, reviewText: String) {
+     if (showFallback && reviewText.trim().isNotEmpty()) {
+         Text(text = "¡Wait a second!", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    }
+    else{
+         Text(text = "¡Be Careful!", fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
 }
 
