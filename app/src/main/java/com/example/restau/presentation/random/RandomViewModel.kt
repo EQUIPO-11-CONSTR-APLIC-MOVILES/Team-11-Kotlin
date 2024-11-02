@@ -1,16 +1,21 @@
 package com.example.restau.presentation.random
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
+import com.example.restau.utils.getConnectivityAsStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -20,9 +25,12 @@ import javax.inject.Inject
 class RandomViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
     private val userUseCases: UserUseCases,
-    private val analyticsUseCases: AnalyticsUseCases
-): ViewModel() {
+    private val analyticsUseCases: AnalyticsUseCases,
+    private val application: Application
+): AndroidViewModel(application) {
 
+    val isConnected: StateFlow<Boolean> = application.getConnectivityAsStateFlow(viewModelScope)
+    
     var restaurantId by mutableStateOf("")
         private set
 
@@ -34,6 +42,8 @@ class RandomViewModel @Inject constructor(
 
     private var startTime by mutableStateOf(Date())
 
+    var showFallback by mutableStateOf(false)
+        private set
 
     fun onEvent(event: RandomEvent){
         when (event) {
@@ -57,16 +67,22 @@ class RandomViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val user = userUseCases.getUserObject()
             currentUser = user
-            val restaurantIds =
-                restaurantUseCases
-                .getRestaurants()
-                .map { it.documentId }
-                .filter { it in currentUser.likes }
-            if (restaurantIds.isNotEmpty()) {
-                restaurantId = restaurantIds.random()
+            val restaurants = restaurantUseCases.getRestaurants()
+            if (!isConnected.value && restaurants.isEmpty()) {
+                isLoading = false
+                showFallback = true
+            } else {
+                showFallback = false
+                restaurantId = getRandomRestaurant(restaurants)
             }
             isLoading = false
         }
+    }
+
+    private fun getRandomRestaurant(restaurants: List<Restaurant>): String {
+        return restaurants
+                .map { it.documentId }
+                .filter { it in currentUser.likes }.random()
     }
 
     private fun sendEvent() {

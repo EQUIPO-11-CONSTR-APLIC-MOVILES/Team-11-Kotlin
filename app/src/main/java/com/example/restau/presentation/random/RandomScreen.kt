@@ -12,6 +12,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +27,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
 import com.example.restau.R
 import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.common.NoConnection
+import com.example.restau.presentation.home.HomeEvent
 import com.example.restau.presentation.restaurant.RestaurantScreen
 import com.example.restau.ui.theme.Poppins
 
@@ -33,6 +37,12 @@ fun RandomScreen(
     navController: NavController,
     randomViewModel: RandomViewModel = hiltViewModel()
 ) {
+
+    val isConnected by randomViewModel.isConnected.collectAsState()
+
+    LaunchedEffect(isConnected) {
+        randomViewModel.onEvent(RandomEvent.ScreenLaunched)
+    }
 
     LaunchedEffect(Unit) {
         if (randomViewModel.restaurantId.isEmpty()) {
@@ -48,8 +58,10 @@ fun RandomScreen(
         }
     }
 
-
-    if (randomViewModel.restaurantId.isNotEmpty()) {
+    if (randomViewModel.showFallback){
+        NoConnection()
+    }
+    else if (randomViewModel.restaurantId.isNotEmpty()) {
         RestaurantScreen(
             restaurantID = randomViewModel.restaurantId,
             navController = navController
