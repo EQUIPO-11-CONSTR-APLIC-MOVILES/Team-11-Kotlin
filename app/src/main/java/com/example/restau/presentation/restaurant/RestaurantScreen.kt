@@ -1,7 +1,7 @@
 package com.example.restau.presentation.restaurant
 
 import android.annotation.SuppressLint
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +38,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,6 +59,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
+import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.StarRating
 import com.example.restau.presentation.common.TopBarAction
 import com.example.restau.presentation.navigation.Route
@@ -71,7 +75,9 @@ fun RestaurantScreen(
     restaurantViewModel: RestaurantViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    LaunchedEffect(Unit) {
+    val isConnected by restaurantViewModel.isConnected.collectAsState()
+
+    LaunchedEffect(isConnected) {
         restaurantViewModel.onEvent(RestaurantEvent.ScreenLaunched(restaurantID ?: ""))
     }
 
@@ -85,6 +91,7 @@ fun RestaurantScreen(
 
     val context = LocalContext.current
 
+
     Scaffold(
         modifier = Modifier
             .background(Color.White)
@@ -94,9 +101,10 @@ fun RestaurantScreen(
                 label = {},
                 hasBackButton = true,
                 action = TopBarAction.LocationAction {
-                    Log.d("RestaurantScreen", "Launch Maps")
-                    restaurantViewModel.onEvent(RestaurantEvent.LaunchMaps(restaurantViewModel.state.restaurant.latitude, restaurantViewModel.state.restaurant.longitude, restaurantViewModel.state.restaurant.name, restaurantViewModel.state.restaurant.placeName,context))
-                                                     },
+                    if (restaurantViewModel.isConnected.value) restaurantViewModel.onEvent(RestaurantEvent.LaunchMaps(restaurantViewModel.state.restaurant.latitude, restaurantViewModel.state.restaurant.longitude, restaurantViewModel.state.restaurant.name, restaurantViewModel.state.restaurant.placeName,context))
+                    else {
+                        Toast.makeText(context, "No internet connection. Can't be redirected.", Toast.LENGTH_SHORT).show()
+                    }},
                 modifier = Modifier
                     .background(Color.White),
                 onBack = {
@@ -105,19 +113,24 @@ fun RestaurantScreen(
             )
         }
     ) {
-        if (restaurantViewModel.state.restaurant.documentId.isNotEmpty()) {
-            RestaurantContent(
-                restaurantVM = restaurantViewModel,
-                state = restaurantViewModel.state,
-                modifier = Modifier
-                    .padding(
-                        top = it.calculateTopPadding(),
-                        start = it.calculateStartPadding(LayoutDirection.Ltr),
-                        end = it.calculateEndPadding(LayoutDirection.Rtl)
-                    )
-                    .background(Color.White),
-                navController = navController
-            )
+        if (!restaurantViewModel.showFallback){
+            if (restaurantViewModel.state.restaurant.documentId.isNotEmpty()) {
+                RestaurantContent(
+                    restaurantVM = restaurantViewModel,
+                    state = restaurantViewModel.state,
+                    modifier = Modifier
+                        .padding(
+                            top = it.calculateTopPadding(),
+                            start = it.calculateStartPadding(LayoutDirection.Ltr),
+                            end = it.calculateEndPadding(LayoutDirection.Rtl)
+                        )
+                        .background(Color.White),
+                    navController = navController,
+                    isConnected = isConnected
+                )
+            } else LoadingCircle()
+        } else {
+            NoConnection()
         }
     }
 }
@@ -128,7 +141,8 @@ fun RestaurantContent(
     restaurantVM: RestaurantViewModel,
     state: RestaurantState,
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    isConnected: Boolean
 ) {
     Column(
         modifier = modifier
@@ -195,7 +209,7 @@ fun RestaurantContent(
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.calendar_month),
                 name = "Schedule",
-                onClick = { restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
+                onClick = { if (isConnected) restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.call),
                 name = "Contact",
@@ -422,7 +436,6 @@ fun formatTime(inputTime: Int): String {
 
     return "$formattedHours:${if (minutes == 0) "00" else minutes} $period"
 }
-
 
 @Preview
 @Composable

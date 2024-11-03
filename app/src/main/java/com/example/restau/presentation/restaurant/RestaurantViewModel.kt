@@ -1,5 +1,6 @@
 package com.example.restau.presentation.restaurant
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -12,8 +13,10 @@ import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
 import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
+import com.example.restau.utils.getConnectivityAsStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -24,8 +27,11 @@ class RestaurantViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
     private val userUseCases: UserUseCases,
     private val locationUseCases: LocationUseCases,
-    private val analyticsUseCases: AnalyticsUseCases
+    private val analyticsUseCases: AnalyticsUseCases,
+    application: Application
 ): ViewModel(){
+
+    val isConnected: StateFlow<Boolean> = application.getConnectivityAsStateFlow(viewModelScope)
 
     var state by mutableStateOf(RestaurantState())
 
@@ -34,6 +40,8 @@ class RestaurantViewModel @Inject constructor(
 
     private var startTime by mutableStateOf(Date())
 
+    var showFallback by mutableStateOf(false)
+        private set
 
     fun onEvent(event: RestaurantEvent) {
         when (event) {
@@ -78,6 +86,9 @@ class RestaurantViewModel @Inject constructor(
 
                 val restaurant = restaurantUseCases.getRestaurant(restaurantID)
                 state = state.copy(restaurant = restaurant)
+
+                showFallback = !isConnected.value && restaurant.documentId.isEmpty()
+
             } catch (e: Exception) {
                 Log.e("RestaurantViewModel", "Error during onLaunch", e)
             }
