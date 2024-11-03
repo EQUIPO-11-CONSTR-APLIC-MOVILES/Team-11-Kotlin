@@ -125,7 +125,8 @@ fun RestaurantScreen(
                             end = it.calculateEndPadding(LayoutDirection.Rtl)
                         )
                         .background(Color.White),
-                    navController = navController
+                    navController = navController,
+                    isConnected = isConnected
                 )
             } else LoadingCircle()
         } else {
@@ -140,7 +141,8 @@ fun RestaurantContent(
     restaurantVM: RestaurantViewModel,
     state: RestaurantState,
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    isConnected: Boolean
 ) {
     Column(
         modifier = modifier
@@ -207,7 +209,7 @@ fun RestaurantContent(
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.calendar_month),
                 name = "Schedule",
-                onClick = { restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
+                onClick = { if (isConnected) restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.call),
                 name = "Contact",
