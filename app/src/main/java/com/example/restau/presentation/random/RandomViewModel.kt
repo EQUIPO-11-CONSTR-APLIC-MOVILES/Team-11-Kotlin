@@ -80,10 +80,17 @@ class RandomViewModel @Inject constructor(
     }
 
     private fun getRandomRestaurant(restaurants: List<Restaurant>): String {
-        return restaurants
-                .map { it.documentId }
-                .filter { it in currentUser.likes }.random()
+        val likedRestaurants = restaurants
+            .map { it.documentId }
+            .filter { it in currentUser.likes }
+
+        return if (likedRestaurants.isNotEmpty()) {
+            likedRestaurants.random()
+        } else {
+            ""
+        }
     }
+
 
     private fun sendEvent() {
         viewModelScope.launch(Dispatchers.IO) {
