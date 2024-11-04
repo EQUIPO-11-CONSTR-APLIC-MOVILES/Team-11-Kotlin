@@ -27,7 +27,7 @@ class AuthRepositoryImpl(
         } catch (e: FirebaseNetworkException) {
             Result.failure(Exception("Connectivity error: Please check your connection and try again."))
         } catch (e: Exception) {
-            Result.failure(Exception(e.message))
+            Result.failure(Exception("The app is unable to connect to the server. Please check your connection and try again."))
         }
     }
 
@@ -51,7 +51,7 @@ class AuthRepositoryImpl(
         } catch (e: FirebaseNetworkException) {
             Result.failure(Exception("Connectivity error: Please check your connection and try again."))
         } catch (e: Exception) {
-            Result.failure(Exception(e.message))
+            Result.failure(Exception("The app is unable to connect to the server. Please check your connection and try again."))
         }
     }
 
