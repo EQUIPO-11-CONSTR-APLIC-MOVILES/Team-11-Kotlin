@@ -47,7 +47,7 @@ class RandomViewModel @Inject constructor(
     var showFallback by mutableStateOf(false)
         private set
 
-    var randomID = MutableStateFlow<String?>(null)
+    var randomID = MutableStateFlow<String?>("")
 
     fun onEvent(event: RandomEvent){
         when (event) {
@@ -78,7 +78,7 @@ class RandomViewModel @Inject constructor(
             } else {
                 showFallback = false
                 restaurantId = getRandomRestaurant(restaurants)
-                if (restaurantId.isNotEmpty() && randomID.value == null) {
+                if (restaurantId.isNotEmpty() && isConnected.value) {
                     viewModelScope.launch(Dispatchers.IO) {
                         randomID.value = randomReviewUseCases.addRandomReview()
                     }

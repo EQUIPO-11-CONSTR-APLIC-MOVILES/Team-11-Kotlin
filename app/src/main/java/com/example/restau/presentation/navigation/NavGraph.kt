@@ -56,16 +56,6 @@ fun NavGraph(
          }
 
          composable(
-             route = Route.ReviewCreationScreen.route + "/{restaurantId}" + "/{restaurantName}",
-                arguments = listOf(navArgument("restaurantId") { type = NavType.StringType },
-                                    navArgument("restaurantName") { type = NavType.StringType })
-         ){
-                val id = it.arguments?.getString("restaurantId")
-                val restaurantName = it.arguments?.getString("restaurantName")
-                ReviewListScreen(navController = navHostController, restaurantId = id, restaurantName = restaurantName)
-         }
-
-         composable(
              route = Route.ReviewCreationScreen.route + "/{restaurantId}" + "/{tempRate}"  + "/{restaurantName}" + "/{randomID}",
              arguments = listOf(navArgument("restaurantId") { type = NavType.StringType },
                                 navArgument("tempRate") { type = NavType.IntType },
