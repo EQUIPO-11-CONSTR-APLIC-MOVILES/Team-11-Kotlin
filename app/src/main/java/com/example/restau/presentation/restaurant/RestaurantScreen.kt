@@ -153,6 +153,7 @@ fun RestaurantContent(
             model = state.restaurant.imageUrl,
             contentDescription = "${state.restaurant.name} Restaurant Image",
             contentScale = ContentScale.Crop,
+            error = painterResource(id = R.drawable.restaurant),
             modifier = Modifier
                 .height(300.dp)
         )
