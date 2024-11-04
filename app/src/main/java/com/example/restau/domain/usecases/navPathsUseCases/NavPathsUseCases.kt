@@ -1,4 +1,4 @@
-package com.example.restau.domain.usecases
+package com.example.restau.domain.usecases.navPathsUseCases
 
 class NavPathsUseCases (
     val createPath: CreatePath,

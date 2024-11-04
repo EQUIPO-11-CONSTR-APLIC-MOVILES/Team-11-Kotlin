@@ -73,7 +73,8 @@ import com.example.restau.ui.theme.RestaUTheme
 fun RestaurantScreen(
     restaurantID: String?,
     restaurantViewModel: RestaurantViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavController,
+    randomID: String? = ""
 ) {
     val isConnected by restaurantViewModel.isConnected.collectAsState()
 
@@ -126,7 +127,8 @@ fun RestaurantScreen(
                         )
                         .background(Color.White),
                     navController = navController,
-                    isConnected = isConnected
+                    isConnected = isConnected,
+                    randomID = randomID
                 )
             } else LoadingCircle()
         } else {
@@ -142,7 +144,8 @@ fun RestaurantContent(
     state: RestaurantState,
     modifier: Modifier = Modifier,
     navController: NavController,
-    isConnected: Boolean
+    isConnected: Boolean,
+    randomID: String?
 ) {
     Column(
         modifier = modifier
@@ -218,7 +221,9 @@ fun RestaurantContent(
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.kid_star),
                 name = "Rate",
-                onClick = {navController.navigate(Route.ReviewListScreen.route + "/${state.restaurant.documentId}" + "/${state.restaurant.name}")})
+                onClick = {
+                    navController.navigate(Route.ReviewListScreen.route  + "/${state.restaurant.documentId}" + "/${state.restaurant.name}" + "/$randomID")
+                })
         }
 
         Spacer(modifier = Modifier.height(30.dp))

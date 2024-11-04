@@ -1,4 +1,4 @@
-package com.example.restau.domain.usecases
+package com.example.restau.domain.usecases.navPathsUseCases
 
 import com.example.restau.domain.repository.NavPathsRepository
 

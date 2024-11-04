@@ -1,6 +1,5 @@
 package com.example.restau.presentation.reviewcreation
 
-import android.icu.text.CaseMap.Title
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,7 +41,6 @@ import com.example.restau.domain.model.Review
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.StarPicker
 import com.example.restau.presentation.common.TopBarAction
-import com.example.restau.presentation.home.HomeEvent
 import com.example.restau.ui.theme.Poppins
 import com.example.restau.ui.theme.SoftRed
 import com.google.firebase.Timestamp
@@ -54,7 +52,8 @@ fun ReviewCreationScreen(
     restaurantId: String?,
     tempRate: Int,
     restaurantName: String?,
-    reviewCreationViewModel: ReviewCreationViewModel = hiltViewModel()
+    reviewCreationViewModel: ReviewCreationViewModel = hiltViewModel(),
+    randomID: String?
 ) {
 
     val state = reviewCreationViewModel.state
@@ -219,7 +218,7 @@ fun ReviewCreationScreen(
                             authorPFP = currentUser.profilePic,
                             date = Timestamp(Date())
                         )
-                        reviewCreationViewModel.onEvent(ReviewCreationEvent.AddReviewEvent(review))
+                        reviewCreationViewModel.onEvent(ReviewCreationEvent.AddReviewEvent(review, randomID))
                     } else {
                         reviewCreationViewModel.onEvent(ReviewCreationEvent.ShowErrorDialog(true))
                     }

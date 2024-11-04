@@ -5,16 +5,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
+import com.example.restau.domain.usecases.randomReviewUseCases.RandomReviewUseCases
 import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import com.example.restau.utils.getConnectivityAsStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -26,6 +27,7 @@ class RandomViewModel @Inject constructor(
     private val restaurantUseCases: RestaurantUseCases,
     private val userUseCases: UserUseCases,
     private val analyticsUseCases: AnalyticsUseCases,
+    private val randomReviewUseCases: RandomReviewUseCases,
     private val application: Application
 ): AndroidViewModel(application) {
 
@@ -44,6 +46,8 @@ class RandomViewModel @Inject constructor(
 
     var showFallback by mutableStateOf(false)
         private set
+
+    var randomID = MutableStateFlow<String?>("")
 
     fun onEvent(event: RandomEvent){
         when (event) {
@@ -74,6 +78,11 @@ class RandomViewModel @Inject constructor(
             } else {
                 showFallback = false
                 restaurantId = getRandomRestaurant(restaurants)
+                if (restaurantId.isNotEmpty() && isConnected.value) {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        randomID.value = randomReviewUseCases.addRandomReview()
+                    }
+                }
             }
             isLoading = false
         }

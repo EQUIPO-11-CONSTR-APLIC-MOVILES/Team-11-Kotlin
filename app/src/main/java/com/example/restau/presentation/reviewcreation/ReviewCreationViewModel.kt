@@ -6,11 +6,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.Review
 import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
+import com.example.restau.domain.usecases.randomReviewUseCases.RandomReviewUseCases
 import com.example.restau.domain.usecases.reviewsUseCases.ReviewsUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import com.example.restau.utils.getConnectivityAsStateFlow
@@ -27,6 +27,7 @@ class ReviewCreationViewModel @Inject constructor(
     private val reviewsUseCases: ReviewsUseCases,
     private val userUseCases: UserUseCases,
     private val analyticsUseCases: AnalyticsUseCases,
+    private val randomReviewUseCases: RandomReviewUseCases,
     private val application: Application,
 ): AndroidViewModel(application) {
 
@@ -76,6 +77,9 @@ class ReviewCreationViewModel @Inject constructor(
         when (event) {
             is ReviewCreationEvent.AddReviewEvent -> {
                 addReview(event.review)
+                viewModelScope.launch(Dispatchers.IO) {
+                    randomReviewUseCases.updateRandomReview(event.randomID!!)
+                }
             }
 
             ReviewCreationEvent.ScreenLaunched -> {

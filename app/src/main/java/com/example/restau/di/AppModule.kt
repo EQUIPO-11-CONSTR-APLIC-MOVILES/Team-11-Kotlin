@@ -10,6 +10,7 @@ import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LikeDateRestaurantRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.NavPathsRepositoryImpl
+import com.example.restau.data.repository.RandomReviewRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
 import com.example.restau.data.repository.RestaurantsRepositoryImpl
 import com.example.restau.data.repository.ReviewsRepositoryImpl
@@ -24,6 +25,7 @@ import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LikeDateRestaurantRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.NavPathsRepository
+import com.example.restau.domain.repository.RandomReviewRepository
 import com.example.restau.domain.repository.RecentsRepository
 import com.example.restau.domain.repository.RestaurantsRepository
 import com.example.restau.domain.repository.ReviewsRepository
@@ -31,51 +33,54 @@ import com.example.restau.domain.repository.ScreenTimeEventsRepository
 import com.example.restau.domain.repository.SearchedCategoriesRepository
 import com.example.restau.domain.repository.TagsRepository
 import com.example.restau.domain.repository.UsersRepository
-import com.example.restau.domain.usecases.pathUseCases.CreatePath
-import com.example.restau.domain.usecases.pathUseCases.NavPathsUseCases
-import com.example.restau.domain.usecases.pathUseCases.UpdatePath
-import com.example.restau.domain.usecases.authUseCases.AuthUseCases
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.analyticsUseCases.GetLikeReviewWeek
 import com.example.restau.domain.usecases.analyticsUseCases.GetPercentageCompletion
-import com.example.restau.domain.usecases.imagesUseCases.DownloadImages
-import com.example.restau.domain.usecases.imagesUseCases.DownloadSingleImage
+import com.example.restau.domain.usecases.analyticsUseCases.SendFeatureInteractionEvent
+import com.example.restau.domain.usecases.analyticsUseCases.SendLikeDateRestaurantEvent
+import com.example.restau.domain.usecases.analyticsUseCases.SendScreenTimeEvent
+import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategoriesEvent
+import com.example.restau.domain.usecases.authUseCases.AuthUseCases
 import com.example.restau.domain.usecases.authUseCases.ExecuteSignIn
 import com.example.restau.domain.usecases.authUseCases.ExecuteSignUp
 import com.example.restau.domain.usecases.authUseCases.GetCurrentUser
+import com.example.restau.domain.usecases.imagesUseCases.DownloadImages
+import com.example.restau.domain.usecases.imagesUseCases.DownloadSingleImage
+import com.example.restau.domain.usecases.imagesUseCases.ImageDownloadUseCases
+import com.example.restau.domain.usecases.locationUseCases.GetLocation
+import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
+import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
+import com.example.restau.domain.usecases.pathUseCases.CreatePath
+import com.example.restau.domain.usecases.pathUseCases.NavPathsUseCases
+import com.example.restau.domain.usecases.pathUseCases.UpdatePath
+import com.example.restau.domain.usecases.randomReviewUseCases.AddRandomReview
+import com.example.restau.domain.usecases.randomReviewUseCases.RandomReviewUseCases
+import com.example.restau.domain.usecases.randomReviewUseCases.UpdateRandomReview
+import com.example.restau.domain.usecases.recentsUseCases.GetRecents
+import com.example.restau.domain.usecases.recentsUseCases.RecentsUseCases
+import com.example.restau.domain.usecases.recentsUseCases.SaveRecents
+import com.example.restau.domain.usecases.restaurantUseCases.GetFeaturedArray
 import com.example.restau.domain.usecases.restaurantUseCases.GetFilterRestaurantsByNameAndCategories
 import com.example.restau.domain.usecases.restaurantUseCases.GetIsNewRestaurantArray
-import com.example.restau.domain.usecases.locationUseCases.GetLocation
 import com.example.restau.domain.usecases.restaurantUseCases.GetOpenRestaurants
-import com.example.restau.domain.usecases.recentsUseCases.GetRecents
+import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurant
 import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurants
 import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurantsInRadius
 import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurantsLiked
-import com.example.restau.domain.usecases.tagsUseCases.GetTags
-import com.example.restau.domain.usecases.userUseCases.GetUserObject
 import com.example.restau.domain.usecases.restaurantUseCases.HasLikedCategoriesArray
-import com.example.restau.domain.usecases.imagesUseCases.ImageDownloadUseCases
-import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
-import com.example.restau.domain.usecases.recentsUseCases.RecentsUseCases
-import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
-import com.example.restau.domain.usecases.recentsUseCases.SaveRecents
-import com.example.restau.domain.usecases.userUseCases.SaveTags
-import com.example.restau.domain.usecases.analyticsUseCases.SendFeatureInteractionEvent
-import com.example.restau.domain.usecases.analyticsUseCases.SendLikeDateRestaurantEvent
-import com.example.restau.domain.usecases.userUseCases.SendLike
-import com.example.restau.domain.usecases.userUseCases.SetUserInfo
-import com.google.android.gms.location.LocationServices
-import com.example.restau.domain.usecases.analyticsUseCases.SendScreenTimeEvent
-import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategoriesEvent
-import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
-import com.example.restau.domain.usecases.restaurantUseCases.GetFeaturedArray
-import com.example.restau.domain.usecases.restaurantUseCases.GetRestaurant
 import com.example.restau.domain.usecases.restaurantUseCases.IsOpen
+import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.example.restau.domain.usecases.reviewsUseCases.AddReview
 import com.example.restau.domain.usecases.reviewsUseCases.GetRestaurantsReviews
 import com.example.restau.domain.usecases.reviewsUseCases.ReviewsUseCases
+import com.example.restau.domain.usecases.tagsUseCases.GetTags
 import com.example.restau.domain.usecases.tagsUseCases.TagsUseCases
+import com.example.restau.domain.usecases.userUseCases.GetUserObject
+import com.example.restau.domain.usecases.userUseCases.SaveTags
+import com.example.restau.domain.usecases.userUseCases.SendLike
+import com.example.restau.domain.usecases.userUseCases.SetUserInfo
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.auth.FirebaseAuth
@@ -168,6 +173,21 @@ object AppModule {
     ) = NavPathsUseCases(
         createPath = CreatePath(navPathsRepository),
         updatePath = UpdatePath(navPathsRepository)
+    )
+
+    @Provides
+    @Singleton
+    fun provideRandomReviewRepository(db: FirebaseFirestore): RandomReviewRepository {
+        return RandomReviewRepositoryImpl(db)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRandomReviewUseCases(
+        randomReviewRepository: RandomReviewRepository
+    ) = RandomReviewUseCases(
+        addRandomReview = AddRandomReview(randomReviewRepository),
+        updateRandomReview = UpdateRandomReview(randomReviewRepository)
     )
 
     @Provides

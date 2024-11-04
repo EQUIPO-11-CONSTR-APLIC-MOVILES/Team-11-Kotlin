@@ -61,6 +61,7 @@ fun ReviewListScreen(
     restaurantId: String?,
     restaurantName: String?,
     reviewListViewModel: ReviewListViewModel = hiltViewModel(),
+    randomID: String = ""
 ) {
 
     val tempRating = reviewListViewModel.tempRating
@@ -120,7 +121,8 @@ fun ReviewListScreen(
             navController = navController,
             restaurantId = restaurantId,
             restaurantName = restaurantName,
-            tempRating = tempRating
+            tempRating = tempRating,
+            randomID = randomID
         )
     }
 }
@@ -135,7 +137,8 @@ fun ReviewListContent(
     restaurantName: String?,
     reviewListViewModel: ReviewListViewModel,
     tempRating: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    randomID: String?
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -155,7 +158,8 @@ fun ReviewListContent(
                             restaurantId,
                             restaurantName,
                             reviewListViewModel,
-                            tempRating
+                            tempRating,
+                            randomID = randomID
                         )
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
@@ -174,7 +178,8 @@ fun ReviewListContent(
                     restaurantId,
                     restaurantName,
                     reviewListViewModel,
-                    tempRating
+                    tempRating,
+                    randomID = randomID
                 )
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
@@ -226,7 +231,8 @@ private fun LeaveReview(
     restaurantName: String?,
     reviewListViewModel: ReviewListViewModel,
     tempRating: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    randomID: String?
 ) {
     Column(
         modifier = modifier
@@ -257,7 +263,7 @@ private fun LeaveReview(
             Spacer(modifier = Modifier.width(20.dp))
             StarPicker(onStarSelect = { selectedRating ->
                 reviewListViewModel.onEvent(ReviewListEvent.TempReviewRatingChange(selectedRating))
-                navController.navigate(Route.ReviewCreationScreen.route + "/${restaurantId}" + "/${selectedRating}" + "/${restaurantName}")
+                navController.navigate(Route.ReviewCreationScreen.route + "/${restaurantId}" + "/${selectedRating}" + "/${restaurantName}" + "/${randomID}")
             },
             value = tempRating, size =30.dp)
         }
