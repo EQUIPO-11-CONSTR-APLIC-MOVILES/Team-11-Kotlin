@@ -54,26 +54,29 @@ fun NavGraph(
          composable(route = Route.PreferencesScreen.route) {
              PreferencesScreen(navController = navHostController, authCheck = authCheck)
          }
+
          composable(
-             route = Route.ReviewListScreen.route + "/{restaurantId}" + "/{restaurantName}",
-             arguments = listOf(navArgument("restaurantId") { type = NavType.StringType },
-                                navArgument("restaurantName") { type = NavType.StringType })
+             route = Route.ReviewCreationScreen.route + "/{restaurantId}" + "/{restaurantName}",
+                arguments = listOf(navArgument("restaurantId") { type = NavType.StringType },
+                                    navArgument("restaurantName") { type = NavType.StringType })
          ){
-            val id = it.arguments?.getString("restaurantId")
-            val restaurantName = it.arguments?.getString("restaurantName")
-            ReviewListScreen(navController = navHostController, restaurantId = id, restaurantName = restaurantName)
+                val id = it.arguments?.getString("restaurantId")
+                val restaurantName = it.arguments?.getString("restaurantName")
+                ReviewListScreen(navController = navHostController, restaurantId = id, restaurantName = restaurantName)
          }
 
          composable(
-             route = Route.ReviewCreationScreen.route + "/{restaurantId}" + "/{tempRate}"  + "/{restaurantName}",
+             route = Route.ReviewCreationScreen.route + "/{restaurantId}" + "/{tempRate}"  + "/{restaurantName}" + "/{randomID}",
              arguments = listOf(navArgument("restaurantId") { type = NavType.StringType },
                                 navArgument("tempRate") { type = NavType.IntType },
-                                navArgument("restaurantName") { type = NavType.StringType })
+                                navArgument("restaurantName") { type = NavType.StringType },
+                                navArgument("randomID") { type = NavType.StringType })
          ){
              val id = it.arguments?.getString("restaurantId")
              val tempRate = it.arguments?.getInt("tempRate")?: 0
              val restaurantName = it.arguments?.getString("restaurantName")
-             ReviewCreationScreen(navController = navHostController, restaurantId = id, tempRate = tempRate, restaurantName = restaurantName)
+             val randomID = it.arguments?.getString("randomID")
+             ReviewCreationScreen(navController = navHostController, restaurantId = id, tempRate = tempRate, restaurantName = restaurantName, randomID = randomID)
          }
 
 
@@ -83,6 +86,18 @@ fun NavGraph(
          ){
              val id = it.arguments?.getString("restaurantID")
              RestaurantScreen(restaurantID = id, navController = navHostController)
+         }
+
+         composable(
+             route = Route.ReviewListScreen.route + "/{restaurantId}" + "/{restaurantName}" + "/{randomID}",
+             arguments = listOf(navArgument("restaurantId") { type = NavType.StringType },
+                                navArgument("restaurantName") { type = NavType.StringType },
+                                navArgument("randomID") { type = NavType.StringType })
+            ){
+                val id = it.arguments?.getString("restaurantId")
+                val restaurantName = it.arguments?.getString("restaurantName")
+                val randomID = it.arguments?.getString("randomID")?: ""
+                ReviewListScreen(navController = navHostController, restaurantId = id, restaurantName = restaurantName, randomID = randomID)
          }
     }
 }

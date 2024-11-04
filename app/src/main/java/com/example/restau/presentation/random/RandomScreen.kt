@@ -1,5 +1,6 @@
 package com.example.restau.presentation.random
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import com.example.restau.presentation.home.HomeEvent
 import com.example.restau.presentation.restaurant.RestaurantScreen
 import com.example.restau.ui.theme.Poppins
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun RandomScreen(
     navController: NavController,
@@ -64,7 +66,8 @@ fun RandomScreen(
     else if (randomViewModel.restaurantId.isNotEmpty()) {
         RestaurantScreen(
             restaurantID = randomViewModel.restaurantId,
-            navController = navController
+            navController = navController,
+            randomID = randomViewModel.randomID.value
         )
     } else if (randomViewModel.isLoading){
         LoadingCircle()
