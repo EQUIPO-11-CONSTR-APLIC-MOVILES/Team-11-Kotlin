@@ -1,5 +1,6 @@
 package com.example.restau.presentation.signup
 
+import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,8 +10,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.authUseCases.AuthUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
+import com.example.restau.utils.getConnectivityAsStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -19,10 +22,13 @@ import javax.inject.Inject
 class SignUpViewModel @Inject constructor(
     private val authUseCases: AuthUseCases,
     private val userUseCases: UserUseCases,
-    private val analyticsUseCases: AnalyticsUseCases
+    private val analyticsUseCases: AnalyticsUseCases,
+    private val application: Application
 ): ViewModel() {
 
     var state by mutableStateOf(SignUpState())
+
+    val isConnected: StateFlow<Boolean> = application.getConnectivityAsStateFlow(viewModelScope)
 
     fun onEvent(event: SignUpEvent) {
         when (event) {
@@ -50,11 +56,17 @@ class SignUpViewModel @Inject constructor(
     private fun signUp(event: SignUpEvent.SignUp){
         viewModelScope.launch {
             try {
-                val isAuthenticated = executeSignUp(event.email, event.password)
-                val isCreated = userUseCases.setUserInfo(event.name, event.email, getUserRandPic(), authUseCases.getCurrentUser()?.uid ?: "")
+                if (event.email.replace(" ", "").isEmpty() || event.password.replace(" ", "").isEmpty() || event.name.replace(" ", "").isEmpty()) {
+                    signUpFailure("Please fill in all fields")
+                } else if (isConnected.value.not()) {
+                    signUpFailure("Connectivity error: Please check your connection and try again.")
+                } else {
+                    val isAuthenticated = executeSignUp(event.email, event.password)
+                    val isCreated = userUseCases.setUserInfo(event.name, event.email, getUserRandPic(), authUseCases.getCurrentUser()?.uid ?: "")
 
-                if (isAuthenticated && isCreated) {
-                    event.onSuccess()
+                    if (isAuthenticated && isCreated) {
+                        event.onSuccess()
+                    }
                 }
                 state = state.copy(isLoading = false)
             } catch (e: Exception) {
