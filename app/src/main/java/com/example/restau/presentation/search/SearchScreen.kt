@@ -109,44 +109,57 @@ fun SearchScreen(
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp)
                 .fillMaxSize()
         ) {
-            // Campo de búsqueda
-            OutlinedTextField(
-                value = restaurantName,
-                onValueChange = {
-                    if (it.length <= 30) {
-                    viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
-                    viewModel.onEvent(SearchEvent.SearchFilterEvent(it))
-                    }
-                },
-                label = { Text("Restaurant Name or Categories") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = SoftRed,
-                    focusedLabelColor = SoftRed,
-                    cursorColor = SoftRed
-                ),
-                trailingIcon = {
-                    Row{
-                        if (restaurantName.isNotEmpty()){
-                            IconButton(onClick = {  viewModel.onEvent(SearchEvent.ChangeNameEvent("")) }) {
+            if (!viewModel.showFallback) {
+                OutlinedTextField(
+                    value = restaurantName,
+                    onValueChange = {
+                        if (it.length <= 30) {
+                            viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
+                            viewModel.onEvent(SearchEvent.SearchFilterEvent(it))
+                        }
+                    },
+                    label = { Text("Restaurant Name or Categories") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = SoftRed,
+                        focusedLabelColor = SoftRed,
+                        cursorColor = SoftRed
+                    ),
+                    trailingIcon = {
+                        Row {
+                            if (restaurantName.isNotEmpty()) {
+                                IconButton(onClick = {
+                                    viewModel.onEvent(
+                                        SearchEvent.ChangeNameEvent(
+                                            ""
+                                        )
+                                    )
+                                }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.cleartext),
+                                        contentDescription = "Clear text"
+                                    )
+                                }
+                            }
+
+                            IconButton(onClick = {
+                                viewModel.onEvent(
+                                    SearchEvent.VoiceRecognitionEvent(
+                                        activity!!,
+                                        speechRecognizerLauncher
+                                    )
+                                )
+                            }) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.cleartext),
-                                    contentDescription = "Clear text"
+                                    painter = painterResource(id = R.drawable.microphone),
+                                    contentDescription = "Speak restaurant"
                                 )
                             }
                         }
-
-                        IconButton(onClick = { viewModel.onEvent(SearchEvent.VoiceRecognitionEvent(activity!!, speechRecognizerLauncher)) }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.microphone),
-                                contentDescription = "Speak restaurant"
-                            )
-                        }
                     }
-                }
-            )
-
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             if (viewModel.showFallback){
