@@ -93,7 +93,6 @@ class NavigatorViewModel @Inject constructor(
                     val lon = location?.longitude.toString()
 
                     val apiURL = "http://35.239.202.192:8000/nearbyxcuisine/"
-
                     val url = URL("$apiURL?&userID=$id&lat=$lat&lon=$lon")
                     val connection = url.openConnection() as HttpURLConnection
 
