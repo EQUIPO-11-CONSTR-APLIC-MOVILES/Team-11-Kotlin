@@ -33,7 +33,7 @@ class UsersRepositoryImpl(
         return user
     }
 
-    override suspend fun submitLike(restaurant: String, user: User) {
+    override suspend fun submitLike(user: User) {
         try {
             val dtUser = hashMapOf(
                 "likes" to user.likes,

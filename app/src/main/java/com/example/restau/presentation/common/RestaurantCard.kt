@@ -1,5 +1,6 @@
 package com.example.restau.presentation.common
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,23 +38,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.restau.R
 import com.example.restau.ui.theme.Poppins
 import com.example.restau.ui.theme.RestaUTheme
+import com.example.restau.ui.theme.SoftRed
 
 @Composable
 fun RestaurantCard(
     isNew: Boolean,
+    restaurantId: String,
     isFavorite: Boolean,
     name: String,
     imageUrl: String,
     placeName: String,
     averageRating: Float,
     onFavorite: () -> Unit,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    showLikeButton: Boolean = true
+    showLikeButton: Boolean = true,
+    reload: Boolean = false,
+    isFeatured: Boolean = false
 ) {
+
+    val imageRequest = ImageRequest.Builder(LocalContext.current).data(imageUrl).build()
+
     Box(
         modifier = modifier
             .height(320.dp)
@@ -64,14 +74,25 @@ fun RestaurantCard(
             )
             .clip(MaterialTheme.shapes.small)
             .background(Color.Gray)
-            .clickable { onClick() }
+            .clickable { onClick(restaurantId) }
     ) {
-        AsyncImage(
-            model = imageUrl,
-            contentDescription = "$name Restaurant Image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        if (reload) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "$name Restaurant Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                error = painterResource(id = R.drawable.restaurant)
+            )
+        } else {
+            AsyncImage(
+                model = imageRequest,
+                contentDescription = "$name Restaurant Image reload",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                error = painterResource(id = R.drawable.restaurant)
+            )
+        }
         if (showLikeButton) {
             LikeButton(
                 isFavorite,
@@ -81,12 +102,20 @@ fun RestaurantCard(
                     .padding(start = 19.dp, top = 10.dp)
             )
         }
-        if (isNew) {
-            NewLabel(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 10.dp, end = 11.dp)
-            )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 10.dp, end = 11.dp)
+        ) {
+            if (isFeatured) {
+                FeaturedLabel()
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            if (isNew) {
+                NewLabel()
+            }
         }
         RestaurantLabel(
             name, placeName, averageRating, modifier = Modifier
@@ -148,6 +177,38 @@ fun NewLabel(
                 fontFamily = Poppins,
                 textAlign = TextAlign.Center
             )
+        }
+    }
+}
+
+@Composable
+fun FeaturedLabel(
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors().copy(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.Black,
+        ),
+        modifier = modifier
+            .width(72.dp)
+            .height(38.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Top",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = Poppins,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
@@ -250,13 +311,17 @@ fun RestaurantCardPreview() {
     RestaUTheme {
         RestaurantCard(
             isNew = true,
+            restaurantId = "12234",
             isFavorite = true,
             name = "Doni's",
             imageUrl = "https://www.allrecipes.com/thmb/lLeKelVvgs-yPAgqDfGrSzOOJIs=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/4431200-6c6df37091d341f3938dd5a4ee4b5f62.jpg",
             placeName = "Universidad de los Andes",
             averageRating = 4.8f,
             onFavorite = {},
-            onClick = {}
+            onClick = {restaurantId ->
+                Log.d("TEST", restaurantId)
+            },
+            isFeatured = true
         )
     }
 }

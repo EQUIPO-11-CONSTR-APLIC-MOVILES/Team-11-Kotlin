@@ -100,9 +100,8 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.savedstate)
 
 
-//    //Retrofit
-//    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-//    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     //Coil
     implementation(libs.coil.compose)
@@ -146,6 +145,8 @@ dependencies {
 
     //Iconos
     implementation("androidx.compose.material:material-icons-extended")
+
+    implementation("com.google.code.gson:gson:2.8.8")
 }
 
 secrets {

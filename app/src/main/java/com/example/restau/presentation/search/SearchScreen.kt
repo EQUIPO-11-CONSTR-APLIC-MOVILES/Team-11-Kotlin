@@ -2,6 +2,7 @@ package com.example.restau.presentation.search
 
 import android.app.Activity
 import android.speech.RecognizerIntent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -27,29 +28,43 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.navigation.NavHostController
 import com.example.restau.R
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.presentation.common.DynamicTopBar
+import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.RestaurantCard
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.home.HomeEvent
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.SoftRed
 
 @Composable
 fun SearchScreen(
+    navController: NavHostController,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     val state = viewModel.state
     val restaurantName = viewModel.restaurantName
     val user = viewModel.currentUser
+
+    val isConnected by viewModel.isConnected.collectAsState()
+
+    LaunchedEffect(isConnected) {
+        viewModel.onEvent(SearchEvent.ScreenLaunched)
+    }
+
 
     LifecycleResumeEffect(Unit) {
         viewModel.onEvent(SearchEvent.ScreenOpened)
@@ -94,47 +109,64 @@ fun SearchScreen(
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp)
                 .fillMaxSize()
         ) {
-            // Campo de búsqueda
-            OutlinedTextField(
-                value = restaurantName,
-                onValueChange = {
-                    if (it.length <= 30) {
-                    viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
-                    viewModel.onEvent(SearchEvent.SearchFilterEvent(it))
-                    }
-                },
-                label = { Text("Restaurant Name or Categories") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = SoftRed,
-                    focusedLabelColor = SoftRed,
-                    cursorColor = SoftRed
-                ),
-                trailingIcon = {
-                    Row{
-                        if (restaurantName.isNotEmpty()){
-                            IconButton(onClick = {  viewModel.onEvent(SearchEvent.ChangeNameEvent("")) }) {
+            if (!viewModel.showFallback) {
+                OutlinedTextField(
+                    value = restaurantName,
+                    onValueChange = {
+                        if (it.length <= 30) {
+                            viewModel.onEvent(SearchEvent.ChangeNameEvent(it))
+                            viewModel.onEvent(SearchEvent.SearchFilterEvent(it))
+                        }
+                    },
+                    label = { Text("Restaurant Name or Categories") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = SoftRed,
+                        focusedLabelColor = SoftRed,
+                        cursorColor = SoftRed
+                    ),
+                    trailingIcon = {
+                        Row {
+                            if (restaurantName.isNotEmpty()) {
+                                IconButton(onClick = {
+                                    viewModel.onEvent(
+                                        SearchEvent.ChangeNameEvent(
+                                            ""
+                                        )
+                                    )
+                                }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.cleartext),
+                                        contentDescription = "Clear text"
+                                    )
+                                }
+                            }
+
+                            IconButton(onClick = {
+                                viewModel.onEvent(
+                                    SearchEvent.VoiceRecognitionEvent(
+                                        activity!!,
+                                        speechRecognizerLauncher
+                                    )
+                                )
+                            }) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.cleartext),
-                                    contentDescription = "Clear text"
+                                    painter = painterResource(id = R.drawable.microphone),
+                                    contentDescription = "Speak restaurant"
                                 )
                             }
                         }
-
-                        IconButton(onClick = { viewModel.onEvent(SearchEvent.VoiceRecognitionEvent(activity!!, speechRecognizerLauncher)) }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.microphone),
-                                contentDescription = "Speak restaurant"
-                            )
-                        }
                     }
-                }
-            )
-
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (state.recentRestaurants.isNotEmpty() && restaurantName.isEmpty()) {
+            if (viewModel.showFallback){
+                NoConnection()
+            }
+
+            else if (state.recentRestaurants.isNotEmpty() && restaurantName.isEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -157,7 +189,9 @@ fun SearchScreen(
                 }
                 RestaurantsLazyList(
                     restaurants = state.recentRestaurants,
-                    onRestaurantClick = { //TODO: Restaurant Detail
+                    onRestaurantClick = {
+                        val restaurantId = it.documentId
+                        navController.navigate(Route.RestaurantScreen.route + "/$restaurantId")
                     }
                 )
             }
@@ -169,8 +203,11 @@ fun SearchScreen(
             }else  {
                 RestaurantsLazyList(
                     restaurants = state.filteredRestaurantsByNameAndCategories,
-                    onRestaurantClick = { restaurantId ->
-                        viewModel.onEvent(SearchEvent.SaveRecentRestaurantEvent(restaurantId))
+                    onRestaurantClick = { restaurant ->
+                        val restaurantId = restaurant.documentId
+                        navController.navigate(Route.RestaurantScreen.route + "/$restaurantId")
+                        viewModel.onEvent(SearchEvent.SaveRecentRestaurantEvent(restaurant))
+                        viewModel.onEvent(SearchEvent.SearchedCategoriesEvent(restaurantId))
                     }
 
                 )
@@ -183,21 +220,22 @@ fun SearchScreen(
 fun RestaurantsLazyList(
     restaurants: List<Restaurant>,
     modifier: Modifier = Modifier,
-    onRestaurantClick: (String) -> Unit
+    onRestaurantClick: (Restaurant) -> Unit
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize()
     ) {
         items(restaurants) { restaurant ->
             RestaurantCard(
-                isNew = true,
+                isNew = false,
                 isFavorite = true,
+                restaurantId = restaurant.documentId,
                 name = restaurant.name,
                 imageUrl = restaurant.imageUrl,
                 placeName = restaurant.placeName,
                 averageRating = restaurant.averageRating.toFloat(),
                 onFavorite = {},
-                onClick = { onRestaurantClick(restaurant.documentId) },
+                onClick = { onRestaurantClick(restaurant) },
                 showLikeButton = false
             )
             Spacer(modifier = modifier.height(29.dp))
@@ -219,8 +257,8 @@ private fun LoadingCircle(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SearchScreenPreview() {
-    SearchScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun SearchScreenPreview() {
+//    SearchScreen()
+//}

@@ -11,9 +11,9 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.restau.domain.usecases.AuthUseCases
-import com.example.restau.domain.usecases.LocationUseCases
-import com.example.restau.domain.usecases.NavPathsUseCases
+import com.example.restau.domain.usecases.authUseCases.AuthUseCases
+import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
+import com.example.restau.domain.usecases.pathUseCases.NavPathsUseCases
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -45,16 +45,14 @@ class NavigatorViewModel @Inject constructor(
 
     private var path = mutableListOf<Int>()
 
-
-
-
     fun onEvent(event: NavigatorEvent) {
         when (event) {
             is NavigatorEvent.SelectedChange -> {
                 viewModelScope.launch {
                     if (selected != event.selected) path.add(event.selected)
-                    if (pathID.value != null){
-                        navPathsUseCases.updatePath(path, pathID.value)
+                    val pathIDValue = pathID.value
+                    if (pathIDValue != null) {
+                        navPathsUseCases.updatePath(path, pathIDValue)
                         path.clear()
                     }
                 }
@@ -80,6 +78,7 @@ class NavigatorViewModel @Inject constructor(
 
     suspend fun authCheck() {
         currentUser.value = getCurrentUser()
+        Log.d("NavigatorViewModel", "authCheck: ${currentUser.value}")
         showSplash = false
     }
 

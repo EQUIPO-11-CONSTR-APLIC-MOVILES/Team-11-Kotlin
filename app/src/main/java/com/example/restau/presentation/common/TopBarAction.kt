@@ -11,4 +11,6 @@ sealed class TopBarAction(
 
     data class LocationAction(val onLocation: (() -> Unit)): TopBarAction(color = SoftRed)
 
+    data object NoAction: TopBarAction(color = SoftRed)
+
 }

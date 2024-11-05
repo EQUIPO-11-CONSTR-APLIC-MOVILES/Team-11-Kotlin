@@ -110,6 +110,8 @@ private fun ActionButton(
                     )
                 }
             }
+
+            is TopBarAction.NoAction -> {}
         }
     }
 }

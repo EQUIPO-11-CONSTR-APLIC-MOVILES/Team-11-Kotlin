@@ -6,8 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.restau.domain.usecases.AnalyticsUseCases
-import com.example.restau.domain.usecases.AuthUseCases
+import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
+import com.example.restau.domain.usecases.authUseCases.AuthUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,8 +49,6 @@ class SignInViewModel @Inject constructor(
 
                 if (isAuthenticated) {
                     event.onSuccess()
-                } else {
-                    signInFailure()
                 }
                 state = state.copy(isLoading = false)
             } catch (e: Exception) {
@@ -61,15 +59,21 @@ class SignInViewModel @Inject constructor(
 
     private suspend fun executeSignIn(email: String, password: String, authCheck: suspend () -> Unit): Boolean {
         return withContext(Dispatchers.IO) {
-            val authenticated = authUseCases.executeSignIn(email, password)
+            var authenticated = false
+            val result = authUseCases.executeSignIn(email, password)
+            result.onSuccess {
+                authenticated = true
+            }.onFailure {
+                signInFailure(it.message ?: "An error occurred")
+            }
             Log.d("SignInViewModel", "executeSignIn: $authenticated")
             authCheck()
             authenticated
         }
     }
 
-    private fun signInFailure() {
-        state = state.copy(errSignIn = true)
+    private fun signInFailure(message: String) {
+        state = state.copy(errSignIn = message)
     }
 
     private fun sendFeatureInteractionEvent(featureName: String) {

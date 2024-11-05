@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.withSave
+import com.example.restau.R
 import com.example.restau.domain.model.Restaurant
 import com.example.restau.presentation.common.StarRating
 import com.example.restau.ui.theme.Poppins
@@ -84,34 +86,23 @@ fun CardMarker(
             } else {
                 Box(
                     modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .padding(horizontal = 17.dp)
-                    .clip(MaterialTheme.shapes.small)
-                    .background(Color.LightGray)
-                )
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .padding(horizontal = 17.dp)
+                        .clip(MaterialTheme.shapes.small)
+                        .background(Color.LightGray)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.restaurant),
+                        contentDescription = "No restaurant photo loaded",
+                        tint = Color.Black,
+                        modifier = Modifier.align(Alignment.Center).size(30.dp)
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(13.dp))
-            StarRating(value = restaurant.averageRating, size = 28.dp)
+            StarRating(value = restaurant.averageRating, size = 22.dp, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(10.dp))
-            Button(
-                onClick = { /*TODO*/ },
-                shape = MaterialTheme.shapes.extraLarge,
-                colors = ButtonDefaults.buttonColors().copy(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = Color.White
-                ),
-                modifier = Modifier.padding(horizontal = 15.dp)
-            ) {
-                Text(
-                    text = "Check Out",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = Poppins,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
         }
     }
 }
@@ -129,7 +120,7 @@ fun CustomShapeWithShadowContent(
     Box(modifier = modifier
         .padding(7.dp)
         .width(235.dp)
-        .height(360.dp)
+        .height(310.dp)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val cornerRadius = 30.dp.toPx()
@@ -169,7 +160,7 @@ fun CustomShapeWithShadowContent(
         }
 
         Box(modifier = Modifier
-            .height(305.dp)
+            .height(265.dp)
         ) {
             content(Modifier)
         }

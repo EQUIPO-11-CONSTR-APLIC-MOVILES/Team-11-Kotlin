@@ -14,6 +14,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,21 +27,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.navigation.NavHostController
 import com.example.restau.R
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.RestaurantsLazyList
 import com.example.restau.presentation.common.TopBarAction
+import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
 
 @Composable
 fun LikedScreen(
+    navController: NavHostController,
     likedViewModel: LikedViewModel = hiltViewModel()
 ) {
 
     val user = likedViewModel.currentUser
 
-    LaunchedEffect(Unit) {
+    val isConnected by likedViewModel.isConnected.collectAsState()
+
+    LaunchedEffect(isConnected) {
         likedViewModel.onEvent(LikedEvent.ScreenLaunched)
     }
 
@@ -62,6 +70,7 @@ fun LikedScreen(
         }
     ) {
         LikedContent(
+            showFallback = likedViewModel.showFallback,
             state = likedViewModel.state,
             onLike = {documentId, delete ->
                 likedViewModel.onEvent(LikedEvent.SendLike(documentId, delete))
@@ -70,7 +79,9 @@ fun LikedScreen(
                 top = it.calculateTopPadding(),
                 start = it.calculateStartPadding(LayoutDirection.Ltr),
                 end = it.calculateEndPadding(LayoutDirection.Rtl)
-            )
+            ),
+            navController = navController,
+            reload = likedViewModel.reload
         )
     }
 }
@@ -80,24 +91,33 @@ fun LikedContent(
     state: LikedState,
     onLike: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    navController: NavHostController,
+    showFallback: Boolean,
+    reload: Boolean
 ) {
 
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        if (state.restaurants.isEmpty()) {
-            LoadingCircle()
-        } else if (state.isLiked.all { !it }) {
-            NoLikedRestaurants()
+        if (!showFallback) {
+            if (state.restaurants.isEmpty()) {
+                LoadingCircle()
+            } else if (state.isLiked.all { !it }) {
+                NoLikedRestaurants()
+            } else {
+                Spacer(modifier = Modifier.height(22.dp))
+                RestaurantsLazyList(
+                    restaurants = state.restaurants,
+                    isNew = state.isNew,
+                    isShown = state.isLiked,
+                    isLiked = state.isLiked,
+                    onLike = onLike,
+                    onClick = { navController.navigate(Route.RestaurantScreen.route + it) },
+                    reload = reload
+                )
+            }
         } else {
-            Spacer(modifier = Modifier.height(22.dp))
-            RestaurantsLazyList(
-                restaurants = state.restaurants,
-                isNew = state.isNew,
-                isShown = state.isLiked,
-                isLiked = state.isLiked,
-                onLike = onLike
-            )
+            NoConnection()
         }
     }
 }

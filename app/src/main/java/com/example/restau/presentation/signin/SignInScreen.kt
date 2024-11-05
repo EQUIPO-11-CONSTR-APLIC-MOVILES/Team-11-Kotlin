@@ -189,8 +189,8 @@ fun SignInForm(
 
         PasswordTextField(signInVM.state.isLoading, signInVM.state.password, { signInVM.onEvent(SignInEvent.PasswordChange(password = it)) }, signInVM)
 
-        if(signInVM.state.errSignIn){
-            ErrorText()
+        if(signInVM.state.errSignIn != ""){
+            ErrorText(signInVM.state.errSignIn)
         }
 
         Button(
@@ -268,7 +268,7 @@ fun OtherSignUp() {
 }
 
 @Composable
-fun ErrorText() {
+fun ErrorText(message: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -284,7 +284,7 @@ fun ErrorText() {
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
-            text = "Invalid email or password",
+            text = message,
             color = Color(0xFFB00020),
             fontFamily = Poppins,
             fontSize = 14.sp,
@@ -308,7 +308,7 @@ fun EmailTextField(isLoading: Boolean, email: String, onEmailChange: (String) ->
         isError = email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches(),
         singleLine = true,
         onValueChange = {
-            if (it.length <= 100) onEmailChange(it)
+            if (it.length <= 100 && !it.contains("'") && !it.contains('"') && !it.contains("=")) onEmailChange(it)
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF2F2F2F),
@@ -339,7 +339,7 @@ fun PasswordTextField(isLoading: Boolean, password: String, onPasswordChange: (S
     OutlinedTextField(
         value = password,
         onValueChange = {
-            if (it.length <= 100) onPasswordChange(it)
+            if (it.length <= 100 && !it.contains("'") && !it.contains('"') && !it.contains("=")) onPasswordChange(it)
         },
         enabled = !isLoading,
         colors = OutlinedTextFieldDefaults.colors(
