@@ -207,7 +207,7 @@ fun NameTextField(isLoading: Boolean, name: String, onNameChange: (String) -> Un
         enabled = !isLoading,
         singleLine = true,
         onValueChange = {
-            if (it.length <= 100) onNameChange(it)
+            if (it.length <= 100 && !it.contains("'") && !it.contains('"') && !it.contains("=")) onNameChange(it)
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF2F2F2F),
@@ -243,7 +243,7 @@ fun EmailTextField(isLoading: Boolean, email: String, onEmailChange: (String) ->
         isError = email.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(email).matches(),
         singleLine = true,
         onValueChange = {
-            if (it.length <= 100) onEmailChange(it)
+            if (it.length <= 100 && !it.contains("'") && !it.contains('"') && !it.contains("=")) onEmailChange(it)
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF2F2F2F),
@@ -274,7 +274,7 @@ fun PasswordTextField(isLoading: Boolean, password: String, onPasswordChange: (S
     OutlinedTextField(
         value = password,
         onValueChange = {
-            if (it.length <= 100) onPasswordChange(it)
+            if (it.length <= 100 && !it.contains("'") && !it.contains('"') && !it.contains("=")) onPasswordChange(it)
         },
         enabled = !isLoading,
         colors = OutlinedTextFieldDefaults.colors(
