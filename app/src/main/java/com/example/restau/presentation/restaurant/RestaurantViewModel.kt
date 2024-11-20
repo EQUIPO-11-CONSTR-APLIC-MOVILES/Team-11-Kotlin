@@ -118,6 +118,9 @@ class RestaurantViewModel @Inject constructor(
     }
 
     private fun launchMaps(lat: Double, lon: Double, name: String, place: String, context: Context){
+        viewModelScope.launch(Dispatchers.IO) {
+            analyticsUseCases.sendMapSearchTimes()
+        }
         try{
             val intent = locationUseCases.launchMaps(lat, lon, name, place)
             if (intent.resolveActivity(context.packageManager) != null) {

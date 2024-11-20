@@ -9,6 +9,7 @@ import com.example.restau.data.repository.FeaturesInteractionsEventsRepositoryIm
 import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LikeDateRestaurantRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
+import com.example.restau.data.repository.MapSearchTimesRepositoryImpl
 import com.example.restau.data.repository.NavPathsRepositoryImpl
 import com.example.restau.data.repository.RandomReviewRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
@@ -24,6 +25,7 @@ import com.example.restau.domain.repository.FeaturesInteractionsEventsRepository
 import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LikeDateRestaurantRepository
 import com.example.restau.domain.repository.LocationRepository
+import com.example.restau.domain.repository.MapSearchTimesRepository
 import com.example.restau.domain.repository.NavPathsRepository
 import com.example.restau.domain.repository.RandomReviewRepository
 import com.example.restau.domain.repository.RecentsRepository
@@ -38,6 +40,7 @@ import com.example.restau.domain.usecases.analyticsUseCases.GetLikeReviewWeek
 import com.example.restau.domain.usecases.analyticsUseCases.GetPercentageCompletion
 import com.example.restau.domain.usecases.analyticsUseCases.SendFeatureInteractionEvent
 import com.example.restau.domain.usecases.analyticsUseCases.SendLikeDateRestaurantEvent
+import com.example.restau.domain.usecases.analyticsUseCases.SendMapSearchTimes
 import com.example.restau.domain.usecases.analyticsUseCases.SendScreenTimeEvent
 import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategoriesEvent
 import com.example.restau.domain.usecases.authUseCases.AuthUseCases
@@ -94,7 +97,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import javax.inject.Singleton
 
 
@@ -106,6 +108,12 @@ object AppModule {
     @Singleton
     fun provideRecentsRepository(application: Application): RecentsRepository {
         return RecentsRepositoryImpl(application)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMapSearchTimesRepository(db: FirebaseFirestore): MapSearchTimesRepository {
+        return MapSearchTimesRepositoryImpl(db)
     }
 
     @Provides
@@ -310,14 +318,16 @@ object AppModule {
         featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository,
         searchedCategoriesRepository: SearchedCategoriesRepository,
         likeDateRestaurantRepository: LikeDateRestaurantRepository,
-        analyticsRepository: AnalyticsRepository
+        analyticsRepository: AnalyticsRepository,
+        mapSearchTimesRepository: MapSearchTimesRepository
     ) = AnalyticsUseCases(
         sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository),
         sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository),
         sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository),
         sendLikeDateRestaurantEvent = SendLikeDateRestaurantEvent(likeDateRestaurantRepository),
         getLikeReviewWeek = GetLikeReviewWeek(analyticsRepository),
-        getPercentageCompletion = GetPercentageCompletion(analyticsRepository)
+        getPercentageCompletion = GetPercentageCompletion(analyticsRepository),
+        sendMapSearchTimes = SendMapSearchTimes(mapSearchTimesRepository)
     )
 
     @Provides
