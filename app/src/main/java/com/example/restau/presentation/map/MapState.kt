@@ -1,5 +1,6 @@
 package com.example.restau.presentation.map
 
+import androidx.collection.LruCache
 import androidx.compose.ui.graphics.ImageBitmap
 import com.example.restau.domain.model.Restaurant
 import com.google.android.gms.maps.model.LatLng
@@ -9,6 +10,7 @@ data class MapState(
     val startLocation: LatLng = LatLng(4.603096177609384, -74.06584744436493),
     val isLoading: Boolean = true,
     val permission: Boolean = true,
-    val images: List<ImageBitmap?> = emptyList(),
+    //val images: List<ImageBitmap?> = emptyList(),
+    val images2: LruCache<Int, ImageBitmap> = LruCache(3),
     val idIndexMap: Map<String, Int> = emptyMap(),
 )

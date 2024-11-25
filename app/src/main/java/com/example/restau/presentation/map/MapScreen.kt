@@ -210,7 +210,7 @@ private fun MapContent(
             if (!state.isLoading) {
                 state.restaurants.forEachIndexed { index, restaurant ->
                     MarkerInfoWindow(
-                        state = rememberMarkerState(key = (state.images[index] == null).toString() ,position = LatLng(restaurant.latitude, restaurant.longitude)),
+                        state = rememberMarkerState(key = (state.images2[index] == null).toString() ,position = LatLng(restaurant.latitude, restaurant.longitude)),
                         zIndex = Float.MAX_VALUE,
                         infoWindowAnchor = Offset(0.5f, 0.56f),
                         icon = if (!likedAndNew[index]) null else BitmapDescriptorFactory.fromResource(R.drawable.specialpin),
@@ -237,7 +237,7 @@ private fun MapContent(
                     ) {
                         CardMarker(
                             restaurant = restaurant,
-                            bitmap = state.images[index],
+                            bitmap = state.images2[index],
                         )
                     }
                 }
