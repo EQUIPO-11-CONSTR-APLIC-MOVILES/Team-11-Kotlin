@@ -6,6 +6,7 @@ class AnalyticsUseCases(
     val sendSearchedCategoriesEvent: SendSearchedCategoriesEvent,
     val sendLikeDateRestaurantEvent: SendLikeDateRestaurantEvent,
     val getLikeReviewWeek: GetLikeReviewWeek,
-    val getPercentageCompletion: GetPercentageCompletion
+    val getPercentageCompletion: GetPercentageCompletion,
+    val sendMapSearchTimes: SendMapSearchTimes
 ) {
 }
