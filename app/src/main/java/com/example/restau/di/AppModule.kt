@@ -10,6 +10,7 @@ import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LikeDateRestaurantRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
 import com.example.restau.data.repository.MapSearchTimesRepositoryImpl
+import com.example.restau.data.repository.MenuItemsRepositoryImpl
 import com.example.restau.data.repository.NavPathsRepositoryImpl
 import com.example.restau.data.repository.RandomReviewRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
@@ -26,6 +27,7 @@ import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LikeDateRestaurantRepository
 import com.example.restau.domain.repository.LocationRepository
 import com.example.restau.domain.repository.MapSearchTimesRepository
+import com.example.restau.domain.repository.MenuItemsRepository
 import com.example.restau.domain.repository.NavPathsRepository
 import com.example.restau.domain.repository.RandomReviewRepository
 import com.example.restau.domain.repository.RecentsRepository
@@ -53,6 +55,8 @@ import com.example.restau.domain.usecases.imagesUseCases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.locationUseCases.GetLocation
 import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
 import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
+import com.example.restau.domain.usecases.menuItemsUseCases.GetRestaurantMenu
+import com.example.restau.domain.usecases.menuItemsUseCases.MenuItemsUseCases
 import com.example.restau.domain.usecases.pathUseCases.CreatePath
 import com.example.restau.domain.usecases.pathUseCases.NavPathsUseCases
 import com.example.restau.domain.usecases.pathUseCases.UpdatePath
@@ -214,6 +218,24 @@ object AppModule {
             getRestaurant = GetRestaurant(restaurantsRepository),
             isOpen = IsOpen(restaurantsRepository),
             getFeaturedArray = GetFeaturedArray()
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideMenuItemsRepository(
+        db: FirebaseFirestore
+    ): MenuItemsRepository {
+        return MenuItemsRepositoryImpl(db)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMenuItemsUseCases(
+        menuItemsRepository: MenuItemsRepository
+    ): MenuItemsUseCases {
+        return MenuItemsUseCases(
+            getRestaurantMenu = GetRestaurantMenu(menuItemsRepository)
         )
     }
 

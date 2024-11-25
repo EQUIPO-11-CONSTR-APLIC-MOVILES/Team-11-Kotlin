@@ -12,10 +12,15 @@ class UsersRepositoryImpl(
     private val db: FirebaseFirestore
 ): UsersRepository {
 
+    private var userLoaded = User()
+
     private val TAG = "FIRESTORE_USERS"
 
     override suspend fun getUser(email: String): User {
         var user = User()
+        if (userLoaded.documentId != "") {
+            return userLoaded
+        }
         try {
             val snapshot = db
                 .collection("users")
@@ -27,6 +32,7 @@ class UsersRepositoryImpl(
                     user = it.copy(documentId = document.id)
                 }
             }
+            userLoaded = user
         } catch (e: Exception) {
             Log.w(TAG, e.toString())
         }

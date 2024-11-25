@@ -14,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.usecases.authUseCases.AuthUseCases
 import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
 import com.example.restau.domain.usecases.pathUseCases.NavPathsUseCases
+import com.example.restau.domain.usecases.restaurantUseCases.RestaurantUseCases
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,8 @@ import javax.inject.Inject
 class NavigatorViewModel @Inject constructor(
     private val authUseCases: AuthUseCases,
     private val locationUseCases: LocationUseCases,
-    private val navPathsUseCases: NavPathsUseCases
+    private val navPathsUseCases: NavPathsUseCases,
+    private val restaurantUseCases: RestaurantUseCases
 ) : ViewModel() {
 
     var selected by mutableIntStateOf(0)
@@ -62,6 +64,8 @@ class NavigatorViewModel @Inject constructor(
 
             is NavigatorEvent.OnStart -> {
                 viewModelScope.launch {
+                    restaurantUseCases.getRestaurants()
+                    restaurantUseCases.getOpenRestaurants()
                     authCheck()
                     nearRestaurants(event.context)
                     navPathsUseCases.createPath()?.let {
