@@ -209,7 +209,9 @@ fun RestaurantContent(
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.group_331),
                 name = "Menu",
-                onClick = {})
+                onClick = {
+                    navController.navigate(Route.MenuListScreen.route + "/${state.restaurant.documentId}/${state.restaurant.name}")
+                })
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.calendar_month),
                 name = "Schedule",

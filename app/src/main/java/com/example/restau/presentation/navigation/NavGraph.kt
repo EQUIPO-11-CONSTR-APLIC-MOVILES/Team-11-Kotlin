@@ -11,6 +11,7 @@ import com.example.restau.presentation.home.HomeScreen
 import com.example.restau.presentation.liked.LikedScreen
 import com.example.restau.presentation.map.MapScreen
 import com.example.restau.presentation.map.MapViewModel
+import com.example.restau.presentation.menuItems.MenuItemsScreen
 import com.example.restau.presentation.preferences.PreferencesScreen
 import com.example.restau.presentation.random.RandomScreen
 import com.example.restau.presentation.restaurant.RestaurantScreen
@@ -88,6 +89,16 @@ fun NavGraph(
                 val restaurantName = it.arguments?.getString("restaurantName")
                 val randomID = it.arguments?.getString("randomID")?: ""
                 ReviewListScreen(navController = navHostController, restaurantId = id, restaurantName = restaurantName, randomID = randomID)
+         }
+
+         composable(
+             route = Route.MenuListScreen.route + "/{restaurantId}" + "/{restaurantName}",
+             arguments = listOf(navArgument("restaurantId") { type = NavType.StringType },
+                 navArgument("restaurantName") { type = NavType.StringType })
+         ) {
+             val restaurantId = it.arguments?.getString("restaurantId") ?: ""
+             val restaurantName = it.arguments?.getString("restaurantName") ?: ""
+             MenuItemsScreen(restaurantId = restaurantId, restaurantName = restaurantName, navController = navHostController)
          }
     }
 }
