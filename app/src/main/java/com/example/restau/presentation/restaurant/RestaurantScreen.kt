@@ -160,15 +160,39 @@ fun RestaurantContent(
             modifier = Modifier
                 .height(300.dp)
         )
-        Text(
-            text = state.restaurant.name,
-            fontSize = 20.sp,
-            fontFamily = Poppins,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center,
+
+        Row(
+            verticalAlignment = Alignment.Bottom,
             modifier = Modifier
-                .padding(start = 30.dp, top = 30.dp)
-        )
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ){
+            Text(
+                text = state.restaurant.name,
+                fontSize = 20.sp,
+                fontFamily = Poppins,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(start = 30.dp, top = 30.dp)
+            )
+
+            if (state.match != null) {
+                Text(
+                    text = "${
+                        if (state.match % 1 == 0.0f) state.match.toInt() else
+                        state.match
+                    }% match",
+                    fontSize = 14.sp,
+                    fontFamily = Poppins,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(start = 10.dp, top = 30.dp),
+                    color = if (state.match >= 30) Color(0xFF008615) else if (state.match >=15) Color(0xFFF4792C) else Color(0xFFB10000)
+                )
+            }
+        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
