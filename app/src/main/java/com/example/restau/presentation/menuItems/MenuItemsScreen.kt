@@ -77,7 +77,8 @@ fun MenuItemsScreen(
                     top = it.calculateTopPadding(),
                     start = it.calculateLeftPadding(LayoutDirection.Ltr),
                     end = it.calculateRightPadding(LayoutDirection.Rtl),
-                )
+                ),
+                action = { itemID: String -> navigateDetail(navController, itemID, restaurantName) }
             )
         } else if (menuItemsViewModel.state.isLoading) {
             LoadingCircle()
@@ -91,7 +92,8 @@ fun MenuItemsScreen(
 fun MenuItemsContent(
     restaurantName: String,
     items: List<MenuItem>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    action: (String) -> Unit = {}
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
@@ -118,7 +120,8 @@ fun MenuItemsContent(
         }
         Spacer(modifier = Modifier.height(21.dp))
         MenuItemsLazyList(
-            items = items
+            items = items,
+            action = action
         )
     }
 }
@@ -126,7 +129,8 @@ fun MenuItemsContent(
 @Composable
 fun MenuItemsLazyList(
     items: List<MenuItem>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    action: (String) -> Unit
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -137,9 +141,13 @@ fun MenuItemsLazyList(
                 name = it.name,
                 price = it.price,
                 imageUrl = it.imageUrl,
-                onDetailClick = { /*TODO*/ }
+                onDetailClick = { action(it.documentId) }
             )
             Spacer(modifier = Modifier.height(25.dp))
         }
     }
+}
+
+fun navigateDetail(navController: NavController, itemID:  String, restaurantName: String) {
+    navController.navigate("menuDetail/${itemID}/${restaurantName}")
 }

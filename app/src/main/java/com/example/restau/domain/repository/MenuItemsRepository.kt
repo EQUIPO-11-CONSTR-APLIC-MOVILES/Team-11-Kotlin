@@ -6,4 +6,6 @@ interface MenuItemsRepository {
 
     suspend fun getMenuItems(restaurantId: String): List<MenuItem>
 
+    suspend fun getMenuItem(itemID: String): MenuItem
+
 }
