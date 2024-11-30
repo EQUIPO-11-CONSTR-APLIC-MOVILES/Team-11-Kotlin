@@ -19,6 +19,7 @@ sealed class Route(
     data object MenuListScreen: Route(route = "menu", icon = null)
     data object ReviewCreationScreen: Route(route = "addreviews", icon = null)
     data object RestaurantScreen: Route(route = "restaurant", icon = null)
+    data object UserDetailScreen: Route(route = "userdetail", icon = null)
 }
 
 val items = listOf(
@@ -26,7 +27,7 @@ val items = listOf(
     Route.RandomScreen,
     Route.SearchScreen,
     Route.LikeScreen,
-    Route.MapScreen,
+    Route.MapScreen
 )
 
 val itemsMap = mapOf(
@@ -34,5 +35,5 @@ val itemsMap = mapOf(
     Route.RandomScreen.route to 1,
     Route.SearchScreen.route to 2,
     Route.LikeScreen.route to 3,
-    Route.MapScreen.route to 4,
+    Route.MapScreen.route to 4
 )

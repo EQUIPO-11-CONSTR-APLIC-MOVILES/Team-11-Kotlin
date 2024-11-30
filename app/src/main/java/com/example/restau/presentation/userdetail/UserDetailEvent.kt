@@ -1,0 +1,13 @@
+package com.example.restau.presentation.userdetail
+
+import com.example.restau.domain.model.User
+
+
+sealed class UserDetailEvent() {
+    data class UpdateUserEvent(val user: User) : UserDetailEvent()
+    data class UpdateReviewAuthorEvent(val documentId: String, val authorName: String, val authorPFP: String) : UserDetailEvent()
+    data class ChangeUserNameEvent(val userName: String): UserDetailEvent()
+    data class ShowUserUpdateDialog(val show: Boolean): UserDetailEvent()
+    data class ShowUserUpdateErrorDialog(val show: Boolean): UserDetailEvent()
+    data object ScreenLaunched: UserDetailEvent()
+}

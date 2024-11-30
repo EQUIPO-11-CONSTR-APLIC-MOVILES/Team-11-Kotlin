@@ -86,6 +86,8 @@ import com.example.restau.domain.usecases.userUseCases.GetUserObject
 import com.example.restau.domain.usecases.userUseCases.SaveTags
 import com.example.restau.domain.usecases.userUseCases.SendLike
 import com.example.restau.domain.usecases.userUseCases.SetUserInfo
+import com.example.restau.domain.usecases.userUseCases.UpdateReviewsAuthorInfo
+import com.example.restau.domain.usecases.userUseCases.UpdateUserInfo
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -365,7 +367,9 @@ object AppModule {
             ),
             sendLike = SendLike(usersRepository),
             saveTags = SaveTags(usersRepository),
-            setUserInfo = SetUserInfo(usersRepository)
+            setUserInfo = SetUserInfo(usersRepository),
+            updateUserInfo = UpdateUserInfo(usersRepository),
+            updateReviewsAuthorInfo = UpdateReviewsAuthorInfo(usersRepository)
         )
 
     @Provides

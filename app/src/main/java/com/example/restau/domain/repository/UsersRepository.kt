@@ -7,4 +7,6 @@ interface UsersRepository {
     suspend fun submitLike(user: User)
     suspend fun saveTags(tags: List<String>, user: User)
     suspend fun setUserInfo(name: String, email: String, picLink: String, userID: String): Boolean
+    suspend fun updateUserInfo (user: User): Boolean
+    suspend fun updateReviewsAuthorInfo (documentId: String, authorName: String, authorPFP: String): Boolean
 }

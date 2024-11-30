@@ -70,7 +70,12 @@ fun HomeScreen(
             DynamicTopBar(
                 label = {},
                 hasBackButton = false,
-                action = TopBarAction.PhotoAction(user.profilePic) {}
+                action = TopBarAction.PhotoAction(
+                    imageUrl = user.profilePic,
+                    onPhoto = {
+                        navController.navigate(Route.UserDetailScreen.route)
+                    }
+                )
             )
         }
     ) {
