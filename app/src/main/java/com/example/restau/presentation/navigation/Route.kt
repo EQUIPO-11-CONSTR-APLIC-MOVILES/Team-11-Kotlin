@@ -19,6 +19,7 @@ sealed class Route(
     data object MenuListScreen: Route(route = "menu", icon = null)
     data object ReviewCreationScreen: Route(route = "addreviews", icon = null)
     data object RestaurantScreen: Route(route = "restaurant", icon = null)
+    data object MenuDetailScreen: Route(route = "menuDetail", icon = null)
 }
 
 val items = listOf(
