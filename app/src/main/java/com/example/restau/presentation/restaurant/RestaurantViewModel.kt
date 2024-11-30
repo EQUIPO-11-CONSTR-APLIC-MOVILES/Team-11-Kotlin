@@ -89,6 +89,9 @@ class RestaurantViewModel @Inject constructor(
 
                 showFallback = !isConnected.value && restaurant.documentId.isEmpty()
 
+                val match = analyticsUseCases.getMatchPercentage(currentUser.documentId, restaurantID)
+                state = state.copy(match = match)
+
             } catch (e: Exception) {
                 Log.e("RestaurantViewModel", "Error during onLaunch", e)
             }

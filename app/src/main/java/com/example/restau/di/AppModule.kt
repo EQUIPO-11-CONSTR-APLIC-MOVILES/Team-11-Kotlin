@@ -39,6 +39,7 @@ import com.example.restau.domain.repository.TagsRepository
 import com.example.restau.domain.repository.UsersRepository
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.analyticsUseCases.GetLikeReviewWeek
+import com.example.restau.domain.usecases.analyticsUseCases.GetMatchPercentage
 import com.example.restau.domain.usecases.analyticsUseCases.GetPercentageCompletion
 import com.example.restau.domain.usecases.analyticsUseCases.SendFeatureInteractionEvent
 import com.example.restau.domain.usecases.analyticsUseCases.SendLikeDateRestaurantEvent
@@ -349,7 +350,8 @@ object AppModule {
         sendLikeDateRestaurantEvent = SendLikeDateRestaurantEvent(likeDateRestaurantRepository),
         getLikeReviewWeek = GetLikeReviewWeek(analyticsRepository),
         getPercentageCompletion = GetPercentageCompletion(analyticsRepository),
-        sendMapSearchTimes = SendMapSearchTimes(mapSearchTimesRepository)
+        sendMapSearchTimes = SendMapSearchTimes(mapSearchTimesRepository),
+        getMatchPercentage = GetMatchPercentage(analyticsRepository)
     )
 
     @Provides
@@ -375,7 +377,4 @@ object AppModule {
     ) = TagsUseCases(
         getTags = GetTags(tagsRepository)
     )
-
-
-
 }
