@@ -1,12 +1,15 @@
 package com.example.restau.data.repository
 
+import android.net.Uri
 import android.util.Log
 import com.example.restau.domain.model.User
 import com.example.restau.domain.repository.UsersRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.toObject
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 class UsersRepositoryImpl(
     private val db: FirebaseFirestore
@@ -130,6 +133,25 @@ class UsersRepositoryImpl(
         } catch (e: Exception) {
             Log.e("UsersRepository", "updateReviewsAuthorInfo: failure", e)
             false
+        }
+    }
+
+    override suspend fun uploadProfileImage(user: User, uri: Uri): String? {
+        return try {
+            val storageRef = FirebaseStorage.getInstance().reference
+                .child("profilePics/${UUID.randomUUID()}.jpg")
+
+            val uploadTask = storageRef.putFile(uri).await()
+
+            val downloadUrl = storageRef.downloadUrl.await().toString()
+
+            val updatedUser = user.copy(profilePic = downloadUrl)
+            updateUserInfo(updatedUser)
+
+            downloadUrl
+        } catch (e: Exception) {
+            Log.e("UsersRepository", "uploadProfileImage: failure", e)
+            null
         }
     }
 

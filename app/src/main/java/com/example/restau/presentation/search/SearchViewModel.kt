@@ -51,6 +51,9 @@ class SearchViewModel @Inject constructor(
     var showFallback by mutableStateOf(false)
         private set
 
+    var isNavigatingUserDetail by mutableStateOf(false)
+        private set
+
     private fun updateUser() {
         viewModelScope.launch(Dispatchers.IO) {
             val user = userUseCases.getUserObject()
@@ -120,6 +123,10 @@ class SearchViewModel @Inject constructor(
                 getRecentRestaurants()
                 updateUser()
             }
+
+            is SearchEvent.ChangeIsNavigatingUserDetail -> {
+                onChangeisNavigatingUserDetail(event.isNavigating)
+            }
         }
     }
 
@@ -183,6 +190,10 @@ class SearchViewModel @Inject constructor(
             putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak the restaurant name or category")
         }
         speechRecognizerLauncher.launch(intent)
+    }
+
+    private fun onChangeisNavigatingUserDetail(isNavigating: Boolean) {
+        isNavigatingUserDetail = isNavigating
     }
 
 }

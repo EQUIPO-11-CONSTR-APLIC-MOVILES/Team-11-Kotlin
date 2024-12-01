@@ -6,5 +6,6 @@ class UserUseCases(
     val saveTags: SaveTags,
     val setUserInfo: SetUserInfo,
     val updateUserInfo: UpdateUserInfo,
-    val updateReviewsAuthorInfo: UpdateReviewsAuthorInfo
+    val updateReviewsAuthorInfo: UpdateReviewsAuthorInfo,
+    val uploadUserImage: UploadUserImage
 )

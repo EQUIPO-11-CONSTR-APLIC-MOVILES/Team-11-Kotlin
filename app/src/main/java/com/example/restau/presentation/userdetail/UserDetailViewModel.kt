@@ -1,6 +1,7 @@
 package com.example.restau.presentation.userdetail
 
 import android.app.Application
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
+import com.example.restau.domain.usecases.authUseCases.AuthUseCases
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import com.example.restau.utils.getConnectivityAsStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UserDetailViewModel @Inject constructor(
     private val userUseCases: UserUseCases,
+    private val authUseCases: AuthUseCases,
     private val analyticsUseCases: AnalyticsUseCases,
     private val application: Application,
 ): AndroidViewModel(application) {
@@ -49,6 +52,14 @@ class UserDetailViewModel @Inject constructor(
         private set
 
     var showUserUpdateDialog by mutableStateOf(false)
+        private set
+
+    var showLogOutDialog by mutableStateOf(false)
+        private set
+
+    var isUpdating by mutableStateOf(false)
+
+    var selectedImageUrl by mutableStateOf<String?>(null)
         private set
 
     private var startTime by mutableStateOf(Date())
@@ -94,12 +105,25 @@ class UserDetailViewModel @Inject constructor(
             is UserDetailEvent.ShowUserUpdateErrorDialog -> {
                 onShowErrorUpdateDialogChange(event.show)
             }
+
+            is UserDetailEvent.UploadProfileImage -> {
+                uploadProfileImage(event.uri)
+            }
+
+            UserDetailEvent.LogOutEvent -> {
+                logOut()
+            }
+
+            is UserDetailEvent.ShowLogOutDialog -> {
+                onShowLogOutDialogChange(event.show)
+            }
         }
     }
 
     private fun getUser() {
         viewModelScope.launch(Dispatchers.IO) {
             currentUser = userUseCases.getUserObject()
+            selectedImageUrl = currentUser.profilePic
             isLoading = false
         }
     }
@@ -132,6 +156,11 @@ class UserDetailViewModel @Inject constructor(
         showErrorUpdateDialog = show
     }
 
+    private fun onShowLogOutDialogChange(show: Boolean) {
+        showLogOutDialog = show
+    }
+
+
     private fun updateReviewAuthor(documentId: String, authorName: String, authorPFP: String){
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -148,5 +177,33 @@ class UserDetailViewModel @Inject constructor(
             }
         }
     }
+
+    private fun uploadProfileImage(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newProfileUrl = userUseCases.uploadUserImage(currentUser, uri)
+            if (newProfileUrl != null) {
+                selectedImageUrl = newProfileUrl
+            } else {
+                state = state.copy(isUserUpdatedSuccessfully = false)
+            }
+        }
+    }
+
+    private fun logOut() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val logOut = authUseCases.executeLogOut()
+            state = if (logOut) {
+                state.copy(
+                    isLogOut = true
+                )
+            } else {
+                state.copy(
+                    isLogOut = false
+                )
+            }
+        }
+    }
+
+
 
 }

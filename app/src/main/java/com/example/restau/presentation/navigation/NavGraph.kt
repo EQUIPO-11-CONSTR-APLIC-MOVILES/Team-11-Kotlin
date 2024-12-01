@@ -103,7 +103,7 @@ fun NavGraph(
          }
 
          composable(route = Route.UserDetailScreen.route) {
-             UserDetailScreen(navController = navHostController)
+             UserDetailScreen(navController = navHostController, authCheck)
          }
     }
 }

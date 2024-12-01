@@ -44,6 +44,9 @@ class LikedViewModel @Inject constructor(
     var currentUser by mutableStateOf(User())
         private set
 
+    var isNavigatingUserDetail by mutableStateOf(false)
+        private set
+
     private var startTime by mutableStateOf(Date())
 
     private fun updateUserAndData() {
@@ -88,6 +91,10 @@ class LikedViewModel @Inject constructor(
                 updateUserAndData()
                 reload = !reload
             }
+
+            is LikedEvent.ChangeIsNavigatingUserDetail -> {
+                onChangeisNavigatingUserDetail(event.isNavigating)
+            }
         }
     }
 
@@ -120,6 +127,10 @@ class LikedViewModel @Inject constructor(
             isNew = restaurantUseCases.getIsNewRestaurantArray(restaurants),
             isLiked = restaurantUseCases.getRestaurantsLiked(restaurants, currentUser.likes)
         )
+    }
+
+    private fun onChangeisNavigatingUserDetail(isNavigating: Boolean) {
+        isNavigatingUserDetail = isNavigating
     }
 
 

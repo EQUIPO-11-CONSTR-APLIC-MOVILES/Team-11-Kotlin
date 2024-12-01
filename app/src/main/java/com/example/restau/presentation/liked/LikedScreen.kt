@@ -45,13 +45,19 @@ fun LikedScreen(
 
     val user = likedViewModel.currentUser
 
+    val isNavigatingUserDetail = likedViewModel.isNavigatingUserDetail
+
     val isConnected by likedViewModel.isConnected.collectAsState()
 
     LaunchedEffect(isConnected) {
+        likedViewModel.onEvent(LikedEvent.ChangeIsNavigatingUserDetail(false))
         likedViewModel.onEvent(LikedEvent.ScreenLaunched)
     }
 
     LifecycleResumeEffect(Unit) {
+
+        likedViewModel.onEvent(LikedEvent.ChangeIsNavigatingUserDetail(false))
+
         likedViewModel.onEvent(LikedEvent.ScreenOpened)
 
         onPauseOrDispose {
@@ -68,7 +74,10 @@ fun LikedScreen(
                 action = TopBarAction.PhotoAction(
                     imageUrl = user.profilePic,
                     onPhoto = {
-                        navController.navigate(Route.UserDetailScreen.route)
+                        if (!isNavigatingUserDetail) {
+                            likedViewModel.onEvent(LikedEvent.ChangeIsNavigatingUserDetail(true))
+                            navController.navigate(Route.UserDetailScreen.route)
+                        }
                     }
                 )
             )

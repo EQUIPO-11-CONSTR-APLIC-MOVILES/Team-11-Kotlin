@@ -1,5 +1,6 @@
 package com.example.restau.domain.repository
 
+import android.net.Uri
 import com.example.restau.domain.model.User
 
 interface UsersRepository {
@@ -9,4 +10,5 @@ interface UsersRepository {
     suspend fun setUserInfo(name: String, email: String, picLink: String, userID: String): Boolean
     suspend fun updateUserInfo (user: User): Boolean
     suspend fun updateReviewsAuthorInfo (documentId: String, authorName: String, authorPFP: String): Boolean
+    suspend fun uploadProfileImage(user: User, uri: Uri): String?
 }
