@@ -253,10 +253,10 @@ fun ErrorText(rating: Int, reviewText: String, showFallback: Boolean) {
 @Composable
 fun TitleErrorText(showFallback: Boolean, reviewText: String) {
      if (showFallback && reviewText.trim().isNotEmpty()) {
-         Text(text = "¡Wait a second!", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+         Text(text = "Wait a second!", fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
     else{
-         Text(text = "¡Be Careful!", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+         Text(text = "Be Careful!", fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
 }
 
