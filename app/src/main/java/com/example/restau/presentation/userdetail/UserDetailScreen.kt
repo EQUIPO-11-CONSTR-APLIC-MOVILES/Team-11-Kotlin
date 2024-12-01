@@ -49,6 +49,7 @@ import coil.compose.AsyncImage
 import com.example.restau.domain.model.User
 import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.LoadingCircle
+import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.TopBarAction
 import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.Poppins
@@ -68,6 +69,7 @@ fun UserDetailScreen(
     val showUserUpdateDialog = userDetailViewModel.showUserUpdateDialog
     val showErrorUpdateDialog = userDetailViewModel.showErrorUpdateDialog
     val showLogOutDialog = userDetailViewModel.showLogOutDialog
+    val showNoConnectionDialog = userDetailViewModel.showNoConnectionDialog
     val selectedImageUrl = userDetailViewModel.selectedImageUrl
 
     val isConnected by userDetailViewModel.isConnected.collectAsState()
@@ -125,6 +127,10 @@ fun UserDetailScreen(
         LoadingCircle()
     }
 
+    else if (userDetailViewModel.showFallback){
+        NoConnection()
+    }
+
     else {
 
         if (showUserUpdateDialog) {
@@ -160,14 +166,20 @@ fun UserDetailScreen(
 
                             TextButton(
                                 onClick = {
-                                    val upUser = User(
-                                        documentId = user.documentId,
-                                        name = userName,
-                                        profilePic = selectedImageUrl ?: ppicture
-                                    )
-                                    userDetailViewModel.onEvent(UserDetailEvent.UpdateUserEvent(upUser))
-                                    userDetailViewModel.onEvent(UserDetailEvent.UpdateReviewAuthorEvent(user.documentId, userName, selectedImageUrl ?: ppicture))
-                                    userDetailViewModel.isUpdating = true
+                                    if (isConnected){
+
+                                        val upUser = User(
+                                            documentId = user.documentId,
+                                            name = userName,
+                                            profilePic = selectedImageUrl ?: ppicture
+                                        )
+                                        userDetailViewModel.onEvent(UserDetailEvent.UpdateUserEvent(upUser))
+                                        userDetailViewModel.onEvent(UserDetailEvent.UpdateReviewAuthorEvent(user.documentId, userName, selectedImageUrl ?: ppicture))
+                                        userDetailViewModel.isUpdating = true
+                                    } else{
+                                        userDetailViewModel.onEvent(UserDetailEvent.ShowUserUpdateDialog(false))
+                                        userDetailViewModel.onEvent(UserDetailEvent.ShowNoConnectionDialog(true))
+                                    }
                                 },
                                 modifier = Modifier
                                     .size(width = 120.dp, height = 50.dp)
@@ -315,6 +327,30 @@ fun UserDetailScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                 },
+                shape = MaterialTheme.shapes.medium
+            )
+        }
+
+        else if (showNoConnectionDialog){
+            AlertDialog(
+                onDismissRequest = { userDetailViewModel.onEvent(UserDetailEvent.ShowNoConnectionDialog(false))},
+                confirmButton = {
+                    TextButton(onClick = { userDetailViewModel.onEvent(UserDetailEvent.ShowNoConnectionDialog(false))
+                    },
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(width = 120.dp, height = 50.dp)
+                            .background(SoftRed, shape = MaterialTheme.shapes.medium)
+                    ) {
+                        Text(
+                            "OK",
+                            fontSize = 16.sp,
+                            color = Color.White
+                        )
+                    }
+                },
+                title = { Text(text = "No internet connection", fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = Poppins) },
+                text = { Text(text = "Please check your internet connection and try again", fontSize = 16.sp, fontFamily = Poppins) },
                 shape = MaterialTheme.shapes.medium
             )
         }

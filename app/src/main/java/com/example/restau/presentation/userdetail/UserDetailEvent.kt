@@ -11,6 +11,7 @@ sealed class UserDetailEvent() {
     data class ChangeUserNameEvent(val userName: String): UserDetailEvent()
     data class ShowUserUpdateDialog(val show: Boolean): UserDetailEvent()
     data class ShowUserUpdateErrorDialog(val show: Boolean): UserDetailEvent()
+    data class ShowNoConnectionDialog(val show: Boolean): UserDetailEvent()
     data class ShowLogOutDialog(val show: Boolean): UserDetailEvent()
     data object LogOutEvent: UserDetailEvent()
     data object ScreenLaunched: UserDetailEvent()

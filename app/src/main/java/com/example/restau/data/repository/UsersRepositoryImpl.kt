@@ -145,9 +145,6 @@ class UsersRepositoryImpl(
 
             val downloadUrl = storageRef.downloadUrl.await().toString()
 
-            val updatedUser = user.copy(profilePic = downloadUrl)
-            updateUserInfo(updatedUser)
-
             downloadUrl
         } catch (e: Exception) {
             Log.e("UsersRepository", "uploadProfileImage: failure", e)

@@ -62,11 +62,13 @@ class UserDetailViewModel @Inject constructor(
     var selectedImageUrl by mutableStateOf<String?>(null)
         private set
 
-    private var startTime by mutableStateOf(Date())
+    var showFallback by mutableStateOf(false)
+        private set
 
-    init {
-        getUser()
-    }
+    var showNoConnectionDialog by mutableStateOf(false)
+        private set
+
+    private var startTime by mutableStateOf(Date())
 
     private fun startTimer() {
         startTime = Date()
@@ -87,7 +89,7 @@ class UserDetailViewModel @Inject constructor(
             }
 
             UserDetailEvent.ScreenLaunched -> {
-
+                getUser()
             }
 
             is UserDetailEvent.ChangeUserNameEvent -> {
@@ -117,13 +119,23 @@ class UserDetailViewModel @Inject constructor(
             is UserDetailEvent.ShowLogOutDialog -> {
                 onShowLogOutDialogChange(event.show)
             }
+
+            is UserDetailEvent.ShowNoConnectionDialog -> {
+                onShowNoConnectionDialogChange(event.show)
+            }
         }
     }
 
     private fun getUser() {
         viewModelScope.launch(Dispatchers.IO) {
             currentUser = userUseCases.getUserObject()
-            selectedImageUrl = currentUser.profilePic
+            val emptyUser = User()
+            if (!isConnected.value && currentUser == emptyUser) {
+                showFallback = true
+            } else {
+                showFallback = false
+                selectedImageUrl = currentUser.profilePic
+            }
             isLoading = false
         }
     }
@@ -158,6 +170,10 @@ class UserDetailViewModel @Inject constructor(
 
     private fun onShowLogOutDialogChange(show: Boolean) {
         showLogOutDialog = show
+    }
+
+    private fun onShowNoConnectionDialogChange(show: Boolean) {
+        showNoConnectionDialog = show
     }
 
 
