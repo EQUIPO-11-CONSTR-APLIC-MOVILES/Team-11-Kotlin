@@ -15,4 +15,10 @@ interface AnalyticsAPI {
         @Query("userID") userID: String
     ): Response<Int>
 
+    @GET("match-percentage")
+    suspend fun getMatchPercentage(
+        @Query("userID") userID: String,
+        @Query("restaurantID") restaurantID: String
+    ): Response<Float>
+
 }

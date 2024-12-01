@@ -34,4 +34,18 @@ class MenuItemsRepositoryImpl(
         return menuItems
     }
 
+    override suspend fun getMenuItem(itemID: String): MenuItem {
+        try{
+            val snapshot = db
+                .collection("menu_items")
+                .document(itemID)
+                .get()
+                .await()
+
+            return snapshot.toObject<MenuItem>()?.copy(documentId = snapshot.id) ?: MenuItem()
+        } catch (e: Exception) {
+            Log.w(TAG, e.toString())
+            return MenuItem()
+        }
+    }
 }

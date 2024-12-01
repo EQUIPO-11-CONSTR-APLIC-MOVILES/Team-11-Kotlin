@@ -182,7 +182,7 @@ class MapViewModel @Inject constructor(
         updateUserData(restaurants)
         state = state.copy(
             restaurants = restaurants,
-            images = state.images.ifEmpty { restaurants.map { null } },
+            //images = state.images.ifEmpty { restaurants.map { null } },
             isLoading = false
         )
         currentLocation = startingLocation
@@ -191,15 +191,27 @@ class MapViewModel @Inject constructor(
 
     private fun downloadImage(restaurants: List<Restaurant>, index: Int, onGather: suspend () -> Unit) {
         Log.d("DONITEST", "test")
-        Log.d("DONITEST", "${state.images[index]}")
-        if (state.images[index] == null) {
+//        Log.d("DONITEST", "${state.images[index]}")
+//        if (state.images[index] == null) {
+//            viewModelScope.launch(Dispatchers.IO) {
+//                val bitmap = imageDownloadUseCases.downloadSingleImage(restaurants[index].imageUrl)
+//                val images = state.images.toMutableList()
+//                images[index] = bitmap
+//                state = state.copy(
+//                    images = images,
+//                )
+//                withContext(Dispatchers.Main) {
+//                    onGather()
+//                }
+//            }
+//        }
+
+        if (state.images2[index] == null) {
             viewModelScope.launch(Dispatchers.IO) {
                 val bitmap = imageDownloadUseCases.downloadSingleImage(restaurants[index].imageUrl)
-                val images = state.images.toMutableList()
-                images[index] = bitmap
-                state = state.copy(
-                    images = images,
-                )
+                if (bitmap != null) {
+                    state.images2.put(index, bitmap)
+                }
                 withContext(Dispatchers.Main) {
                     onGather()
                 }

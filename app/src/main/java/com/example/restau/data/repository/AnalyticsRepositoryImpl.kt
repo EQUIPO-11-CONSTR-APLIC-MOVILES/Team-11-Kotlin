@@ -37,4 +37,17 @@ class AnalyticsRepositoryImpl(
         }
     }
 
+    override suspend fun getMatchPercentage(userID: String, restaurantID: String): Float?{
+        try {
+            val response = analyticsAPI.getMatchPercentage(userID, restaurantID)
+            if (response.isSuccessful) {
+                return (response.body()?: 0.0f)
+            }
+            return (null)
+        } catch (e: Exception) {
+            Log.e("ANALYTICSREPOSITORY", e.message.toString())
+            return (null)
+        }
+    }
+
 }

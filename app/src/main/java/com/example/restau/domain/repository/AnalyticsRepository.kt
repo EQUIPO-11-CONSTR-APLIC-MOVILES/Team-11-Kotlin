@@ -8,4 +8,6 @@ interface AnalyticsRepository {
 
     suspend fun getPercentageCompletion(userID:String): Int
 
+    suspend fun getMatchPercentage(userID: String, restaurantID: String): Float?
+
 }
