@@ -1,12 +1,15 @@
 package com.example.restau.data.repository
 
+import android.net.Uri
 import android.util.Log
 import com.example.restau.domain.model.User
 import com.example.restau.domain.repository.UsersRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.toObject
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 class UsersRepositoryImpl(
     private val db: FirebaseFirestore
@@ -18,9 +21,9 @@ class UsersRepositoryImpl(
 
     override suspend fun getUser(email: String): User {
         var user = User()
-        if (userLoaded.documentId != "") {
-            return userLoaded
-        }
+        //if (userLoaded.documentId != "") {
+        //    return userLoaded
+        //}
         try {
             val snapshot = db
                 .collection("users")
@@ -88,4 +91,66 @@ class UsersRepositoryImpl(
             false
         }
     }
+
+    override suspend fun updateUserInfo(user: User): Boolean {
+        return try {
+            val info = mapOf(
+                "name" to user.name,
+                "profilePic" to user.profilePic
+            )
+
+            db.collection("users").document(user.documentId).set(info, SetOptions.merge()).await()
+            true
+        } catch (e: Exception) {
+            Log.e("UsersRepository", "updateUserInfo: failure", e)
+            false
+        }
+    }
+
+    override suspend fun updateReviewsAuthorInfo(
+        documentId: String,
+        authorName: String,
+        authorPFP: String
+    ): Boolean {
+        return try {
+            val reviewsSnapshot = db.collection("reviews")
+                .whereEqualTo("authorId", documentId)
+                .get()
+                .await()
+
+            for (document in reviewsSnapshot.documents) {
+                val reviewRef = db.collection("reviews").document(document.id)
+                val updatedData = mapOf(
+                    "authorName" to authorName,
+                    "authorPFP" to authorPFP
+                )
+
+                reviewRef.set(updatedData, SetOptions.merge()).await()
+            }
+
+            Log.d("UsersRepository", "Reviews updated successfully for authorId: $documentId")
+            true
+        } catch (e: Exception) {
+            Log.e("UsersRepository", "updateReviewsAuthorInfo: failure", e)
+            false
+        }
+    }
+
+    override suspend fun uploadProfileImage(user: User, uri: Uri): String? {
+        return try {
+            val storageRef = FirebaseStorage.getInstance().reference
+                .child("profilePics/${UUID.randomUUID()}.jpg")
+
+            val uploadTask = storageRef.putFile(uri).await()
+
+            val downloadUrl = storageRef.downloadUrl.await().toString()
+
+            downloadUrl
+        } catch (e: Exception) {
+            Log.e("UsersRepository", "uploadProfileImage: failure", e)
+            null
+        }
+    }
+
+
 }

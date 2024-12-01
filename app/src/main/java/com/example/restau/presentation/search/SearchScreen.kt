@@ -58,15 +58,19 @@ fun SearchScreen(
     val state = viewModel.state
     val restaurantName = viewModel.restaurantName
     val user = viewModel.currentUser
+    val isNavigatingUserDetail = viewModel.isNavigatingUserDetail
 
     val isConnected by viewModel.isConnected.collectAsState()
 
     LaunchedEffect(isConnected) {
         viewModel.onEvent(SearchEvent.ScreenLaunched)
+        viewModel.onEvent(SearchEvent.ChangeIsNavigatingUserDetail(false))
     }
 
 
     LifecycleResumeEffect(Unit) {
+        viewModel.onEvent(SearchEvent.ChangeIsNavigatingUserDetail(false))
+
         viewModel.onEvent(SearchEvent.ScreenOpened)
 
         onPauseOrDispose {
@@ -95,7 +99,15 @@ fun SearchScreen(
             DynamicTopBar(
                 label = {  },
                 hasBackButton = false,
-                action = TopBarAction.PhotoAction(user.profilePic) {}
+                action = TopBarAction.PhotoAction(
+                    imageUrl = user.profilePic,
+                    onPhoto = {
+                        if (!isNavigatingUserDetail) {
+                            viewModel.onEvent(SearchEvent.ChangeIsNavigatingUserDetail(true))
+                            navController.navigate(Route.UserDetailScreen.route)
+                        }
+                    }
+                )
             )
         }
     ) { paddingValues ->

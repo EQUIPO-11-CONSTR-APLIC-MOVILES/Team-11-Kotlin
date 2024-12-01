@@ -21,6 +21,7 @@ import com.example.restau.presentation.search.SearchScreen
 import com.example.restau.presentation.signin.SignInScreen
 import com.example.restau.presentation.signup.SignUpScreen
 import com.example.restau.presentation.reviewcreation.ReviewCreationScreen
+import com.example.restau.presentation.userdetail.UserDetailScreen
 
 @Composable
 fun NavGraph(
@@ -102,6 +103,10 @@ fun NavGraph(
              MenuItemsScreen(restaurantId = restaurantId, restaurantName = restaurantName, navController = navHostController)
          }
 
+
+         composable(route = Route.UserDetailScreen.route) {
+             UserDetailScreen(navController = navHostController, authCheck)
+         }
          composable(
              route = Route.MenuDetailScreen.route + "/{itemID}" + "/{restaurantName}",
              arguments = listOf(navArgument("itemID") { type = NavType.StringType },

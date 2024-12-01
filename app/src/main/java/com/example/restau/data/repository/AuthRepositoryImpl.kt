@@ -55,6 +55,19 @@ class AuthRepositoryImpl(
         }
     }
 
+    override suspend fun logOut(): Boolean {
+        return try {
+            firebaseAuth.signOut()
+            Log.d("AuthRepository", "Logout successful")
+            true
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Logout failed", e)
+            false
+        }
+    }
+
+
+
     override suspend fun getCurrentUser(): FirebaseUser? {
         return try {
             firebaseAuth.currentUser
