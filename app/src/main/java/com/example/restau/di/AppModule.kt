@@ -57,6 +57,7 @@ import com.example.restau.domain.usecases.imagesUseCases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.locationUseCases.GetLocation
 import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
 import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
+import com.example.restau.domain.usecases.menuItemsUseCases.GetMenuItem
 import com.example.restau.domain.usecases.menuItemsUseCases.GetRestaurantMenu
 import com.example.restau.domain.usecases.menuItemsUseCases.MenuItemsUseCases
 import com.example.restau.domain.usecases.pathUseCases.CreatePath
@@ -240,7 +241,8 @@ object AppModule {
         menuItemsRepository: MenuItemsRepository
     ): MenuItemsUseCases {
         return MenuItemsUseCases(
-            getRestaurantMenu = GetRestaurantMenu(menuItemsRepository)
+            getRestaurantMenu = GetRestaurantMenu(menuItemsRepository),
+            getMenuItem = GetMenuItem(menuItemsRepository)
         )
     }
 
