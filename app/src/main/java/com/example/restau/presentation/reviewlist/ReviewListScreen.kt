@@ -71,9 +71,11 @@ fun ReviewListScreen(
     LaunchedEffect(isConnected) {
         reviewListViewModel.onEvent(ReviewListEvent.ScreenLaunched(restaurantId ?: ""))
         reviewListViewModel.onEvent(ReviewListEvent.TempReviewRatingChange(0))
+        reviewListViewModel.onEvent(ReviewListEvent.OnChangeIsNavigatingCreateReview(false))
     }
 
     LifecycleResumeEffect(Unit) {
+        reviewListViewModel.onEvent(ReviewListEvent.OnChangeIsNavigatingCreateReview(false))
         reviewListViewModel.onEvent(ReviewListEvent.ScreenOpened)
 
         onPauseOrDispose {
@@ -262,8 +264,12 @@ private fun LeaveReview(
             )
             Spacer(modifier = Modifier.width(20.dp))
             StarPicker(onStarSelect = { selectedRating ->
-                reviewListViewModel.onEvent(ReviewListEvent.TempReviewRatingChange(selectedRating))
-                navController.navigate(Route.ReviewCreationScreen.route + "/${restaurantId}" + "/${selectedRating}" + "/${restaurantName}" + "/${randomID}")
+                if(!reviewListViewModel.isNavigatingCreateReview) {
+                    reviewListViewModel.onEvent(ReviewListEvent.OnChangeIsNavigatingCreateReview(true))
+                    reviewListViewModel.onEvent(ReviewListEvent.TempReviewRatingChange(selectedRating))
+                    navController.navigate(Route.ReviewCreationScreen.route + "/${restaurantId}" + "/${selectedRating}" + "/${restaurantName}" + "/${randomID}")
+
+                }
             },
             value = tempRating, size =30.dp)
         }
