@@ -10,34 +10,46 @@ import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
+import android.content.Context
+import com.google.gson.Gson
+
+
 
 class UsersRepositoryImpl(
-    private val db: FirebaseFirestore
+    private val db: FirebaseFirestore,
+    private val context: Context
 ): UsersRepository {
-
-    private var userLoaded = User()
 
     private val TAG = "FIRESTORE_USERS"
 
     override suspend fun getUser(email: String): User {
-        var user = User()
-        //if (userLoaded.documentId != "") {
-        //    return userLoaded
-        //}
-        try {
-            val snapshot = db
-                .collection("users")
-                .whereEqualTo("email", email)
-                .get()
-                .await()
-            for (document in snapshot.documents) {
-                document.toObject<User>()?.let {
-                    user = it.copy(documentId = document.id)
+        val sharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val userJson = sharedPreferences.getString(email, null)
+        var user: User
+
+        if (userJson != null) {
+            user = Gson().fromJson(userJson, User::class.java)
+        } else {
+            try {
+                val snapshot = db
+                    .collection("users")
+                    .whereEqualTo("email", email)
+                    .get()
+                    .await()
+                user = User()
+                for (document in snapshot.documents) {
+                    document.toObject<User>()?.let {
+                        user = it.copy(documentId = document.id)
+                    }
                 }
+
+                val editor = sharedPreferences.edit()
+                editor.putString(email, Gson().toJson(user))
+                editor.apply()
+            } catch (e: Exception) {
+                Log.w(TAG, e.toString())
+                user = User()
             }
-            userLoaded = user
-        } catch (e: Exception) {
-            Log.w(TAG, e.toString())
         }
         return user
     }
@@ -100,6 +112,12 @@ class UsersRepositoryImpl(
             )
 
             db.collection("users").document(user.documentId).set(info, SetOptions.merge()).await()
+
+            val sharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putString(user.email, Gson().toJson(user))
+            editor.apply()
+
             true
         } catch (e: Exception) {
             Log.e("UsersRepository", "updateUserInfo: failure", e)
