@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavController
 import com.example.restau.R
 import com.example.restau.domain.model.MenuItem
@@ -36,6 +37,8 @@ import com.example.restau.presentation.common.LoadingCircle
 import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.TopBarAction
 import com.example.restau.presentation.menuItems.components.MenuItemCard
+import com.example.restau.presentation.navigation.Route
+import com.example.restau.presentation.search.SearchEvent
 import com.example.restau.ui.theme.Poppins
 
 @Composable
@@ -48,8 +51,15 @@ fun MenuItemsScreen(
 
     val isConnected by menuItemsViewModel.isConnected.collectAsState()
 
+    val isNavigatingUserDetail = menuItemsViewModel.isNavigatingUserDetail
+
+    LaunchedEffect(Unit) {
+        menuItemsViewModel.onEvent(MenuItemsEvent.ChangeIsNavigatingUserDetail(false))
+    }
+
     LaunchedEffect(isConnected) {
         menuItemsViewModel.onEvent(MenuItemsEvent.OnLaunch(restaurantId))
+        menuItemsViewModel.onEvent(MenuItemsEvent.ChangeIsNavigatingUserDetail(false))
     }
 
 
@@ -61,7 +71,12 @@ fun MenuItemsScreen(
                 hasBackButton = true,
                 action = TopBarAction.PhotoAction(
                     imageUrl = menuItemsViewModel.currentUser.profilePic,
-                    onPhoto = {}
+                    onPhoto = {
+                        if (!isNavigatingUserDetail) {
+                            menuItemsViewModel.onEvent(MenuItemsEvent.ChangeIsNavigatingUserDetail(true))
+                            navController.navigate(Route.UserDetailScreen.route)
+                        }
+                    }
                 ),
                 onBack = {
                     navController.popBackStack()

@@ -29,12 +29,19 @@ class MenuItemsViewModel @Inject constructor(
     var currentUser by mutableStateOf(User())
         private set
 
+    var isNavigatingUserDetail by mutableStateOf(false)
+        private set
+
     val isConnected: StateFlow<Boolean> = application.getConnectivityAsStateFlow(viewModelScope)
 
     fun onEvent(event: MenuItemsEvent) {
         when (event) {
             is MenuItemsEvent.OnLaunch -> {
                 getData(event.restaurantId)
+            }
+
+            is MenuItemsEvent.ChangeIsNavigatingUserDetail -> {
+                onChangeisNavigatingUserDetail(event.isNavigating)
             }
         }
     }
@@ -56,6 +63,10 @@ class MenuItemsViewModel @Inject constructor(
                 showFallback = showFallback
             )
         }
+    }
+
+    private fun onChangeisNavigatingUserDetail(isNavigating: Boolean) {
+        isNavigatingUserDetail = isNavigating
     }
 
 }
