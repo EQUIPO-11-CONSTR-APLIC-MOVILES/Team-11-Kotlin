@@ -171,7 +171,8 @@ fun UserDetailScreen(
                                         val upUser = User(
                                             documentId = user.documentId,
                                             name = userName,
-                                            profilePic = selectedImageUrl ?: ppicture
+                                            profilePic = selectedImageUrl ?: ppicture,
+                                            email = user.email
                                         )
                                         userDetailViewModel.onEvent(UserDetailEvent.UpdateUserEvent(upUser))
                                         userDetailViewModel.onEvent(UserDetailEvent.UpdateReviewAuthorEvent(user.documentId, userName, selectedImageUrl ?: ppicture))

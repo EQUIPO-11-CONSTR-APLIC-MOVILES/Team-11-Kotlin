@@ -312,8 +312,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUsersRepository(db: FirebaseFirestore): UsersRepository =
-        UsersRepositoryImpl(db)
+    fun provideUsersRepository(
+        db: FirebaseFirestore,
+        @ApplicationContext context: Context
+    ): UsersRepository {
+        return UsersRepositoryImpl(db, context)
+    }
+
 
     @Provides
     @Singleton
