@@ -421,7 +421,12 @@ fun UserDetailScreen(
                         .clip(MaterialTheme.shapes.extraLarge)
                         .background(Color.LightGray)
                         .clickable {
-                            launcher.launch("image/*")
+                            if (isConnected){
+                                launcher.launch("image/*")
+                            }
+                            else{
+                                userDetailViewModel.onEvent(UserDetailEvent.ShowNoConnectionDialog(true))
+                            }
                         }
                 )
 
