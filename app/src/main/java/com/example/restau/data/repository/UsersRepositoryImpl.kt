@@ -51,20 +51,33 @@ class UsersRepositoryImpl(
                 user = User()
             }
         }
+        Log.d("DONITEST", user.toString())
         return user
     }
 
     override suspend fun submitLike(user: User) {
+        val sharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        Log.d("DONITEST", "SUBMIT LIKE")
         try {
+
+            Log.d("DONITEST", user.toString())
+            val editor = sharedPreferences.edit()
+            editor.putString(user.email, Gson().toJson(user))
+            editor.apply()
+
             val dtUser = hashMapOf(
                 "likes" to user.likes,
             )
+
             db.collection("users")
                 .document(user.documentId)
                 .set(dtUser, SetOptions.merge())
                 .await()
 
+
+
         } catch (e: Exception) {
+            Log.w("DONITEST", e.toString())
             Log.w(TAG, e.toString())
         }
     }
