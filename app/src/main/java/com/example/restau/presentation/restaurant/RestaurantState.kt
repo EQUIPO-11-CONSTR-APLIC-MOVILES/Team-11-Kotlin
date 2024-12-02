@@ -7,4 +7,5 @@ data class RestaurantState (
     val showSchedule: Boolean = false,
     val isOpen: Boolean = true,
     val match: Float? = null,
+    val distance: Double? = null
 )
