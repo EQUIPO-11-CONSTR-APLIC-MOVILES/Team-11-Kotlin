@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.restau.R
 import com.example.restau.ui.theme.Poppins
 import com.example.restau.ui.theme.RestaUTheme
 import com.example.restau.ui.theme.SoftRed
@@ -73,7 +75,8 @@ fun MenuItemCard(
                     .fillMaxHeight()
                     .width(129.dp)
                     .clip(MaterialTheme.shapes.small)
-                    .background(Color.LightGray)
+                    .background(Color.LightGray),
+                error = painterResource(id = R.drawable.restaurant)
             )
             Spacer(modifier = Modifier.width(21.dp))
             Column(
