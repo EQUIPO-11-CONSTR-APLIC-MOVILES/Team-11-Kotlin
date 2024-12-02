@@ -17,10 +17,16 @@ import com.example.restau.utils.getConnectivityAsStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 @HiltViewModel
 class RestaurantViewModel @Inject constructor(
@@ -92,9 +98,37 @@ class RestaurantViewModel @Inject constructor(
                 val match = analyticsUseCases.getMatchPercentage(currentUser.documentId, restaurantID)
                 state = state.copy(match = match)
 
+                val dist = calculateDistance(state.restaurant.latitude, state.restaurant.longitude)
+                state = state.copy(distance = dist)
+
             } catch (e: Exception) {
                 Log.e("RestaurantViewModel", "Error during onLaunch", e)
             }
+        }
+    }
+
+    private suspend fun calculateDistance(restLat: Double, restLon: Double): Double? {
+        return try {
+            val degToRad = { degrees: Double -> degrees * Math.PI / 180 }
+
+            val location = locationUseCases.getLocation.invoke().first()
+            val lat = location?.latitude ?: return null
+            val lon = location.longitude
+
+            val earthRadius = 6371.0 // Earth radius in km
+            val dLat = degToRad(restLat - lat)
+            val dLon = degToRad(restLon - lon)
+
+            val a = sin(dLat / 2).pow(2) +
+                    cos(degToRad(lat)) *
+                    cos(degToRad(restLat)) *
+                    sin(dLon / 2).pow(2)
+
+            val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+            (earthRadius * c).let { "%.2f".format(it).toDouble() }
+        } catch (e: Exception) {
+            Log.e("RestaurantViewModel", "Error during calculateDistance", e)
+            null
         }
     }
 

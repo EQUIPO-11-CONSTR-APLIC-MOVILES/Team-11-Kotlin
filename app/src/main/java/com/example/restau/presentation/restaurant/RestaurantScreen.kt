@@ -193,6 +193,25 @@ fun RestaurantContent(
                 )
             }
         }
+
+        if (state.distance != null) {
+            Text(
+                text = "${
+                    if (state.distance % 1 == 0.0) state.distance.toInt() else
+                        state.distance
+                }km - ${
+                    if (state.distance > 3) "Far" else if (state.distance > 1) "Moderate" else "Near"
+                }",
+                fontSize = 14.sp,
+                fontFamily = Poppins,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(start = 30.dp, top = 4.dp),
+                color = if (state.distance > 3) Color(0xFFB10000) else if (state.distance > 1) Color(0xFFF4792C) else Color(0xFF008615)
+            )
+        }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
