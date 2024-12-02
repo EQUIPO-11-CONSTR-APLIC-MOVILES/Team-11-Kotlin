@@ -2,7 +2,6 @@ package com.example.restau.presentation.search
 
 import android.app.Activity
 import android.speech.RecognizerIntent
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,7 +44,6 @@ import com.example.restau.presentation.common.DynamicTopBar
 import com.example.restau.presentation.common.NoConnection
 import com.example.restau.presentation.common.RestaurantCard
 import com.example.restau.presentation.common.TopBarAction
-import com.example.restau.presentation.home.HomeEvent
 import com.example.restau.presentation.navigation.Route
 import com.example.restau.ui.theme.SoftRed
 
@@ -237,17 +234,17 @@ fun RestaurantsLazyList(
     LazyColumn(
         modifier = modifier.fillMaxSize()
     ) {
-        items(restaurants) { restaurant ->
+        items(restaurants.size) { index ->
             RestaurantCard(
                 isNew = false,
-                isFavorite = true,
-                restaurantId = restaurant.documentId,
-                name = restaurant.name,
-                imageUrl = restaurant.imageUrl,
-                placeName = restaurant.placeName,
-                averageRating = restaurant.averageRating.toFloat(),
+                isFavorite = false,
+                restaurantId = restaurants[index].documentId,
+                name = restaurants[index].name,
+                imageUrl = restaurants[index].imageUrl,
+                placeName = restaurants[index].placeName,
+                averageRating = restaurants[index].averageRating.toFloat(),
                 onFavorite = {},
-                onClick = { onRestaurantClick(restaurant) },
+                onClick = { onRestaurantClick(restaurants[index]) },
                 showLikeButton = false
             )
             Spacer(modifier = modifier.height(29.dp))
