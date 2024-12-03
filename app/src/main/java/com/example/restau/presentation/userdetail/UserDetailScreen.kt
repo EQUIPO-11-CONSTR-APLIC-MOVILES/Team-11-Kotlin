@@ -168,11 +168,9 @@ fun UserDetailScreen(
                                 onClick = {
                                     if (isConnected){
 
-                                        val upUser = User(
-                                            documentId = user.documentId,
+                                        val upUser = user.copy(
                                             name = userName,
                                             profilePic = selectedImageUrl ?: ppicture,
-                                            email = user.email
                                         )
                                         userDetailViewModel.onEvent(UserDetailEvent.UpdateUserEvent(upUser))
                                         userDetailViewModel.onEvent(UserDetailEvent.UpdateReviewAuthorEvent(user.documentId, userName, selectedImageUrl ?: ppicture))
