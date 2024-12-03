@@ -83,7 +83,15 @@ class UsersRepositoryImpl(
     }
 
     override suspend fun saveTags(tags: List<String>, user: User) {
+        val sharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         try {
+
+            val updatedUser = user.copy(preferences = tags)
+
+            val editor = sharedPreferences.edit()
+            editor.putString(user.email, Gson().toJson(updatedUser))
+            editor.apply()
+
             val dtUser = hashMapOf(
                 "preferences" to tags,
             )
