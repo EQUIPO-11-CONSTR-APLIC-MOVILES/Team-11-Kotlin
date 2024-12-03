@@ -6,4 +6,6 @@ data class RestaurantState (
     val restaurant: Restaurant = Restaurant(),
     val showSchedule: Boolean = false,
     val isOpen: Boolean = true,
+    val match: Float? = null,
+    val distance: Double? = null
 )

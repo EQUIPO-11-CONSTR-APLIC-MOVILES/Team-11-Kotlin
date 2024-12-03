@@ -9,6 +9,8 @@ import com.example.restau.data.repository.FeaturesInteractionsEventsRepositoryIm
 import com.example.restau.data.repository.ImageRepositoryImpl
 import com.example.restau.data.repository.LikeDateRestaurantRepositoryImpl
 import com.example.restau.data.repository.LocationRepositoryImpl
+import com.example.restau.data.repository.MapSearchTimesRepositoryImpl
+import com.example.restau.data.repository.MenuItemsRepositoryImpl
 import com.example.restau.data.repository.NavPathsRepositoryImpl
 import com.example.restau.data.repository.RandomReviewRepositoryImpl
 import com.example.restau.data.repository.RecentsRepositoryImpl
@@ -24,6 +26,8 @@ import com.example.restau.domain.repository.FeaturesInteractionsEventsRepository
 import com.example.restau.domain.repository.ImageRepository
 import com.example.restau.domain.repository.LikeDateRestaurantRepository
 import com.example.restau.domain.repository.LocationRepository
+import com.example.restau.domain.repository.MapSearchTimesRepository
+import com.example.restau.domain.repository.MenuItemsRepository
 import com.example.restau.domain.repository.NavPathsRepository
 import com.example.restau.domain.repository.RandomReviewRepository
 import com.example.restau.domain.repository.RecentsRepository
@@ -35,12 +39,15 @@ import com.example.restau.domain.repository.TagsRepository
 import com.example.restau.domain.repository.UsersRepository
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
 import com.example.restau.domain.usecases.analyticsUseCases.GetLikeReviewWeek
+import com.example.restau.domain.usecases.analyticsUseCases.GetMatchPercentage
 import com.example.restau.domain.usecases.analyticsUseCases.GetPercentageCompletion
 import com.example.restau.domain.usecases.analyticsUseCases.SendFeatureInteractionEvent
 import com.example.restau.domain.usecases.analyticsUseCases.SendLikeDateRestaurantEvent
+import com.example.restau.domain.usecases.analyticsUseCases.SendMapSearchTimes
 import com.example.restau.domain.usecases.analyticsUseCases.SendScreenTimeEvent
 import com.example.restau.domain.usecases.analyticsUseCases.SendSearchedCategoriesEvent
 import com.example.restau.domain.usecases.authUseCases.AuthUseCases
+import com.example.restau.domain.usecases.authUseCases.ExecuteLogOut
 import com.example.restau.domain.usecases.authUseCases.ExecuteSignIn
 import com.example.restau.domain.usecases.authUseCases.ExecuteSignUp
 import com.example.restau.domain.usecases.authUseCases.GetCurrentUser
@@ -50,6 +57,9 @@ import com.example.restau.domain.usecases.imagesUseCases.ImageDownloadUseCases
 import com.example.restau.domain.usecases.locationUseCases.GetLocation
 import com.example.restau.domain.usecases.locationUseCases.LaunchMaps
 import com.example.restau.domain.usecases.locationUseCases.LocationUseCases
+import com.example.restau.domain.usecases.menuItemsUseCases.GetMenuItem
+import com.example.restau.domain.usecases.menuItemsUseCases.GetRestaurantMenu
+import com.example.restau.domain.usecases.menuItemsUseCases.MenuItemsUseCases
 import com.example.restau.domain.usecases.pathUseCases.CreatePath
 import com.example.restau.domain.usecases.pathUseCases.NavPathsUseCases
 import com.example.restau.domain.usecases.pathUseCases.UpdatePath
@@ -79,6 +89,9 @@ import com.example.restau.domain.usecases.userUseCases.GetUserObject
 import com.example.restau.domain.usecases.userUseCases.SaveTags
 import com.example.restau.domain.usecases.userUseCases.SendLike
 import com.example.restau.domain.usecases.userUseCases.SetUserInfo
+import com.example.restau.domain.usecases.userUseCases.UpdateReviewsAuthorInfo
+import com.example.restau.domain.usecases.userUseCases.UpdateUserInfo
+import com.example.restau.domain.usecases.userUseCases.UploadUserImage
 import com.example.restau.domain.usecases.userUseCases.UserUseCases
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -94,7 +107,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import javax.inject.Singleton
 
 
@@ -106,6 +118,12 @@ object AppModule {
     @Singleton
     fun provideRecentsRepository(application: Application): RecentsRepository {
         return RecentsRepositoryImpl(application)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMapSearchTimesRepository(db: FirebaseFirestore): MapSearchTimesRepository {
+        return MapSearchTimesRepositoryImpl(db)
     }
 
     @Provides
@@ -211,13 +229,33 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideMenuItemsRepository(
+        db: FirebaseFirestore
+    ): MenuItemsRepository {
+        return MenuItemsRepositoryImpl(db)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMenuItemsUseCases(
+        menuItemsRepository: MenuItemsRepository
+    ): MenuItemsUseCases {
+        return MenuItemsUseCases(
+            getRestaurantMenu = GetRestaurantMenu(menuItemsRepository),
+            getMenuItem = GetMenuItem(menuItemsRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
     fun provideSignUpUseCases(
         authRepository: AuthRepository
     ): AuthUseCases {
         return AuthUseCases(
             executeSignIn = ExecuteSignIn(authRepository),
             getCurrentUser = GetCurrentUser(authRepository),
-            executeSignUp = ExecuteSignUp(authRepository)
+            executeSignUp = ExecuteSignUp(authRepository),
+            executeLogOut = ExecuteLogOut(authRepository)
         )
     }
 
@@ -274,8 +312,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUsersRepository(db: FirebaseFirestore): UsersRepository =
-        UsersRepositoryImpl(db)
+    fun provideUsersRepository(
+        db: FirebaseFirestore,
+        @ApplicationContext context: Context
+    ): UsersRepository {
+        return UsersRepositoryImpl(db, context)
+    }
+
 
     @Provides
     @Singleton
@@ -310,14 +353,17 @@ object AppModule {
         featuresInteractionsEventsRepository: FeaturesInteractionsEventsRepository,
         searchedCategoriesRepository: SearchedCategoriesRepository,
         likeDateRestaurantRepository: LikeDateRestaurantRepository,
-        analyticsRepository: AnalyticsRepository
+        analyticsRepository: AnalyticsRepository,
+        mapSearchTimesRepository: MapSearchTimesRepository
     ) = AnalyticsUseCases(
         sendScreenTimeEvent = SendScreenTimeEvent(screenTimeEventsRepository),
         sendFeatureInteraction = SendFeatureInteractionEvent(featuresInteractionsEventsRepository),
         sendSearchedCategoriesEvent = SendSearchedCategoriesEvent(searchedCategoriesRepository),
         sendLikeDateRestaurantEvent = SendLikeDateRestaurantEvent(likeDateRestaurantRepository),
         getLikeReviewWeek = GetLikeReviewWeek(analyticsRepository),
-        getPercentageCompletion = GetPercentageCompletion(analyticsRepository)
+        getPercentageCompletion = GetPercentageCompletion(analyticsRepository),
+        sendMapSearchTimes = SendMapSearchTimes(mapSearchTimesRepository),
+        getMatchPercentage = GetMatchPercentage(analyticsRepository)
     )
 
     @Provides
@@ -333,7 +379,10 @@ object AppModule {
             ),
             sendLike = SendLike(usersRepository),
             saveTags = SaveTags(usersRepository),
-            setUserInfo = SetUserInfo(usersRepository)
+            setUserInfo = SetUserInfo(usersRepository),
+            updateUserInfo = UpdateUserInfo(usersRepository),
+            updateReviewsAuthorInfo = UpdateReviewsAuthorInfo(usersRepository),
+            uploadUserImage = UploadUserImage(usersRepository)
         )
 
     @Provides
@@ -343,7 +392,4 @@ object AppModule {
     ) = TagsUseCases(
         getTags = GetTags(tagsRepository)
     )
-
-
-
 }

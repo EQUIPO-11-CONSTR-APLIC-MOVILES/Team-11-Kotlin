@@ -49,13 +49,16 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val user = homeViewModel.currentUser
+    val isNavigatingUserDetail = homeViewModel.isNavigatingUserDetail
     val isConnected by homeViewModel.isConnected.collectAsState()
 
     LaunchedEffect(isConnected) {
         homeViewModel.onEvent(HomeEvent.ScreenLaunched)
+        homeViewModel.onEvent(HomeEvent.ChangeIsNavigatingUserDetail(false))
     }
 
     LifecycleResumeEffect(Unit) {
+        homeViewModel.onEvent(HomeEvent.ChangeIsNavigatingUserDetail(false))
         homeViewModel.onEvent(HomeEvent.ScreenOpened)
 
         onPauseOrDispose {
@@ -70,7 +73,15 @@ fun HomeScreen(
             DynamicTopBar(
                 label = {},
                 hasBackButton = false,
-                action = TopBarAction.PhotoAction(user.profilePic) {}
+                action = TopBarAction.PhotoAction(
+                    imageUrl = user.profilePic,
+                    onPhoto = {
+                        if (!isNavigatingUserDetail){
+                            homeViewModel.onEvent(HomeEvent.ChangeIsNavigatingUserDetail(true))
+                            navController.navigate(Route.UserDetailScreen.route)
+                        }
+                    }
+                )
             )
         }
     ) {

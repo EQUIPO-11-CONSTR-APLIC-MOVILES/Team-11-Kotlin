@@ -6,4 +6,5 @@ sealed class ReviewListEvent() {
     data object ScreenOpened: ReviewListEvent()
     data object ScreenClosed: ReviewListEvent()
     data class TempReviewRatingChange(val tempRating: Int): ReviewListEvent()
+    data class OnChangeIsNavigatingCreateReview(val isNavigating: Boolean): ReviewListEvent()
 }

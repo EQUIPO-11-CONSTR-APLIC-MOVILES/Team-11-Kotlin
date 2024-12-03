@@ -45,6 +45,9 @@ class HomeViewModel @Inject constructor(
     var currentUser by mutableStateOf(User())
         private set
 
+    var isNavigatingUserDetail by mutableStateOf(false)
+        private set
+
     private var startTime by mutableStateOf(Date())
 
     private fun updateUserAndData() {
@@ -102,6 +105,9 @@ class HomeViewModel @Inject constructor(
 
             is HomeEvent.FeatureInteraction -> sendFeatureInteractionEvent(event.featureName)
             is HomeEvent.LikeDateEvent -> sendLikeDateRestaurantEvent(event.restaurantId)
+            is HomeEvent.ChangeIsNavigatingUserDetail -> {
+                onChangeisNavigatingUserDetail(event.isNavigating)
+            }
         }
     }
 
@@ -178,6 +184,10 @@ class HomeViewModel @Inject constructor(
         }
 
         return forYouList
+    }
+
+    private fun onChangeisNavigatingUserDetail(isNavigating: Boolean) {
+        isNavigatingUserDetail = isNavigating
     }
 
 }

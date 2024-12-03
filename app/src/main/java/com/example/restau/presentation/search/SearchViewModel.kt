@@ -7,7 +7,6 @@ import android.speech.RecognizerIntent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.restau.domain.model.User
 import com.example.restau.domain.usecases.analyticsUseCases.AnalyticsUseCases
@@ -50,6 +49,9 @@ class SearchViewModel @Inject constructor(
         private set
 
     var showFallback by mutableStateOf(false)
+        private set
+
+    var isNavigatingUserDetail by mutableStateOf(false)
         private set
 
     private fun updateUser() {
@@ -121,6 +123,10 @@ class SearchViewModel @Inject constructor(
                 getRecentRestaurants()
                 updateUser()
             }
+
+            is SearchEvent.ChangeIsNavigatingUserDetail -> {
+                onChangeisNavigatingUserDetail(event.isNavigating)
+            }
         }
     }
 
@@ -184,6 +190,10 @@ class SearchViewModel @Inject constructor(
             putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak the restaurant name or category")
         }
         speechRecognizerLauncher.launch(intent)
+    }
+
+    private fun onChangeisNavigatingUserDetail(isNavigating: Boolean) {
+        isNavigatingUserDetail = isNavigating
     }
 
 }

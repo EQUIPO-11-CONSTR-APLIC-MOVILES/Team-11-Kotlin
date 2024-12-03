@@ -42,6 +42,9 @@ class ReviewListViewModel @Inject constructor(
 
     private var startTime by mutableStateOf(Date())
 
+    var isNavigatingCreateReview by  mutableStateOf(false)
+        private set
+
     private fun startTimer() {
         startTime = Date()
     }
@@ -70,6 +73,10 @@ class ReviewListViewModel @Inject constructor(
             is ReviewListEvent.TempReviewRatingChange -> {
                 onChangeTempRating(event.tempRating)
             }
+
+            is ReviewListEvent.OnChangeIsNavigatingCreateReview -> {
+                onChangeIsNavigatingCreateReview(event.isNavigating)
+            }
         }
     }
 
@@ -97,6 +104,10 @@ class ReviewListViewModel @Inject constructor(
 
     private fun onChangeTempRating(newrating: Int) {
         tempRating = newrating
+    }
+
+    private fun onChangeIsNavigatingCreateReview(isNavigating: Boolean) {
+        isNavigatingCreateReview = isNavigating
     }
 
 }

@@ -32,6 +32,6 @@ sealed class SearchEvent {
 
     data object ScreenLaunched: SearchEvent()
 
-
+    data class ChangeIsNavigatingUserDetail(val isNavigating: Boolean): SearchEvent()
 
 }

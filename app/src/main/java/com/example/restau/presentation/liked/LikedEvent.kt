@@ -6,5 +6,6 @@ sealed class LikedEvent {
     data object ScreenLaunched: LikedEvent()
     data object ScreenClosed: LikedEvent()
     data class SendLike(val documentId: String, val delete: Boolean): LikedEvent()
+    data class ChangeIsNavigatingUserDetail(val isNavigating: Boolean): LikedEvent()
 
 }

@@ -9,5 +9,6 @@ sealed class HomeEvent {
     data object ScreenClosed: HomeEvent()
     data class FeatureInteraction(val featureName: String) : HomeEvent()
     data class LikeDateEvent(val restaurantId: String) : HomeEvent()
+    data class ChangeIsNavigatingUserDetail(val isNavigating: Boolean) : HomeEvent()
 
 }
