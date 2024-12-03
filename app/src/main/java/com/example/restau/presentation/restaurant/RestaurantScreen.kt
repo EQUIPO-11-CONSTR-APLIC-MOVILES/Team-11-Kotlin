@@ -127,7 +127,6 @@ fun RestaurantScreen(
                         )
                         .background(Color.White),
                     navController = navController,
-                    isConnected = isConnected,
                     randomID = randomID
                 )
             } else LoadingCircle()
@@ -144,7 +143,6 @@ fun RestaurantContent(
     state: RestaurantState,
     modifier: Modifier = Modifier,
     navController: NavController,
-    isConnected: Boolean,
     randomID: String?
 ) {
     Column(
@@ -258,7 +256,7 @@ fun RestaurantContent(
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.calendar_month),
                 name = "Schedule",
-                onClick = { if (isConnected) restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
+                onClick = { restaurantVM.onEvent(RestaurantEvent.ShowSchedule) })
             ButtonOptionBar(
                 icon = painterResource(id = R.drawable.call),
                 name = "Contact",
